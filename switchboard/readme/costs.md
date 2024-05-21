@@ -2,12 +2,6 @@
 
 ### Solana
 
-* On Solana, costs are incurred when a user saves a price signature on chain to use.  If a user decides a signature update is needed, they will be required a flat fee of 12,500 lamports
+* On Solana, costs are incurred when a user saves a price signature on chain to use.  This price is set by the queue governance. to check the price of the in use queue, see:
+  * `sb solana on-demand queue print $QUEUE`
 * This amount is subject to change. Please find any future informaiton regarding price on our [discord](https://discord.com/invite/switchboardxyz)
-
-### Coming Soon
-
-* EVM
-* Sui
-* Aptos
-* Starknet
