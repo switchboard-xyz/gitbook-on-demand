@@ -31,15 +31,15 @@ To dive into the Switchboard architecture, let's review all personas in the Swit
 
 Now that the concepts are in place, lets flick the on switch for Switchboard:
 
-<figure><img src=".gitbook/assets/Screenshot 2024-03-25 at 1.33.26 PM.png" alt=""><figcaption><p>Step 1: Guardians are onboarded to the network as the root of SGX attestations</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2024-03-25 at 1.33.26 PM.png" alt=""><figcaption><p>Step 1: Guardians are onboarded to the network as the root of SGX attestations</p></figcaption></figure>
 
 The first step onboards guardians to the protocol.  Remember, the guardians are the bridge between TEE attestation and the blockchain.  Once the guardians are verified, 1/3 of all guardians must attest to SGX quotes of any oracle
 
-<figure><img src=".gitbook/assets/Screenshot 2024-03-15 at 4.37.05 PM.png" alt=""><figcaption><p>Step 2: Guardians attest oracle SGX quote and add it to the oracle queue</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2024-03-15 at 4.37.05 PM.png" alt=""><figcaption><p>Step 2: Guardians attest oracle SGX quote and add it to the oracle queue</p></figcaption></figure>
 
 Important note: Guardians, just like oracles go through this keypair verification process.  All secp256k1 keypairs are considered valid for 7 days before requiring re-verification.
 
 After guardians and oracles and guardians have completed onboarding we can then start letting users request price signatures to use on-chain.
 
-<figure><img src=".gitbook/assets/Screenshot 2024-03-16 at 7.48.38 AM.png" alt=""><figcaption><p>Step 3: User requests feed from gateway and receives a signature-set in response. User posts these on chain</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Screenshot 2024-03-16 at 7.48.38 AM.png" alt=""><figcaption><p>Step 3: User requests feed from gateway and receives a signature-set in response. User posts these on chain</p></figcaption></figure>
 
