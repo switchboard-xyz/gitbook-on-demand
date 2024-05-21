@@ -43,3 +43,4 @@
   * [Life of a Feed](switchboard/switchboard-v2/life-of-a-feed.md)
   * [Links and Technical Docs](switchboard/switchboard-v2/links-and-technical-docs.md)
 * [Defining Task Tyes](switchboard/defining-task-tyes.md)
+* [Switchboard Command Line](switchboard/switchboard-command-line.md)
