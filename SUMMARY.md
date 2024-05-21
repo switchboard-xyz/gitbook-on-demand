@@ -39,4 +39,4 @@
   * [Technical Docs](switchboard/secrets/technical-docs.md)
 * [Switchboard Push](switchboard/switchboard-push/README.md)
   * [Page 1](switchboard/switchboard-push/page-1.md)
-* [Building your feed](switchboard/building-your-feed.md)
+* [Defining Task Tyes](switchboard/defining-task-tyes.md)
