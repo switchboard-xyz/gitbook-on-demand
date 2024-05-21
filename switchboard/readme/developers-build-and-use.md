@@ -159,7 +159,7 @@ And just like that, you've got Switchboard secured data on chain!
 
 You may wonder why pre-flight commitment needs to be processed for our use case. That's due to how Switchboard proves your price data is fresssssshh
 
-<figure><img src="../.gitbook/assets/giphy.gif" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/giphy.gif" alt=""><figcaption></figcaption></figure>
 
 Off chain, switchboard selects the most recent slothash it can while reducing the risk of choosing a forked slot to prove the data the oracle provides was at least produced after that slot was created.
 

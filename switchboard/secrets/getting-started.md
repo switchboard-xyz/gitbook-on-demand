@@ -149,7 +149,7 @@ Now lets finish creating the feed below and initializing it!
   }
 ```
 
-For a more detailed description of configuring your feed visit this page - [developers-build-and-use.md](../../readme/developers-build-and-use.md "mention")
+For a more detailed description of configuring your feed visit this page - [developers-build-and-use.md](../readme/developers-build-and-use.md "mention")
 
 ## Step 4: Whitelist your Feed to your Secret
 
