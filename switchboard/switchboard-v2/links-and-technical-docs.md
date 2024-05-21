@@ -1,5 +1,6 @@
 # Links and Technical Docs
 
-{% embed url="https://crates.io/crates/switchboard-solana" %}
+## Solana
 
-{% embed url="https://www.npmjs.com/package/@switchboard-xyz/solana.js" %}
+* [https://crates.io/crates/switchboard-solana](https://crates.io/crates/switchboard-solana)
+* [https://www.npmjs.com/package/@switchboard-xyz/solana.js](https://www.npmjs.com/package/@switchboard-xyz/solana.js)
