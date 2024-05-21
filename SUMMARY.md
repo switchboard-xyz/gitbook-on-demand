@@ -47,6 +47,4 @@
 
 ***
 
-* [Page](page/README.md)
-  * [Page 1](page/page-1.md)
 * [Building your feed](building-your-feed.md)
