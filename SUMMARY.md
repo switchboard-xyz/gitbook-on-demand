@@ -37,5 +37,6 @@
 * [Switchboard Secrets](switchboard/secrets/README.md)
   * [Getting Started](switchboard/secrets/getting-started.md)
   * [Technical Docs](switchboard/secrets/technical-docs.md)
+* [Switchboard Push](switchboard/switchboard-push/README.md)
+  * [Page 1](switchboard/switchboard-push/page-1.md)
 * [Building your feed](switchboard/building-your-feed.md)
-* [Switchboard Push](switchboard/switchboard-push.md)
