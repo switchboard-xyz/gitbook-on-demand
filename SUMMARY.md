@@ -40,4 +40,6 @@
 
 ## Secrets
 
-* [Secrets](secrets/secrets.md)
+* [Switchboard Secrets](secrets/secrets.md)
+* [Getting Started](secrets/getting-started.md)
+* [Technical Docs](secrets/technical-docs.md)
