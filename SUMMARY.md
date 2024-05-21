@@ -38,3 +38,4 @@
   * [Getting Started](switchboard/secrets/getting-started.md)
   * [Technical Docs](switchboard/secrets/technical-docs.md)
 * [Building your feed](switchboard/building-your-feed.md)
+* [Switchboard Push](switchboard/switchboard-push.md)
