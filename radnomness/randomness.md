@@ -1,2 +1,3 @@
 # Randomness
 
+template
