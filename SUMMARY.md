@@ -31,3 +31,11 @@
   * [Create a payer.json file](operator-guide/deploy-your-switchboard-oracle/create-a-payer.json-file.md)
   * [Use the payer.json and get authorized](operator-guide/deploy-your-switchboard-oracle/use-the-payer.json-and-get-authorized.md)
   * [Install the Oracle via Helm](operator-guide/deploy-your-switchboard-oracle/install-the-oracle-via-helm.md)
+
+## Radnomness
+
+* [Randomness](radnomness/randomness.md)
+
+## Secrets
+
+* [Secrets](secrets/secrets.md)
