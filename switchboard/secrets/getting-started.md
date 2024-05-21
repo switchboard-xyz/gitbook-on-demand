@@ -1,10 +1,10 @@
 # Getting Started
 
-Today, we will review the implementation of Switchboard Secrets within your oracle feed! We recommend setting up a simple feed first by following the [Developers: Build and Use!](https://app.gitbook.com/s/ZUlLPjef2DsoVKi8Itkj/developers-build-and-use) page first before attempting to embed a secret in your feed!Using Switchboard-Secrets is designed for maximum speed, security, and simplicity.Switchboard offers both a Rust and TypeScript SDK for initializing your feed object as well as embedding and retrieving secrets.You may get started with the JavaScript/TypeScript SDKs via:
+Today, we will review the implementation of Switchboard Secrets within your oracle feed! We recommend setting up a simple feed first by following the [Developers: Build and Use!](https://app.gitbook.com/s/ZUlLPjef2DsoVKi8Itkj/developers-build-and-use) page first before attempting to embed a secret in your feed! Switchboard-Secrets is designed for maximum speed, security, and simplicity. Switchboard offers both a Rust and TypeScript SDK for initializing your feed object as well as embedding and retrieving secrets. You may get started with the JavaScript/TypeScript SDKs via:
 
 `npm i @switchboard-xyz/on-demand @switchboard-xyz/common`
 
-Using these SDK,s you can design your data feed to securely embed and use secrets just like your regular Switchboard on-demand data feeds.
+Using these SDK's you can design your data feed to securely embed and use secrets just like your regular Switchboard on-demand data feeds.
 
 ### Step 1: **Set Up Your Environment:** <a href="#step-1-set-up-your-environment" id="step-1-set-up-your-environment"></a>
 
