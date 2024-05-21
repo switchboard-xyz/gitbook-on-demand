@@ -2,7 +2,7 @@
 
 Welcome to the Switchboard: **Oracles on-demand** introduction page! In this document, we will review the fundamentals of Switchboard and the unique value proposition of the on-demand oracle.
 
-First, let's decide if this product offering is the right fit for you.  Switchboard on-demand is designed to be a cost optimized, lowest latency, and highest security offering Switchboard offers. Switchboard on-demand oracles exclusively propagate quantitative data, if you wish to securely formulate your own complete transactions on chain, please see [Switchboard Functions](https://docs.switchboard.xyz/functions).
+First, let's decide if this product offering is the right fit for you.  Switchboard on-demand is designed to be a cost optimized, lowest latency, and high security data solution for blockchain applications.
 
 Switchboard On-Demand is built in line to support high fidelity financial systems where users can specify how data from on chain or off chain sources is ingested and transformed.
 
