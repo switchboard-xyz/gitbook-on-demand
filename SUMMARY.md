@@ -34,7 +34,7 @@
 
 ## Radnomness
 
-* [Randomness](radnomness/randomness.md)
+* [Switchboard   Randomness](radnomness/switchboard-randomness.md)
 * [Getting Started](radnomness/getting-started.md)
 * [Technical Docs](radnomness/technical-docs.md)
 
