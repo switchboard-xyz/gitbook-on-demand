@@ -1,3 +1,0 @@
-# Technical Docs
-
-template
