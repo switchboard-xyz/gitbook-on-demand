@@ -43,3 +43,7 @@
 * [Switchboard Secrets](secrets/secrets.md)
 * [Getting Started](secrets/getting-started.md)
 * [Technical Docs](secrets/technical-docs.md)
+
+***
+
+* [Building your feed](building-your-feed.md)
