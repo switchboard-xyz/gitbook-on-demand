@@ -16,6 +16,3 @@
 
 * [https://switchboardxyz.gitbook.io/switchboard-on-demand/](https://switchboardxyz.gitbook.io/switchboard-on-demand/)
 
-## Example Repo
-
-* [https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-randomness-on-demand](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-randomness-on-demand)
