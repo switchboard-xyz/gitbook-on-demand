@@ -7,5 +7,6 @@
 
 ### Starknet
 
+* [https://github.com/switchboard-xyz/starknet-sdk](https://github.com/switchboard-xyz/starknet-sdk)
 * Examples
   * [https://github.com/switchboard-xyz/starknet-sdk/tree/main/examples/OracleExample](https://github.com/switchboard-xyz/starknet-sdk/tree/main/examples/OracleExample)
