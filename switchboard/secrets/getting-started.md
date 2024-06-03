@@ -22,6 +22,11 @@ const API_KEY = process.env.OPEN_WEATHER_API_KEY;
 const secretName = "OPEN_WEATHER_API_KEY";
 const secretNameTask = "${" + secretName + "}"
 const keypair = // ... load or generate your keypair
+const txOpts = {
+    commitment: "processed" as Commitment,
+    skipPreflight: true,
+    setTimeout: 10000,
+  };
 ```
 
 ### Step 2: **Create the User Profile and Secret** <a href="#step-2-create-the-user-profile-and-secret" id="step-2-create-the-user-profile-and-secret"></a>
@@ -139,9 +144,8 @@ Now lets finish creating the feed below and initializing it!
   let pullFeed: PullFeed;
   if (argv.feed === undefined) {
     // Generate the feed keypair
-    const [pullFeed_, feedKp] = PullFeed.generate(program);
-    const tx = await pullFeed_.initTx(program, conf);
-    const sig = await sendAndConfirmTx(connection, tx, [keypair, feedKp]);
+    const [pullFeed_, tx] = await PullFeed.initTx(program, conf);
+    const sig = await sendAndConfirmTx(connection, tx, [keypair]);
     console.log(`Feed ${feedKp.publicKey} initialized: ${sig}`);
     pullFeed = pullFeed_;
   } else {
@@ -186,12 +190,22 @@ The function `sbSecrets.createAddMrEnclaveRequest` takes in 4 parameters:
 After the feed has been initialized, we can now request temperature signatures from oracles!
 
 ```typescript
-const ix = await pullFeed.solanaFetchUpdateIx(conf);
-const tx = await InstructionUtils.asV0Tx(program, [ix]);
-tx.sign([payer]);
-const sig = await connection.sendTransaction(tx, {
-  preflightCommitment: "processed",
-});
+let priceUpdateIx = await pullFeed.fetchUpdateIx(conf);
+const [priceUpdateIx, oracleResponses, numSuccess] = priceUpdateIx!;
+
+const luts = oracleResponses.map((x) => x.oracle.loadLookupTable());
+luts.push(pullFeed.loadLookupTable());
+
+const tx = await InstructionUtils.asV0TxWithComputeIxs(
+      program,
+      [priceUpdateIx, await myProgramIx(myProgram, pullFeed.pubkey)],
+      2,
+      100_000,
+      await Promise.all(luts)
+    );
+tx.sign([keypair]);
+const sim = await connection.simulateTransaction(tx, txOpts);
+const sig = await connection.sendTransaction(tx, txOpts);
 ```
 
 And just like that, you've got Switchboard secured data on chain with embedded secrets!

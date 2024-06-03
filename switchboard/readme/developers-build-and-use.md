@@ -52,15 +52,19 @@ import { OracleJob } from "@switchboard-xyz/common";
 import * as anchor from "@coral-xyz/anchor";
 
 (async () => {
-  const [wallet, payer] = await AnchorUtils.initWalletFromFile("payer.json");
-  const PID = new PublicKey("SBondMDrcV3K4kxZR1HNVT7osZxAHVHgYXL5Ze1oMUv");
-  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-  const queue = new PublicKey("FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di");
-  const provider = new anchor.AnchorProvider(connection, wallet, {});
-  const idl = (await anchor.Program.fetchIdl(PID, provider))!;
-  const program = new anchor.Program(idl, PID, provider);
-  const feedKp = Keypair.generate();
-  
+  const { keypair, connection, provider, program } = await AnchorUtils.loadEnv();
+  let queue = new PublicKey("FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di");
+  if (argv.mainnet) {
+    queue = new PublicKey("A43DyUGA7s8eXPxqEjJY6EBu1KKbNgfxF8h17VAHn13w");
+  }
+  const queueAccount = new Queue(program, queue);
+  const path = "target/deploy/sb_on_demand_solana-keypair.json";
+  const myProgramKeypair = await AnchorUtils.initKeypairFromFile(path);
+  const myProgram = await myAnchorProgram(provider, myProgramKeypair.publicKey);
+  const txOpts = {
+    commitment: "processed" as Commitment,
+    skipPreflight: true,
+  };
   // ===
   const conf: any = {
     queue,
@@ -70,17 +74,9 @@ import * as anchor from "@coral-xyz/anchor";
     numSignatures: 1,
   };
   conf.feedHash = await Queue.fetchFeedHash(program, conf);
-  const ix = await pullFeed.initIx(conf);
-  const tx = await InstructionUtils.asV0Tx(program, [ix]);
-  // ===
-
-  tx.sign([payer, feedKp]);
-  const signature = await connection.sendTransaction(tx, {
-    // preflightCommitment is REQUIRED to be processed or disabled
-    preflightCommitment: "processed",
-  });
-  await connection.confirmTransaction(signature);
-
+  let pullFeed: PullFeed;
+  const [pullFeed_, tx] = await PullFeed.initTx(program, conf);
+  const sig = await sendAndConfirmTx(connection, tx, [keypair]);
 })();
 ```
 {% endcode %}
@@ -99,14 +95,19 @@ import {
 import * as anchor from "@coral-xyz/anchor";
 
 (async () => {
-  const [wallet, payer] = await AnchorUtils.initWalletFromFile("payer.json");
-  const PID = new PublicKey("SBondMDrcV3K4kxZR1HNVT7osZxAHVHgYXL5Ze1oMUv");
-  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-  const queue = new PublicKey("FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di");
-  const provider = new anchor.AnchorProvider(connection, wallet, {});
-  const idl = (await anchor.Program.fetchIdl(PID, provider))!;
-  const program = new anchor.Program(idl, PID, provider);
-  const feedKp = Keypair.generate();
+  const { keypair, connection, provider, program } = await AnchorUtils.loadEnv();
+  let queue = new PublicKey("FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di");
+  if (argv.mainnet) {
+    queue = new PublicKey("A43DyUGA7s8eXPxqEjJY6EBu1KKbNgfxF8h17VAHn13w");
+  }
+  const queueAccount = new Queue(program, queue);
+  const path = "target/deploy/sb_on_demand_solana-keypair.json";
+  const myProgramKeypair = await AnchorUtils.initKeypairFromFile(path);
+  const myProgram = await myAnchorProgram(provider, myProgramKeypair.publicKey);
+  const txOpts = {
+    commitment: "processed" as Commitment,
+    skipPreflight: true,
+  };
   ...
 })();
 ```
@@ -125,7 +126,9 @@ Here, we want to create a brand new data feed so we init feedKp as a generated a
     numSignatures: 1,
   };
   conf.feedHash = await Queue.fetchFeedHash(program, conf);
-  const ix = await pullFeed.initIx(conf);
+  let pullFeed: PullFeed;
+  const [pullFeed_, tx] = await PullFeed.initTx(program, conf);
+  const sig = await sendAndConfirmTx(connection, tx, [keypair]);
 ```
 
 This is where the magic happens! This method will direct the switchboard network to perform the work listed in the `jobs` field.
@@ -147,12 +150,22 @@ This is where the magic happens! This method will direct the switchboard network
 After the feed has been initialized, we can now request price signatures from oracles!
 
 ```typescript
-const ix = await pullFeed.solanaFetchUpdateIx(conf);
-const tx = await InstructionUtils.asV0Tx(program, [ix]);
-tx.sign([payer]);
-const sig = await connection.sendTransaction(tx, {
-  preflightCommitment: "processed",
-});
+let priceUpdateIx = await pullFeed.fetchUpdateIx(conf);
+const [priceUpdateIx, oracleResponses, numSuccess] = priceUpdateIx!;
+
+const luts = oracleResponses.map((x) => x.oracle.loadLookupTable());
+luts.push(pullFeed.loadLookupTable());
+
+const tx = await InstructionUtils.asV0TxWithComputeIxs(
+      program,
+      [priceUpdateIx, await myProgramIx(myProgram, pullFeed.pubkey)],
+      2,
+      100_000,
+      await Promise.all(luts)
+    );
+tx.sign([keypair]);
+const sim = await connection.simulateTransaction(tx, txOpts);
+const sig = await connection.sendTransaction(tx, txOpts);
 ```
 
 And just like that, you've got Switchboard secured data on chain!
