@@ -10,3 +10,11 @@
 * [https://github.com/switchboard-xyz/starknet-sdk](https://github.com/switchboard-xyz/starknet-sdk)
 * Examples
   * [https://github.com/switchboard-xyz/starknet-sdk/tree/main/examples/OracleExample](https://github.com/switchboard-xyz/starknet-sdk/tree/main/examples/OracleExample)
+
+## Aptos
+
+* [https://github.com/switchboard-xyz/aptos-sdk](https://github.com/switchboard-xyz/aptos-sdk)
+
+## Sui
+
+* [https://github.com/switchboard-xyz/sui-sdk](https://github.com/switchboard-xyz/sui-sdk)
