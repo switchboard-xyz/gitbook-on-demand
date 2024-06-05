@@ -1,4 +1,4 @@
-# Switchboard V2
+# Switchboard V2 (Push)
 
 Switchboard v2 is Switchboard's push model oracle.
 
