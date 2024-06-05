@@ -8,7 +8,7 @@ When an oracle is assigned to process a data feed update, the oracle executes th
 
 An Aggregator Account stores a collection of Job Account public keys along with the hashes of the job definitions. This is to prevent malicious RPC nodes from providing incorrect task definitions to oracles before fulfillment.
 
-A Job Account is a collection of [Switchboard Tasks](http://localhost:3000/feeds/tasks) that get executed by an oracle sequentially. Each Job Account typically corresponds to a single data source. A data feed requires at least one job account and at most 16 job accounts. Switchboard Job Accounts can be used to source data from:
+A Job Account is a collection of [Switchboard Tasks](https://protos.docs.switchboard.xyz/protos/Task) that get executed by an oracle sequentially. Each Job Account typically corresponds to a single data source. A data feed requires at least one job account and at most 16 job accounts. Switchboard Job Accounts can be used to source data from:
 
 * HTTP endpoints, public or private
 * Websockets

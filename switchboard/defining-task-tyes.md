@@ -1,5 +1,5 @@
-# Building your feed
+# Defining Task Tyes
 
 For all the job types to build Switchboard data feeds, see:
 
-[https://docs.switchboard.xyz/api/protos/Task](https://docs.switchboard.xyz/api/protos/Task)
+[https://protos.docs.switchboard.xyz/protos/OracleJob](https://protos.docs.switchboard.xyz/protos/OracleJob)
