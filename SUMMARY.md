@@ -40,6 +40,8 @@
 * [Switchboard on EVM](switchboard/switchboard-on-evm/README.md)
   * [Getting Started](switchboard/switchboard-on-evm/getting-started.md)
   * [Technical Docs](switchboard/switchboard-on-evm/technical-docs.md)
+* [Switchboard on Move](switchboard/switchboard-on-move.md)
+* [Switchboard on Starknet](switchboard/switchboard-on-starknet.md)
 * [Switchboard V2](switchboard/switchboard-v2/README.md)
   * [Network](switchboard/switchboard-v2/network.md)
   * [V2 Data Feeds](switchboard/switchboard-v2/v2-data-feeds.md)
