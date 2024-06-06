@@ -20,7 +20,7 @@
 * [Switchboard Secrets](switchboard/secrets/README.md)
   * [Getting Started](switchboard/secrets/getting-started.md)
   * [Technical Docs](switchboard/secrets/technical-docs.md)
-* [Switchboard on Solana and SVM](switchboard/links-and-technical-documentation/README.md)
+* [Switchboard on Solana/SVM](switchboard/links-and-technical-documentation/README.md)
   * [Starter Projects and Examples](switchboard/links-and-technical-documentation/starter-projects-and-examples.md)
 * [Switchboard on EVM](switchboard/switchboard-on-evm/README.md)
   * [Getting Started](switchboard/switchboard-on-evm/getting-started.md)
