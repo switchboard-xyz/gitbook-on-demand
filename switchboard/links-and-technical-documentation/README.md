@@ -1,4 +1,4 @@
-# Links and technical Documentation
+# Switchboard on Solana and SVM
 
 ### Solana&#x20;
 
