@@ -40,7 +40,7 @@ Open `src/lib.cairo` and write your contract.
 
 The easiest way to use Switchboard on Starknet is to use the following simple interface:
 
-```
+```rust
 // This will generate ISwitchboardPushDispatcher and ISwitchboardPushDispatcherTrait
 #[starknet::interface]
 trait ISwitchboardPush<State> {
@@ -48,7 +48,7 @@ trait ISwitchboardPush<State> {
 }
 ```
 
-```
+```rust
 #[starknet::contract]
 mod MyProject {
     #[constructor]
