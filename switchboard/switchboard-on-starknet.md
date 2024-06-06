@@ -18,13 +18,13 @@ Simply [install Cairo and scarb](https://docs.swmansion.com/scarb/download).
 
 Create a new project and `cd` into it.
 
-```
+```bash
 scarb new my_project && cd my_project
 ```
 
 The contents of `my_project` should look like this:
 
-```
+```bash
 $ ls
 
 Scarb.toml src
