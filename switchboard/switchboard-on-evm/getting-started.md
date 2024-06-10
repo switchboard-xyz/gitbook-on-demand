@@ -11,8 +11,6 @@ description: 'NOTICE: Switchboard On-Demand on EVM is currently an unaudited alp
 
 ### First Steps!
 
-To get started with Switchboard On-Demand, you will need to install the Switchboard CLI and set up a Switchboard account. You can then create a Switchboard On-Demand job and query the oracle to get the data.
-
 There's a [Solidity-SDK](https://github.com/switchboard-xyz/evm-on-demand) that you can use to interact with the oracle contract on-chain and leverage customized oracle data within your smart contracts. For querying oracle updates off-chain for on-chain submission, you can use the [Switchboard On-Demand Typescript-SDK](https://www.npmjs.com/package/@switchboard-xyz/on-demand/v/1.0.54-alpha.3).
 
 ### Prerequisites
@@ -132,7 +130,7 @@ contract Example {
 
     // Read the current value from a Switchboard feed.
     // This will fail if the feed doesn't have fresh updates ready (e.g. if the feed update failed)
-    Structs.Update latestUpdate = switchboard.getLatestValue(feedId);
+    Structs.Update memory latestUpdate = switchboard.latestUpdate(feedId);
 
     // Get the latest feed result
     // This is encoded as decimal * 10^18 to avoid floating point issues

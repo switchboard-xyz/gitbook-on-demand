@@ -16,6 +16,6 @@
 
 * [https://switchboardxyz.gitbook.io/switchboard-on-demand/](https://switchboardxyz.gitbook.io/switchboard-on-demand/)
 
-## Example Repo
+## Example Repos
 
-* [https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secrets](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secrets)
+* [https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secret](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secret)
