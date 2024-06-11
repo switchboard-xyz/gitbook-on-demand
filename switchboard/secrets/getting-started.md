@@ -144,8 +144,20 @@ Now lets finish creating the feed below and initializing it!
   let pullFeed: PullFeed;
   if (argv.feed === undefined) {
     // Generate the feed keypair
-    const [pullFeed_, tx] = await PullFeed.initTx(program, conf);
-    const sig = await sendAndConfirmTx(connection, tx, [keypair]);
+    const [pullFeed_, feedKp] = PullFeed.generate(program);
+    const tx = await InstructionUtils.asV0TxWithComputeIxs(
+      program,
+      [await pullFeed_.initIx(conf)],
+      1.2, // The compute units to cap the tx as a multiple of the simulated units consumed (e.g. 1.2x)
+      75_000 // The price per compute unit in microlamports
+    );
+    tx.sign([keypair, feedKp]);
+
+    // Simulate the transaction to get the price and send the tx
+    await connection.simulateTransaction(tx, txOpts);
+    console.log("Sending initialize transaction");
+    const sig = await connection.sendTransaction(tx, txOpts);
+    await connection.confirmTransaction(sig, "processed");
     console.log(`Feed ${feedKp.publicKey} initialized: ${sig}`);
     pullFeed = pullFeed_;
   } else {

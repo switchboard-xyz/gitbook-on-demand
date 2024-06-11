@@ -75,8 +75,22 @@ import * as anchor from "@coral-xyz/anchor";
   };
   conf.feedHash = await Queue.fetchFeedHash(program, conf);
   let pullFeed: PullFeed;
-  const [pullFeed_, tx] = await PullFeed.initTx(program, conf);
-  const sig = await sendAndConfirmTx(connection, tx, [keypair]);
+  // Generate the feed keypair
+  const [pullFeed_, feedKp] = PullFeed.generate(program);
+  const tx = await InstructionUtils.asV0TxWithComputeIxs(
+    program,
+    [await pullFeed_.initIx(conf)],
+    1.2, // The compute units to cap the tx as a multiple of the simulated units consumed (e.g. 1.2x)
+    75_000 // The price per compute unit in microlamports
+  );
+  tx.sign([keypair, feedKp]);
+
+  // Simulate the transaction to get the price and send the tx
+  await connection.simulateTransaction(tx, txOpts);
+  console.log("Sending initialize transaction");
+  const sig = await connection.sendTransaction(tx, txOpts);
+  await connection.confirmTransaction(sig, "processed");
+  console.log(`Feed ${feedKp.publicKey} initialized: ${sig}`);
 })();
 ```
 {% endcode %}
@@ -127,8 +141,22 @@ Here, we want to create a brand new data feed so we init feedKp as a generated a
   };
   conf.feedHash = await Queue.fetchFeedHash(program, conf);
   let pullFeed: PullFeed;
-  const [pullFeed_, tx] = await PullFeed.initTx(program, conf);
-  const sig = await sendAndConfirmTx(connection, tx, [keypair]);
+  // Generate the feed keypair
+  const [pullFeed_, feedKp] = PullFeed.generate(program);
+  const tx = await InstructionUtils.asV0TxWithComputeIxs(
+    program,
+    [await pullFeed_.initIx(conf)],
+    1.2, // The compute units to cap the tx as a multiple of the simulated units consumed (e.g. 1.2x)
+    75_000 // The price per compute unit in microlamports
+  );
+  tx.sign([keypair, feedKp]);
+
+  // Simulate the transaction to get the price and send the tx
+  await connection.simulateTransaction(tx, txOpts);
+  console.log("Sending initialize transaction");
+  const sig = await connection.sendTransaction(tx, txOpts);
+  await connection.confirmTransaction(sig, "processed");
+  console.log(`Feed ${feedKp.publicKey} initialized: ${sig}`);
 ```
 
 This is where the magic happens! This method will direct the switchboard network to perform the work listed in the `jobs` field.
