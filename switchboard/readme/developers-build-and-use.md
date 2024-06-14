@@ -29,7 +29,7 @@ const myIx = await demo.methods.test().accounts({ feed }).instruction();
 const conf = { numSignatures: 3 };
 const [pullIx, responses, success] = await feedAccount.fetchUpdateIx(conf);
 
-const lutOwners = [...responses.map((x) => x.oracle), feed];
+const lutOwners = [...responses.map((x) => x.oracle), feedAccount];
 <strong>const tx = await sb.asV0Tx({
 </strong>      connection,
       ixs: [pullIx, myIx],
