@@ -12,20 +12,23 @@ npm i @switchboard-xyz/on-demand
 Using this SDK, you can design your data feed just like your Switchboard-v2 data feeds:
 
 ```typescript
-function buildBinanceComJob(pair: String): OracleJob {
-  const tasks = [
-    OracleJob.Task.create({
-      httpTask: OracleJob.HttpTask.create({
-        url: `https://www.binance.com/api/v3/ticker/price?symbol=${pair}`,
-      }),
-    }),
-    OracleJob.Task.create({
-      jsonParseTask: OracleJob.JsonParseTask.create({ path: "$.price" }),
-    }),
-  ];
-  return OracleJob.create({ tasks });
+export function buildBinanceComJob(pair: string): OracleJob {
+  const jobConfig = {
+    tasks: [
+      {
+        httpTask: {
+          url: `https://www.binance.com/api/v3/ticker/price`,
+        },
+      },
+      {
+        jsonParseTask: {
+          path: `$[?(@.symbol == '${pair}')].price`,
+        },
+      },
+    ],
+  };
+  return OracleJob.fromObject(jobConfig);
 }
-
 ```
 
 Above is a simple Switchboard job definition for
