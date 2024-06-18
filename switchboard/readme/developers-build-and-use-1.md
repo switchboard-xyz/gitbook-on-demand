@@ -1,4 +1,4 @@
-# Developers: Build and Design
+# Developers: Build and Use
 
 Switchboard offers both a rust and typescript SDK for initializing your feed object as well as fetching new values.
 
@@ -16,11 +16,13 @@ export function buildBinanceComJob(pair: string): OracleJob {
   const jobConfig = {
     tasks: [
       {
+        // Fetch the binance spot prices endpoint
         httpTask: {
           url: `https://www.binance.com/api/v3/ticker/price`,
         },
       },
       {
+        // Parse out the price of the pair in question
         jsonParseTask: {
           path: `$[?(@.symbol == '${pair}')].price`,
         },
@@ -51,7 +53,9 @@ import { OracleJob, CrossbarClient, decodeString } from "@switchboard-xyz/common
 import * as anchor from "@coral-xyz/anchor";
 
 (async () => {
+  // Load the solana cli configs
   const { keypair, connection, provider, program } = await AnchorUtils.loadEnv();
+  // Choose which set of oracles will manage your feed
   let queue = new PublicKey("FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di");
   if (argv.mainnet) {
     queue = new PublicKey("A43DyUGA7s8eXPxqEjJY6EBu1KKbNgfxF8h17VAHn13w");
@@ -64,7 +68,7 @@ import * as anchor from "@coral-xyz/anchor";
     commitment: "processed" as Commitment,
     skipPreflight: true,
   };
-  // ===
+  // Create your feed config!
  const conf = {
     name: "BTC Price Feed", // the feed name (max 32 bytes)
     queue,// the queue of oracles to bind to
@@ -72,13 +76,12 @@ import * as anchor from "@coral-xyz/anchor";
     minResponses: 1,// minimum number of responses of jobs to allow
     numSignatures: 3,// number of signatures to fetch per update
   };
-  let pullFeed: PullFeed;
   const [pullFeed, feedKp] = PullFeed.generate(program);
   const jobs = [buildBinanceComJob("BTC-USD")];
+  
   // Upload jobs to IPFS and pin
-  const decodedFeedHash = await crossbarClient
-      .store(queue.toBase58(), jobs)
-      .then((resp) => decodeString(resp.feedHash)); 
+  const ipfsResponse = await crossbarClient.store(queue.toBase58(), jobs);
+  const decodedFeedHash = decodeString(ipfsResponse.feedHash);
   const [pullFeed, feedKp] = PullFeed.generate(program);
 <strong>  const tx = await sb.asV0Tx({
 </strong>      connection: program.provider.connection,
@@ -142,9 +145,10 @@ Here, we want to create a brand new data feed, so we initialise `feedKp` as a ge
   let pullFeed: PullFeed;
   const [pullFeed, feedKp] = PullFeed.generate(program);
   const jobs = [buildBinanceComJob("BTC-USD")]
-  const decodedFeedHash = await crossbarClient
-      .store(queue.toBase58(), jobs)
-      .then((resp) => decodeString(resp.feedHash)); 
+ 
+  const ipfsResponse = await crossbarClient.store(queue.toBase58(), jobs);
+  const decodedFeedHash = decodeString(ipfsResponse.feedHash);
+
   const [pullFeed, feedKp] = PullFeed.generate(program);
   const tx = await sb.asV0Tx({
       connection: program.provider.connection,

@@ -7,7 +7,7 @@
   * [Why Switchboard On-Demand?](switchboard/readme/why-switchboard-on-demand.md)
   * [Architecture Design](switchboard/readme/architecture-design.md)
   * [Developers: Quickstart!](switchboard/readme/developers-build-and-use.md)
-  * [Developers: Build and Design](switchboard/readme/developers-build-and-use-1.md)
+  * [Developers: Build and Use](switchboard/readme/developers-build-and-use-1.md)
   * [Security](switchboard/readme/security.md)
   * [Costs](switchboard/readme/costs.md)
 * [Switchboard V2 (Push)](switchboard/switchboard-v2/README.md)
