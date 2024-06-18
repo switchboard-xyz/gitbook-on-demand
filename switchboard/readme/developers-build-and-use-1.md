@@ -74,7 +74,8 @@ import * as anchor from "@coral-xyz/anchor";
   };
   let pullFeed: PullFeed;
   const [pullFeed, feedKp] = PullFeed.generate(program);
-  const jobs = [buildBinanceComJob("BTC-USD")]
+  const jobs = [buildBinanceComJob("BTC-USD")];
+  // Upload jobs to IPFS and pin
   const decodedFeedHash = await crossbarClient
       .store(queue.toBase58(), jobs)
       .then((resp) => decodeString(resp.feedHash)); 
