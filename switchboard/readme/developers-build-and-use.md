@@ -26,8 +26,7 @@ const demoPath = "target/deploy/sb_on_demand_solana-keypair.json";
 const demo = await myAnchorProgram(program.provider, demoPath);
 const myIx = await demo.methods.test().accounts({ feed }).instruction();
 
-const conf = { numSignatures: 3 };
-const [pullIx, responses, success] = await feedAccount.fetchUpdateIx(conf);
+const [pullIx, responses, success] = await feedAccount.fetchUpdateIx({ numSignatures: 3 });
 
 const lutOwners = [...responses.map((x) => x.oracle), feedAccount];
 <strong>const tx = await sb.asV0Tx({
@@ -38,10 +37,7 @@ const lutOwners = [...responses.map((x) => x.oracle), feedAccount];
       computeUnitLimitMultiple: 1.3,
       lookupTables: await sb.loadLookupTables(lutOwners),
     });
-
-const sim = await connection.simulateTransaction(tx, { "processed" });
-const sig = await connection.sendTransaction(tx);
-```
+const sig = await connection.sendTransaction(tx, { commitment: "processed" });
 </code></pre>
 
 Now how easy is that!
