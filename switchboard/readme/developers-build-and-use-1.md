@@ -175,6 +175,8 @@ This is w[here th](#user-content-fn-1)[^1]e magic happens! This method will dire
 * **Num Signatures**: The number of oracles that will collect signatures to update the on-chain price.
 * **crossbarClient**: A Restful API that interacts with Switchboard. Here we are submitted the job for storage in IPFS and returning the hash of the job feed. Your IPFS hash can also be retrieved in the response.
 
+### Using On-Demand Feeds
+
 After the feed has been initialized, we can now request price signatures from oracles!
 
 ```typescript
