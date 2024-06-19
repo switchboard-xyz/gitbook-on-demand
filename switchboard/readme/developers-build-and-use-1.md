@@ -185,7 +185,7 @@ After the feed has been initialized, we can now request price signatures from or
 const [pullIx, responses, success] = await pullFeed.fetchUpdateIx(conf);
 if (!success) throw new Error(`Errors: ${responses.map((x) => x.error)}`);
 
-const lutOwners = [...responses.map((x) => x.oracle), pullFeed.pubkey];
+const lutOwners = [...responses.map((x) => x.oracle), pullFeed];
 const tx = await sb.asV0Tx({
       connection,
       ixs: [pullIx, await myProgramIx(myProgram, pullFeed.pubkey)],
