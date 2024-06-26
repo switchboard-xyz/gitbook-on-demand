@@ -1,8 +1,7 @@
 ---
 description: >-
   A tutorial on the Switchboard utility server for simulation and resolving
-  feeds. This is highly recommended for frontend user interfaces and bots that
-  will simulate prices with high frequency.
+  feeds.
 ---
 
 # Running Crossbar
@@ -12,6 +11,8 @@ description: >-
 ### [https://hub.docker.com/r/switchboardlabs/crossbar](https://hub.docker.com/r/switchboardlabs/crossbar)
 
 **Crossbar** is a useful utility service for interacting with the Switchboard network. It comes loaded with utility functions for resolving feeds on all chains with active Switchboard deployments, IPFS utilities for storing and fetching jobs, and a simulator for constantly fetching feed updates for liquidators and other bots.
+
+### Running an instance of this service is highly recommended for user interfaces and bots that will simulate prices with high frequency.
 
 The goal with Crossbar is to make Switchboard as easy to use as possible.
 
