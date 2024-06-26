@@ -1,7 +1,8 @@
 ---
 description: >-
   A tutorial on the Switchboard utility server for simulation and resolving
-  feeds.
+  feeds. This is highly recommended for frontend user interfaces and bots that
+  will simulate prices with high frequency.
 ---
 
 # Running Crossbar
