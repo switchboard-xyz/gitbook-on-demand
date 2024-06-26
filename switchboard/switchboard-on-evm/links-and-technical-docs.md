@@ -1,4 +1,4 @@
-# Technical Docs
+# Links and Technical Docs
 
 ## Rust SDK
 
@@ -8,6 +8,8 @@
 
 ## Typescript SDK
 
+* [https://www.npmjs.com/package/@switchboard-xyz/on-demand-solidity](https://www.npmjs.com/package/@switchboard-xyz/on-demand-solidity)
+* [https://www.npmjs.com/package/@switchboard-xyz/evm-sdk](https://www.npmjs.com/package/@switchboard-xyz/evm-sdk)
 * [https://www.npmjs.com/package/@switchboard-xyz/on-demand](https://www.npmjs.com/package/@switchboard-xyz/on-demand)
 * Docs
   * [https://switchboard-docs.web.app/](https://switchboard-docs.web.app/)

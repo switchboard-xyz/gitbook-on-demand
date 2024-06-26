@@ -1,19 +1,14 @@
 # Switchboard on Solana/SVM
 
-### Solana On-Demand
+Switchboard On-Demand Feeds are engineered for optimal performance, security, and ease of use. This quick-start guide will illustrate the process of utilizing an existing Switchboard On-Demand Feed.
 
-* Rust SDK: [https://crates.io/crates/switchboard-on-demand](https://crates.io/crates/switchboard-on-demand)
-* Typescript SDK: [https://www.npmjs.com/package/@switchboard-xyz/on-demand](https://www.npmjs.com/package/@switchboard-xyz/on-demand)
-* Typedoc: [https://switchboard-docs.web.app/](https://switchboard-docs.web.app/)
-* ProgramID: `SBondMDrcV3K4kxZR1HNVT7osZxAHVHgYXL5Ze1oMUv`
-* Default Devnet Queue: `FfD96yeXs4cxZshoPPSKhSPgVQxLAJUT3gefgh84m1Di`
-* Default Mainnet Queue: `A43DyUGA7s8eXPxqEjJY6EBu1KKbNgfxF8h17VAHn13w`
+If you're not sure how to build a feed definition, or this is your first time using Switchboard, please see the section on [Switchboard Feeds](../switchboard-feeds/) for a deep-dive on Oracle Jobs.&#x20;
 
-### Solana Push
+If you want to build feeds quickly in a friendly User-Interface, please try out our [On-Demand Builder](https://ondemand.switchboard.xyz/solana/mainnet/build).&#x20;
 
-* Typescript SDK: [https://github.com/switchboard-xyz/solana-sdk/tree/main/javascript/solana.js](https://github.com/switchboard-xyz/solana-sdk/tree/main/javascript/solana.js)
-* Rust SDK: [https://crates.io/crates/switchboard-solana](https://crates.io/crates/switchboard-solana)
-* ProgramID: `SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f`
-* Default Mainnet Queue: `5JYwqvKkqp35w8Nq3ba4z1WYUeJQ1rB36V8XvaGp6zn1`
-* Default Devnet Queue: `uPeRMdfPmrPqgRWSrjAnAkH78RqAhe5kXoW6vBYRqFX`
+For a quick guide on updating feeds and reading from them, see [Developers: Quickstart!](developers-build-and-use.md).
+
+For a comprehensive guide on creating new feeds using TypeScript, refer to: [Quickstart: Build and Use](broken-reference).
+
+For a detailed walkthrough on the design and deployment process with Switchboard, begin with [Designing a Feed](designing-a-feed-svm.md).
 

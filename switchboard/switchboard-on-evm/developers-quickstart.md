@@ -2,12 +2,14 @@
 description: 'NOTICE: Switchboard On-Demand on EVM is currently an unaudited alpha.'
 ---
 
-# Getting Started
+# Developers: Quickstart!
 
 ### Current Deployments
 
-* Morph Holesky: [0x81C4C9c9B81F8B02155e3F20c274132B125B07FB](https://explorer-holesky.morphl2.io/address/0x81C4C9c9B81F8B02155e3F20c274132B125B07FB)
-* Arbitrum Sepolia: [0xdAAa076CbA0FF614d584605A74cD702334a28088](https://sepolia.arbiscan.io/address/0xdAAa076CbA0FF614d584605A74cD702334a28088)
+Explore the Switchboard contract [here](https://louper.dev/diamond/0x33A5066f65f66161bEb3f827A3e40fce7d7A2e6C?network=coreDao), and find its contract addresses at:
+
+* Core Mainnet: [0x33A5066f65f66161bEb3f827A3e40fce7d7A2e6C](https://scan.coredao.org/address/0x33A5066f65f66161bEb3f827A3e40fce7d7A2e6C)
+* Core Testnet: [0x2f833D73bA1086F3E5CDE9e9a695783984636A76](https://scan.test.btcs.network/address/0x2f833D73bA1086F3E5CDE9e9a695783984636A76)
 
 ### First Steps!
 
@@ -21,19 +23,23 @@ To use Switchboard On-Demand, you will need to have a basic understanding of Eth
 
 You can install the Switchboard On-Demand Solidity SDK by running:
 
-```
-npm install @switchboard-xyz/on-demand-solidity@0.0.1
+```bash
+npm install @switchboard-xyz/on-demand-solidity
 ```
 
 And you can install the cross-chain Typescript SDK by running:
 
-```
-npm install @switchboard-xyz/on-demand@1.0.54-alpha.3
+```bash
+npm install @switchboard-xyz/on-demand
 ```
 
 **Forge (Optional)**
 
-If you're using Forge, add following to your remappings.txt file: @switchboard-xyz/on-demand-solidity/=node\_modules/@switchboard-xyz/on-demand-solidity
+If you're using Forge, add following to your remappings.txt file:&#x20;
+
+```
+@switchboard-xyz/on-demand-solidity/=node_modules/@switchboard-xyz/on-demand-solidity
+```
 
 ### Usage
 
@@ -44,34 +50,55 @@ To design a Switchboard On-Demand feed, you can use the [On-Demand Builder](http
 Here's an example of creating a feed for querying ETH/USDC on Binance:
 
 ```typescript
-import {
-  createJob,
-  simulateJob,
-  getDevnetQueue,
-} from "@switchboard-xyz/on-demand";
+import { OracleJob } from "@switchboard-xyz/on-demand";
 
-// ...
+const jobs: OracleJob[] = [
+  new OracleJob({
+    tasks: [
+      {
+        httpTask: {
+          url: "https://binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+        }
+      },
+      {
+        jsonParseTask: {
+          path: "$.price"
+        }
+      }
+    ],
+  }),
+];
 
-const job = createJob({
-  tasks: [
-    {
-      httpTask: "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDC",
-    },
-    {
-      jsonParseTask: "$.price",
-    },
-  ],
+console.log("Running simulation...\n");
+
+// Print the jobs that are being run.
+const jobJson = JSON.stringify({ jobs: jobs.map((job) => job.toJSON()) });
+console.log(jobJson);
+console.log();
+
+// Serialize the jobs to base64 strings.
+const serializedJobs = jobs.map((oracleJob) => {
+  const encoded = OracleJob.encodeDelimited(oracleJob).finish();
+  const base64 = Buffer.from(encoded).toString("base64");
+  return base64;
 });
 
-// Get the latest update data for the feed
-const result = await simulateFeed({
-  // Within feeds you can have multiple jobs, the final result will be the median of all jobs
-  jobs: [job],
-  // Here we'll use devnet because we're going to be using a non-prod network
-  queue: await getDevnetQueue(),
+// Call the simulation server.
+const response = await fetch("https://api.switchboard.xyz/api/simulate", {
+  method: "POST",
+  headers: [["Content-Type", "application/json"]],
+  body: JSON.stringify({ cluster: "Mainnet", jobs: serializedJobs }),
 });
 
-console.log(result); // Job's output price, feedId (derived from Job Definition, and Switchboard Queue ID)
+// Check response.
+if (response.ok) {
+  const data = await response.json();
+  console.log(`Response is good (${response.status})`);
+  console.log(JSON.stringify(data, null, 2));
+} else {
+  console.log(`Response is bad (${response.status})`);
+  console.log(await response.text());
+}
 ```
 
 #### Solidity
@@ -151,46 +178,42 @@ contract Example {
 This contract:
 
 1. Sets the Switchboard contract address and feed ID in the constructor
-2. Defines a function `getFeedData` that:
-   * Checks if the transaction fee is paid, using `switchboard.getFee(bytes[] calldata updates)`
-   * Submits the updates to the Switchboard contract using `switchboard.updateFeeds(bytes[] calldata updates)`
-   * Reads the latest value from the feed using `switchboard.getLatestValue(bytes32 feedId)`
-   * Emits the latest result from the feed
+2. Defines a function `getFeedData`
+3. Checks if the transaction fee is paid, using `switchboard.getFee(bytes[] calldata updates)`.
+4. Submits the updates to the Switchboard contract using `switchboard.updateFeeds(bytes[] calldata updates)`.
+5. Reads the latest value from the feed using `switchboard.getLatestValue(bytes32 feedId)`.
+6. Emits the latest result from the feed.
 
 #### Getting the Encoded Updates
 
 To get the encoded updates for the feed, you can use the Switchboard Typescript SDK. Here's an example of how to get the encoded updates:
 
 ```typescript
-import {
-  createJob,
-  getDevnetQueue,
-  fetchUpdateData,
-} from "@switchboard-xyz/on-demand";
+import { EVM } from "@switchboard-xyz/on-demand";
 
 // Create a Switchboard On-Demand job
-const job = createJob({
-  tasks: [
-    {
-      httpTask: "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT",
-    },
-    {
-      jsonParseTask: "$.price",
-    },
-  ],
-});
+const chainId = 1115; // Core Devnet (as an example)
 
 // Get the latest update data for the feed
-const update = await getFeedUpdateData({
-  // Within feeds you can have multiple jobs, the final result will be the median of all jobs
-  jobs: [job],
-  // The Switchboard Queue to use
-  queue: await getDevnetQueue(),
+// feedId: `bytes32` string of the feed ID, ex: 0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10
+// encoded: `bytes` string of the encoded update for the feed which can be used in your contract
+const { feedId, encoded } = await EVM.fetchResult({
+  feedId: "0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10",
+  chainId,
 });
 
-// `bytes32` string of the feed ID, ex: 0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10
-const feedId = update.feedId;
+// Target contract address
+const exampleAddress = "0xc65f0acf9df6b4312d3f3ce42a778767b3e66b8a";
 
-// `bytes` string of the encoded update for the feed which can be used in your contract
-const update = update.encoded;
+// The ERC-20 Contract ABI, which is a common contract interface
+// for tokens (this is the Human-Readable ABI format)
+const abi = ["function getFeedData(bytes[] calldata updates) public payable"];
+
+// ... Setup ethers provider ...
+
+// The Contract object
+const exampleContract = new ethers.Contract(exampleAddress, abi, provider);
+
+// Update feeds
+await exampleContract.getFeedData(encoded);
 ```

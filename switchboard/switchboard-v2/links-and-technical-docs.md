@@ -1,20 +1,9 @@
 # Links and Technical Docs
 
-## Solana
+### Solana Push
 
-* [https://crates.io/crates/switchboard-solana](https://crates.io/crates/switchboard-solana)
-* [https://www.npmjs.com/package/@switchboard-xyz/solana.js](https://www.npmjs.com/package/@switchboard-xyz/solana.js)
-
-## Starknet
-
-* [https://github.com/switchboard-xyz/starknet-sdk](https://github.com/switchboard-xyz/starknet-sdk)
-* Examples
-  * [https://github.com/switchboard-xyz/starknet-sdk/tree/main/examples/OracleExample](https://github.com/switchboard-xyz/starknet-sdk/tree/main/examples/OracleExample)
-
-## Aptos
-
-* [https://github.com/switchboard-xyz/aptos-sdk](https://github.com/switchboard-xyz/aptos-sdk)
-
-## Sui
-
-* [https://github.com/switchboard-xyz/sui-sdk](https://github.com/switchboard-xyz/sui-sdk)
+* Typescript SDK: [https://github.com/switchboard-xyz/solana-sdk/tree/main/javascript/solana.js](https://github.com/switchboard-xyz/solana-sdk/tree/main/javascript/solana.js)
+* Rust SDK: [https://crates.io/crates/switchboard-solana](https://crates.io/crates/switchboard-solana)
+* ProgramID: `SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f`
+* Default Mainnet Queue: `5JYwqvKkqp35w8Nq3ba4z1WYUeJQ1rB36V8XvaGp6zn1`
+* Default Devnet Queue: `uPeRMdfPmrPqgRWSrjAnAkH78RqAhe5kXoW6vBYRqFX`
