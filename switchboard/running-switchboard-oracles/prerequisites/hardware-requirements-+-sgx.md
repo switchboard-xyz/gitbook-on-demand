@@ -1,11 +1,15 @@
-# Hardware requirements + SGX
+---
+description: What is SGX and why do Switchboard Oracles need it?
+---
 
-Switchboard Oracle code uses a security feature called [TEE (Trusted Execution Environment)](https://en.wikipedia.org/wiki/Trusted\_execution\_environment) to ensure that the code is safe and secure.
+# Hardware Requirements and SGX
 
-To do so a server that supports [Intel SGX](https://en.wikipedia.org/wiki/Software\_Guard\_Extensions) is needed.
+Switchboard Oracles code uses a security feature called [TEE (Trusted Execution Environment)](https://en.wikipedia.org/wiki/Trusted\_execution\_environment) to ensure that the code and data in transit is safe and secure even from the Oracle Operators themselves.
 
-In order for SGX to be enabled, you'll have to set it to `enabled` via your server BIOS (or request support to do so for you by opening a ticket in some cases).
+To achieve this solution, a server that supports TEE via [Intel SGX](https://en.wikipedia.org/wiki/Software\_Guard\_Extensions) is needed.
 
-Also ensure to **disable hyperthreading** as it is potentially a security issue with a good number of Intel CPUs when used with SGX enabled.&#x20;
+In order for SGX to be enabled, you'll have to get a CPU and motherboard that supports it (we suggest getting the latest Xeon that supports it) and set it `enabled` or `software controlled` via your server BIOS (or request your provider support to do so for you, most likely by opening a ticket).
 
-We identified a set of trusted providers that we know works well with SGX and our own code, you can find a list in the next section.
+While not mandatory, if possible ensure to **disable hyperthreading** as it is a potential security issue on a number of Intel CPUs when used with SGX enabled.&#x20;
+
+We identified a set of trusted providers that we know works well with SGX and our own code, you can find a list later in the manual.

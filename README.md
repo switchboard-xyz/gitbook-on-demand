@@ -1,16 +1,18 @@
-# Switchboard On-Demand
+# Switchboard On-Demand (Pull)
 
-Welcome to the Switchboard: **Oracles on-demand** introduction page! In this document, we will review the fundamentals of Switchboard and the unique value proposition of the on-demand oracle.
+Welcome to the **Switchboard Oracles On-Demand** introduction page!
 
-First, let's decide if this product offering is the right fit for you.  Switchboard on-demand is designed to be a cost optimized, lowest latency, and high security data solution for blockchain applications.
+In this document, we will review the fundamentals of Switchboard and the unique value proposition of the on-demand oracle.
 
-Switchboard On-Demand is built in line to support high fidelity financial systems where users can specify how data from on chain or off chain sources is ingested and transformed.
+First, let's decide if this product offering is the right fit for you. **Switchboard On-Demand** is designed to be a cost optimized, lowest latency and high security data solution for blockchain applications.
 
-While many pull-based blockchain oracles manage data consensus via their own L1 and then propagate to users, this causes:
+**Switchboard On-Demand** is built to support high fidelity financial systems where users can specify how data is ingested and transformed from on chain or off chain sources.
+
+Many _pull-based blockchain oracles_ manage data consensus via their own L1 and then propagate to users, this approach causes:
 
 * Increased data staleness before reaching the user
-* Oracle operators advantage over the user before the communicated price is actionable.
+* Oracle operators advantage over the user before the communicated price is actionable
 
-Switchboard Oracles are run inside confidential runtimes, preventing the oracle from observe the data they are collecting or operations they perform. Hence, the end user has the first look advantage via data propagation.
+**Switchboard Oracles On-Demand** are run inside confidential runtimes, preventing the Oracle from observing the data they are collecting or operations they perform. Hence, end users in this innovative scenario always have the first look advantage via data propagation.
 
-For your application, if you are in need of highly customizable, highly secure, low latency oracles, Switchboard-On-Demand is the product you are looking for.
+For your application, if you are in need of highly customizable, highly secure, low latency Oracle, **Switchboard Oracles On-Demand** is the solution you are looking for.

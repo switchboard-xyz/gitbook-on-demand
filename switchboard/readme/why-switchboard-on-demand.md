@@ -2,7 +2,7 @@
 
 > "I already have an oracle, why would I use this?!" - some panzi dev somewhere
 
-Switchboard On-Demand is a new first-of-its-kind oracle paradigm for aggregating secure information on chain.
+Switchboard On-Demand is a new first-of-its-kind Oracle paradigm for aggregating secure information on chain.
 
 Since April 2021, Switchboard has secured [billions](https://defillama.com/oracles/Switchboard) of dollars of on-chain volume offering high security/ low latency guarantees for it's pricing data.
 
