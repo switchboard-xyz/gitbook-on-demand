@@ -121,7 +121,7 @@ Off-chain, Switchboard selects the most recent `slothash` to minimize the risk o
 To fetch the latest price update instruction for your feed, while pulling the jobs from crossbar:
 
 ```typescript
-pullFeed.fetchUpdateIx({ numSignatures: 1, crossbarClient: crossbar });
+pullFeed.fetchUpdateIx({ crossbarClient: crossbar });
 ```
 
 Next, submit the `pullIx` to the network, securing Switchboard data on
