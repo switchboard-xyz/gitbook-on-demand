@@ -57,7 +57,7 @@ This is the assembled tasks to form a Binance BTC/USDT task.&#x20;
 
 <pre class="language-typescript"><code class="lang-typescript">{
 <strong>    httpTask: {
-</strong>        url: "https://www.okx.com/api/v5/market/index-tickers?instId=BTC-USDT",
+</strong>        url: "https://www.okx.com/api/v5/market/index-tickers?quoteCcy=USD",
 <strong>    },
 </strong>},
 {
