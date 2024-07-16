@@ -106,7 +106,7 @@ const sig = await connection.sendTransaction(tx, {
   preflightCommitment: "processed",
   skipPreflight: false,
 });
-const simPrice = +sim.value.logs.join().match(/price: "(\d+(\.\d+)?)/)[1];
+const simPrice = sim.value.logs.join().match(/price: (.*)/)[1];
 console.log(`Price update: ${simPrice}\n\tTransaction sent: ${sig}`);
 ```
 
