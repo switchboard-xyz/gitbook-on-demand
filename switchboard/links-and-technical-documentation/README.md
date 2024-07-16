@@ -8,7 +8,7 @@ If you want to build feeds quickly in a friendly User-Interface, please try out 
 
 For a quick guide on updating feeds and reading from them, see [Developers: Quickstart!](developers-build-and-use.md).
 
-For a comprehensive guide on creating new feeds using TypeScript, refer to: [Quickstart: Build and Use](broken-reference).
+For a comprehensive guide on creating new feeds using TypeScript, refer to: [Creating a Solana Feed](creating-a-solana-feed.md).
 
 For a detailed walkthrough on the design and deployment process with Switchboard, begin with [Designing a Feed](designing-a-feed-svm.md).
 
