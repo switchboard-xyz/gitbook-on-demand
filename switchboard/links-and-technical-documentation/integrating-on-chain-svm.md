@@ -146,6 +146,7 @@ To conveniently read the feed value using all samples within a staleness range, 
 #### Lookup Tables
 
 ```typescript
+// Update: This is now passed as the 4th return value of fetchUpdateIx
 const lookupTables = await loadLookupTables([...responses.map((x) => x.oracle), pullFeed]);
 ```
 
