@@ -332,8 +332,7 @@ const { feedId, encoded } = await EVM.fetchResult({
 // Target contract address
 const exampleAddress = "0xc65f0acf9df6b4312d3f3ce42a778767b3e66b8a";
 
-// The ERC-20 Contract ABI, which is a common contract interface
-// for tokens (this is the Human-Readable ABI format)
+// (this is the readable ABI format)
 const abi = ["function getFeedData(bytes[] calldata updates) public payable"];
 
 // ... Setup ethers provider ...
