@@ -166,7 +166,7 @@ While this step is optional, we recommend running it as will send statistics abo
 
 Next is another optional step:
 
-```
+```bash
 # only choose the one that applies to your setup - optional step
 ./71-infisical-operator.sh # uses devnet by default
 ./71-infisical-operator.sh devnet  # equivalent to above
@@ -178,7 +178,7 @@ This step is optional and needs to be completed by the data present in your `cfg
 
 Another optional step:
 
-```
+```bash
 # only choose the one that applies to your setup - optional step
 ./80-test-cert-setup.sh # uses devnet by default
 ./80-test-cert-setup.sh devnet  # equivalent to above
@@ -195,7 +195,7 @@ When done, please `81-test-cert-cleanup.sh` to clean up the artificats that the 
 
 If everything went well, it's now just a matter of running:
 
-```
+```bash
 # only choose the one that applies to your setup
 ./99-k8s-oracle-install.sh # uses devnet by default
 ./99-k8s-oracle-install.sh devnet  # equivalent to above
