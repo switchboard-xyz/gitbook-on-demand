@@ -14,7 +14,7 @@ Configuring the environment is optional, but it's highly recommended that users 
 
 #### .env
 
-```
+```bash
 # .env file
 # delete any environment variables that you're not using
 
@@ -42,7 +42,7 @@ ARBITRUM_ONE_RPC="your-arbitrum-one-rpc"
 
 Official images are published at [https://hub.docker.com/r/switchboardlabs/crossbar](https://hub.docker.com/r/switchboardlabs/crossbar):
 
-```
+```bash
 $ docker pull switchboardlabs/crossbar:latest
 $ docker run --rm -it --env-file=.env -p 8080:8080 switchboardlabs/crossbar:latest
 ```
