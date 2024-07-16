@@ -85,17 +85,15 @@ import {
 
 // ... simulation logic ... 
 
-const [pullIx, responses, success] = await pullFeed.fetchUpdateIx({ numSignatures: 1, crossbarClient: crossbar });
-if (!success) throw new Error(`Errors: ${responses.map((x) => x.error)}`);
+const [pullIx, responses, _, luts] = await pullFeed.fetchUpdateIx({ crossbarClient: crossbar });
 
-const lookupTables = await loadLookupTables([...responses.map((x) => x.oracle), pullFeed]);
 const tx = await asV0Tx({
       connection,
       ixs: [pullIx], // after the pullIx you can add whatever transactions you'd like
       signers: [payer],
       computeUnitPrice: 200_000,
       computeUnitLimitMultiple: 1.3,
-      lookupTables,
+      lookupTables: luts,
 });
 
 // simulate and send 
