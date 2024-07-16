@@ -95,7 +95,7 @@ Pulling the latest price of BTC in USDT terms from OKX. Just another common Http
 // Also BTC/USD, but from Kraken
 {
   httpTask: {
-    url: "https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD",
+    url: "https://api.kraken.com/0/public/Ticker",
   },
 },
 {
