@@ -13,25 +13,25 @@ Next to Oracle and Decentralized Exchange tasks, the most popular way to fetch d
 ```typescript
 {
     httpTask: {
-        url: "https://www.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+        url: "https://www.binance.com/api/v3/ticker/price"
     }
 }
 ```
 
-This [Binance BTC/USDT](https://www.binance.com/en/trade/BTC\_USDT) api call will result in a json response of the following structure:
+This [Binance ](https://www.binance.com/en/trade/BTC\_USDT)api call will result in a json response of the following structurefor all tokens:
 
 ```typescript
-{"symbol":"BTCUSDT","price":"64628.31000000"}
+{"symbol":"BTCUSDT","price":"64628.31000000"} ...
 ```
 
 In order to pull out the `price` field from the response, we must follow the HttpTask along with a `JsonParseTask`. These tasks utilize [JsonPaths](https://goessner.net/articles/JsonPath/) in order to specify which data to put into the current context. In this case, since we just ran an HttpTask and received this JSON, we have that JSON set as the current\_value.&#x20;
 
-Now, the user can use a JsonParseTask to specify the path of the decimal they want to extract, in this case the field `price`.&#x20;
+Now, the user can use a JsonParseTask to specify the path of the decimal they want to extract, in this case the field `BTC-USDT price`.&#x20;
 
 ```typescript
 {
     jsonParseTask: {
-        path: "$.price"
+        path: "$[?(@.symbol == 'BTCUSDT')].price"
     }
 }
 ```
@@ -41,12 +41,12 @@ Now, the user can use a JsonParseTask to specify the path of the decimal they wa
 ```typescript
 {
     httpTask: {
-        url: "https://www.binance.com/api/v3/ticker/price?symbol=BTCUSDT"
+        url: "https://www.binance.com/api/v3/ticker/price"
     }
 },
 {
     jsonParseTask: {
-        path: "$.price"
+        path: "$[?(@.symbol == 'BTCUSDT')].price"
     }
 }
 ```
@@ -154,7 +154,7 @@ medianTask: {
 // Huobi BTC/USDT
 {
   httpTask: {
-    url: "https://api.huobi.pro/market/detail/merged?symbol=btcusdt",
+    url: "https://api.huobi.pro/market/tickers",
   },
 },
 {
@@ -162,12 +162,12 @@ medianTask: {
     tasks: [
       {
         jsonParseTask: {
-          path: "$.tick.bid[0]",
+          path: "$[?(@.symbol == 'btcusdt')].bid",
         },
       },
       {
         jsonParseTask: {
-          path: "$.tick.ask[0]",
+          path: "$[?(@.symbol == 'btcusdt')].ask",
         },
       },
     ],
