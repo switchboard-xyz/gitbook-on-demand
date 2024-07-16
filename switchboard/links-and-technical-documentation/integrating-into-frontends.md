@@ -162,7 +162,7 @@ const myIx = await demo.methods.test().accounts({ feed }).instruction();
 
 ```typescript
 // Get the update instruction for switchboard and lookup tables to make the instruction lighter
-const [pullIx, responses, success] = await feedAccount.fetchUpdateIx({ numSignatures: 1, crossbarClient: crossbar });
+const [pullIx, responses, success] = await feedAccount.fetchUpdateIx({ crossbarClient: crossbar });
 ```
 
 4. Get the instruction for updating the desired feed account. This will only work if the feed has been stored and is available on IPFS with Crossbar (as we need to fetch the job definitions to resolve them).&#x20;
@@ -227,8 +227,6 @@ import {
 import { fetchMyAnchorProgram, crossbar } from "../"
 
 // ...
-
-// <component>
    
 // Load the Switchboard Anchor Program
 const wallet = useAnchorWallet();
@@ -255,7 +253,7 @@ const updateFeedAndCallProgram = async () => {
   const myIx = await demo.methods.test().accounts({ feed }).instruction();
 
   // Get the update instruction for switchboard and lookup tables to make the instruction lighter
-  const [pullIx, responses, success] = await feedAccount.fetchUpdateIx({ numSignatures: 1, crossbarClient: crossbar });
+  const [pullIx, responses, success] = await feedAccount.fetchUpdateIx({ crossbarClient: crossbar });
   const lookupTables = await loadLookupTables([...responses.map((x) => x.oracle), feedAccount]);
 
   // Set priority fee for that the tx
@@ -293,8 +291,6 @@ const updateFeedAndCallProgram = async () => {
     lastValidBlockHeight,
   });
 }
-
-// </component>
 
 // ...
 ```
