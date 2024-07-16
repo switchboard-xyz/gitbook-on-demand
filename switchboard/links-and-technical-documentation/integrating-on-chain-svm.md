@@ -60,12 +60,7 @@ pub mod sb_on_demand_solana {
         // }
         
         // Docs at: https://switchboard-on-demand-rust-docs.web.app/on_demand/accounts/pull_feed/struct.PullFeedAccountData.html
-        let feed = PullFeedAccountData::parse(feed_account)
-        .map_err(|e| {
-            msg!("Parse Error: {:?}", e);
-            ProgramError::Custom(1)}
-        )?;
-        
+        let feed = PullFeedAccountData::parse(feed_account).unwrap();
         // Log the value
         msg!("price: {:?}", feed.value());
         Ok(())
