@@ -75,12 +75,12 @@ const jobs: OracleJob[] = [
     tasks: [
       {
         httpTask: {
-          url: "https://binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+          url: "https://binance.com/api/v3/ticker/price",
         }
       },
       {
         jsonParseTask: {
-          path: "$.price"
+          path: "$[?(@.symbol == 'BTCUSDT')].price"
         }
       }
     ],
