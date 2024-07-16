@@ -66,19 +66,8 @@ pub mod sb_on_demand_solana {
             ProgramError::Custom(1)}
         )?;
         
-        // Get the value, 
-        let price = feed.get_value(
-            &Clock::get()?,
-            30,  // max_staleness: maximum seconds staleness allowed for updates to remain valid in samples
-            1,   // min_samples: the minimum oracle results required to produce a valid price
-            true // only_positive
-        ).map_err(|e| {
-            msg!("Get Value Error: {:?}", e);
-            ProgramError::Custom(2)
-        })?;
-        
         // Log the value
-        msg!("price: {:?}", fmt(&price.mantissa().to_string()));
+        msg!("price: {:?}", feed.value());
         Ok(())
     }
 }
