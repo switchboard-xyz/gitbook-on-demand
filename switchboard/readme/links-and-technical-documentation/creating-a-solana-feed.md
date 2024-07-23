@@ -241,7 +241,7 @@ const ix = await pullFeed.initIx({
   minResponses: 1, // minimum number of responses of jobs to allow
   feedHash: Buffer.from(feedHash.slice(2), "hex"), // the feed hash
   minSampleSize: 1; // The minimum number of samples required for setting feed value
-  maxStaleness: 60; // The maximum number of slots that can pass before a feed value is considered stale.
+  maxStaleness: 300; // The maximum number of slots that can pass before a feed value is considered stale.
   payer: payer.publicKey, // the payer of the feed
 });
 
