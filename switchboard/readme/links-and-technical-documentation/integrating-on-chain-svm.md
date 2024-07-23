@@ -33,17 +33,6 @@ pub struct Test<'info> {
     pub feed: AccountInfo<'info>,
 }
 
-// Simple Print Utility 
-fn fmt(s: &str) -> String {
-    if s.len() < 18 {
-        return s.to_string();
-    }
-    let split_index = s.len() - 18;
-    let (first_part, last_part) = s.split_at(split_index);
-    format!("{}.{}", first_part, last_part)
-}
-
-
 #[program]
 pub mod sb_on_demand_solana {
     use super::*;
