@@ -85,7 +85,6 @@ const demo = await myAnchorProgram(program.provider, demoPath);
 
 // Get the update instruction for switchboard and lookup tables to make the instruction lighter
 const [pullIx, responses, success, luts] = await feedAccount.fetchUpdateIx();
-const lookupTables = await sb.loadLookupTables([...responses.map((x) => x.oracle), feedAccount]);
 
 // Instruction to example program using the switchboard feed
 const myIx = await demo.methods.test().accounts({ feed }).instruction();
@@ -97,7 +96,7 @@ const tx = await sb.asV0Tx({
   signers: [keypair],
   computeUnitPrice: 200_000,
   computeUnitLimitMultiple: 1.3,
-  lookupTables,
+  lookupTables: luts,
 });
 
 // simulate the transaction
