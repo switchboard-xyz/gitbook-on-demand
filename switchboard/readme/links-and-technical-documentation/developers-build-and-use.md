@@ -84,7 +84,7 @@ const demoPath = "target/deploy/sb_on_demand_solana-keypair.json";
 const demo = await myAnchorProgram(program.provider, demoPath);
 
 // Get the update instruction for switchboard and lookup tables to make the instruction lighter
-const [pullIx, responses, success] = await feedAccount.fetchUpdateIx({ numSignatures: 3 });
+const [pullIx, responses, success, luts] = await feedAccount.fetchUpdateIx();
 const lookupTables = await sb.loadLookupTables([...responses.map((x) => x.oracle), feedAccount]);
 
 // Instruction to example program using the switchboard feed
