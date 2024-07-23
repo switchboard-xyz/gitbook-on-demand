@@ -60,7 +60,7 @@ Oracle Jobs are composed of tasks. Tasks are like instructions to fetch data or 
 
 ## Variable Expansion
 
-Using the [Switchboard Secrets](../secrets/), and the [CacheTask](variables-with-cachetask.md), users can assign variables in a job and use them within the same job in a downstream task.&#x20;
+Using the [Switchboard Secrets](../../secrets/), and the [CacheTask](variables-with-cachetask.md), users can assign variables in a job and use them within the same job in a downstream task.&#x20;
 
 So in a downstream task, you can invoke the variable with the syntax: `${VARIABLE_NAME}.`
 

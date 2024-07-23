@@ -15,7 +15,7 @@ Start with[ Designing a feed](designing-a-feed-svm.md) for a more in-depth walkt
 \
 Browse our awesome [Explorer ](https://ondemand.switchboard.xyz/)for a feed you like and save the feeds public key! \
 \
-You can also create a feed in our [On-Demand Builder](https://ondemand.switchboard.xyz/solana/mainnet/build), which is a tool for building and deploying feeds directly from the a user interface. You can use it to pull data from almost anywhere. See the [Designing a Feed](../switchboard-on-evm/designing-a-feed-evm.md) section for more on configuring oracle jobs.
+You can also create a feed in our [On-Demand Builder](https://ondemand.switchboard.xyz/solana/mainnet/build), which is a tool for building and deploying feeds directly from the a user interface. You can use it to pull data from almost anywhere. See the [Designing a Feed](../on-evm-networks/designing-a-feed-evm.md) section for more on configuring oracle jobs.
 
 ## Step 2: Using Switchboard On-Chain
 

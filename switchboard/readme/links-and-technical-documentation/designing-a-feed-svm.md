@@ -1,42 +1,30 @@
 ---
-description: Tutorial on designing a Feed with Switchboard
+description: Tutorial on designing a feed with Switchboard
 ---
 
-# Designing a Feed (EVM)
+# Designing a Feed (SVM)
 
-Designing a Switchboard Feed requires knowledge of the Oracle Job format, which sources data will come from, and some knowledge of the risks associated with different sources. For a simple guide on fetching data from various sources, and specifying what/how to get data, check out the docs on [Switchboard Feeds](../switchboard-feeds/).&#x20;
+Designing a Switchboard Feed requires knowledge of the Oracle Job format, which sources data will come from, and some knowledge of the risks associated with different sources. For a simple guide on fetching data from various sources, and specifying what/how to get data, check out the docs on [Switchboard Feeds](../designing-feeds/).&#x20;
 
-The easiest way to build a Pull Feed is using the Switchboard [On-Demand Builder](https://ondemand.switchboard.xyz/solana/mainnet/build). If you don't find inspiration for your desired feed definition within the docs, you can search for existing feeds in the [On-Demand Explorer](https://ondemand.switchboard.xyz/solana/mainnet), and even the [Switchboard-V2 Push Explorer](https://app.switchboard.xyz/solana/mainnet).&#x20;
+The easiest way to build a Solana Pull Feed is using the Switchboard [On-Demand Builder](https://ondemand.switchboard.xyz/solana/mainnet/build). If you don't find inspiration for your desired feed definition within these docs, you can explore existing feeds in the [On-Demand Explorer](https://ondemand.switchboard.xyz/solana/mainnet), and even the [Switchboard-V2 Push Explorer](https://app.switchboard.xyz/solana/mainnet).
 
 ## Making a Pull Feed with the Builder
 
-The On-Demand Builder provides an intuitive interface for designing and simulating Switchboard feed definitions. Using it on EVM networks is straightforward: select the appropriate network, drag in the relevant jobs, and configure the feed options. \
-\
-Let's step through building a simple feed on an EVM network:
+1. Navigate to [https://ondemand.switchboard.xyz/solana/mainnet/build](https://ondemand.switchboard.xyz/solana/mainnet/build).&#x20;
 
-1. Navigate to [https://ondemand.switchboard.xyz](https://ondemand.switchboard.xyz) and select the "Builder" option.
+<figure><img src="../../../.gitbook/assets/Screenshot 2024-06-21 at 5.53.00 PM 1.png" alt=""><figcaption><p>Opening the Builder</p></figcaption></figure>
 
-<figure><img src="../../.gitbook/assets/image (1).png" alt=""><figcaption><p>Opening the Builder</p></figcaption></figure>
+2. You should see the following, click one of the tabs on the left-side pane to reveal different tasks available to you.&#x20;
 
-2. Pick the correct network. More networks coming soon!
-
-<figure><img src="../../.gitbook/assets/image (3).png" alt=""><figcaption><p>Picking a Network</p></figcaption></figure>
-
-3. Since feeds are composed of Oracle Jobs, you'll need to add one (or many) jobs to this build. Click "+ Build New Job" to open up the builder menu.&#x20;
-
-<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption><p>Opening the Drag-n-Drop Builder</p></figcaption></figure>
-
-4. You should see the following, click one of the tabs on the left-side pane to reveal different tasks available to you.&#x20;
-
-<figure><img src="../../.gitbook/assets/image (4).png" alt=""><figcaption><p>Showing some Task Types</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (11).png" alt=""><figcaption><p>Drag-n-drop Builder</p></figcaption></figure>
 
 3. Drag the tasks you want for the desired source and configure then as you wish. The following example will use an `HttpTask` and a `JsonParseTask`.&#x20;
 
-<figure><img src="../../.gitbook/assets/image (5).png" alt=""><figcaption><p>Example BTC/USDT Feed</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (12).png" alt=""><figcaption><p>Example Job</p></figcaption></figure>
 
-3. When you're happy with the job definition, click simulate. This will dry-run the jobs against an instance of the [Switchboard Task-Runner](../switchboard-feeds/how-feeds-are-resolved.md). In this example, the simulator yields $60K at the time of running, with version "RC\_06..." of the task-runner.&#x20;
+4. When you're happy with the job definition, click simulate. This will dry-run the jobs against an instance of the [Switchboard Task-Runner](../designing-feeds/how-feeds-are-resolved.md). In this example, the simulator yields $64K at the time of running, with version "RC\_06..." of the task-runner.&#x20;
 
-<figure><img src="../../.gitbook/assets/image (6).png" alt=""><figcaption><p>Simulating</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (13).png" alt=""><figcaption><p>Task Runner Simulation</p></figcaption></figure>
 
 If you're happy with the job configuration, add it to the current Feed with 'Add'. Remember, the feed output will be the median of all jobs supplied. You can move onto Creating a Feed for more info around configuration.&#x20;
 
@@ -87,12 +75,12 @@ const jobs: OracleJob[] = [
     tasks: [
       {
         httpTask: {
-          url: "https://binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+          url: "https://binance.com/api/v3/ticker/price",
         }
       },
       {
         jsonParseTask: {
-          path: "$.price"
+          path: "$[?(@.symbol == 'BTCUSDT')].price"
         }
       }
     ],
@@ -180,5 +168,5 @@ Response is good (200)
 
 #### Resources
 
-Explore boilerplate feed definitions and learn about how the task runner works in the [Switchboard Feeds Documentation](../switchboard-feeds/). You can modify the job and add new ones until you're satisfied with the definition you've created. Then it's onto the next section. &#x20;
+Explore boilerplate feed definitions and learn about how the task runner works in the [Switchboard Feeds Documentation](../designing-feeds/). You can modify the job and add new ones until you're satisfied with the definition you've created. Then it's onto the next section. &#x20;
 

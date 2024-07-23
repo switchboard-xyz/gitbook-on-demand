@@ -1,4 +1,4 @@
-# Links and Technical Docs
+# Switchboard on Solana
 
 ### Solana Push
 

@@ -20,7 +20,7 @@ You can install the Switchboard On-Demand [Solidity SDK](https://github.com/swit
 
 #### Forge (Optional)
 
-If you're using Forge, add following to your remappings.txt file: @switchboard-xyz/on-demand-solidity/=node\_modules/@switchboard-xyz/on-demand-solidity
+If you're using Forge, add following to your **remappings.txt** file:&#x20;
 
 **remappings.txt**
 
@@ -41,12 +41,7 @@ struct Update {
 
 interface ISwitchboard {
     function latestUpdate(
-        bytes32 feedId
-    ) external view returns (Update memory);
-    function latestUpdate(
-        bytes32 feedId,
-        uint256 toleratedTimestampDelta,
-        uint256 minResponses
+        bytes32 aggregatorId
     ) external view returns (Update memory);
     function updateFeeds(bytes[] calldata updates) external payable;
     function getFee(bytes[] calldata updates) external view returns (uint256);
@@ -68,7 +63,7 @@ import {Structs} from "@switchboard-xyz/on-demand-solidity/Structs.sol";
     \
     `ISwitchboard`: The interface for the entire Switchboard Contract
 
-    `Structs`:  A contract with all the structs used within Switchboard
+    `Structs`:  A contract with all the structs used within Switchboard&#x20;
 
 #### Adding the Contract
 
@@ -77,26 +72,26 @@ contract Example {
   ISwitchboard switchboard;
 
   // Every Switchboard Feed has a unique feed ID derived from the OracleJob definition and Switchboard Queue ID.
-  bytes32 feedId;
+  bytes32 aggregatorId;
 
   /**
    * @param _switchboard The address of the Switchboard contract
-   * @param _feedId The feed ID for the feed you want to query
+   * @param _aggregatorId The aggregator ID for the feed you want to query
    */
-  constructor(address _switchboard, bytes32 _feedId) {
+  constructor(address _switchboard, bytes32 _aggregatorId) {
     // Initialize the target _switchboard
     // Get the existing Switchboard contract address on your preferred network from the Switchboard Docs
     switchboard = ISwitchboard(_switchboard);
-    feedId = _feedId;
+    aggregatorId = _aggregatorId;
   }
-
+  
 }
 ```
 
-2. Here we're creating a contract and keeping a reference to both the Switchboard diamond address, `switchboard`, and `feedId`.&#x20;
+2. Here we're creating a contract and keeping a reference to both the Switchboard diamond address, `switchboard`, and `aggregatorId`.&#x20;
 
 * `switchboard` is the reference to the diamond contract, it can be found in [Links and Technical Docs](links-and-technical-docs.md)
-* `feedId` that we're interested in reading. The `feedId` on EVM chains will be equivalent to the feedHash on Solana. It's a Sha256 hash of the feed definition and queue. If you don't have a feedId yet, create a feed by following: [Designing a Feed (EVM)](designing-a-feed-evm.md) and [Creating Feeds](creating-a-feed.md).
+* `aggregatorId` that we're interested in reading. If you don't have an aggregatorId yet, create a feed by following: [Designing a Feed (EVM)](designing-a-feed-evm.md) and [Creating Feeds](creating-a-feed-evm.md).
 
 #### Adding the function boilerplate
 
@@ -112,7 +107,7 @@ contract Example {
   }
 ```
 
-3. Here we're adding the function to get feed data. The idea is that we'll pass in an encoded Switchboard update (or set of updates) that will be used to update the `feedId` of our choice. We can then read our recently-written update safely.&#x20;
+3. Here we're adding the function to get feed data. The idea is that we'll pass in an encoded Switchboard update (or set of updates) that will be used to update the `aggregatorId` of our choice. We can then read our recently-written update safely.&#x20;
 
 #### Adding a fee
 
@@ -160,10 +155,10 @@ contract Example {
 ```solidity
     // Read the current value from a Switchboard feed.
     // This will fail if the feed doesn't have fresh updates ready (e.g. if the feed update failed)
-    Structs.Update memory latestUpdate = switchboard.latestUpdate(feedId);
+    Structs.Update memory latestUpdate = switchboard.latestUpdate(aggregatorId);
 ```
 
-6. This line pulls the latest update for the specified feedId (or aggregatorId).  This will fill in the fields `uint64 maxStaleness`, `uint32 minSamples`.&#x20;
+6. This line pulls the latest update for the specified  aggregatorId.  This will fill in the fields `uint64 maxStaleness`, `uint32 minSamples`.&#x20;
 
 #### Checking the Data&#x20;
 
@@ -205,7 +200,8 @@ contract Example {
 
 #### Example.sol
 
-<pre class="language-solidity"><code class="lang-solidity">pragma solidity ^0.8.0;
+```solidity
+pragma solidity ^0.8.0;
 
 import {ISwitchboard} from "@switchboard-xyz/on-demand-solidity/ISwitchboard.sol";
 import {Structs} from "@switchboard-xyz/on-demand-solidity/Structs.sol";
@@ -213,9 +209,12 @@ import {Structs} from "@switchboard-xyz/on-demand-solidity/Structs.sol";
 contract Example {
   ISwitchboard switchboard;
 
-  // Every Switchboard Feed has a unique feed ID derived from the OracleJob definition and Switchboard Queue ID.
-  bytes32 feedId;
-
+  // Every Switchboard feed has a unique aggregator id 
+  bytes32 aggregatorId;
+  
+  // Store the latest value
+  int128 public result;
+  
   // If the transaction fee is not paid, the update will fail.
   error InsufficientFee(uint256 expected, uint256 received);
 
@@ -227,17 +226,17 @@ contract Example {
 
   /**
    * @param _switchboard The address of the Switchboard contract
-   * @param _feedId The feed ID for the feed you want to query
+   * @param _aggregatorId The feed ID for the feed you want to query
    */
-  constructor(address _switchboard, bytes32 _feedId) {
+  constructor(address _switchboard, bytes32 _aggregatorId) {
     // Initialize the target _switchboard
     // Get the existing Switchboard contract address on your preferred network from the Switchboard Docs
     switchboard = ISwitchboard(_switchboard);
-    feedId = _feedId;
+    aggregatorId = _aggregatorId;
   }
 
-<strong>  /**
-</strong>   * getFeedData is a function that uses an encoded Switchboard update
+  /**
+   * getFeedData is a function that uses an encoded Switchboard update
    * If the update is successful, it will read the latest price from the feed
    * See below for fetching encoded updates (e.g., using the Switchboard Typescript SDK)
    * @param updates Encoded feed updates to update the contract with the latest result
@@ -246,25 +245,25 @@ contract Example {
 
 
     // Get the fee for updating the feeds. If the transaction fee is not paid, the update will fail.
-    uint256 fee = switchboard.getFee(updates);
-    if (msg.value &#x3C; fee) {
+    uint256 fees = switchboard.getFee(updates);
+    if (msg.value < fee) {
       revert InsufficientFee(fee, msg.value);
     }
 
     // Submit the updates to the Switchboard contract
-    switchboard.updateFeeds{ value: fee }(updates);
+    switchboard.updateFeeds{ value: fees }(updates);
 
     // Read the current value from a Switchboard feed.
     // This will fail if the feed doesn't have fresh updates ready (e.g. if the feed update failed)
-    Structs.Update memory latestUpdate = switchboard.latestUpdate(feedId);
+    Structs.Update memory latestUpdate = switchboard.latestUpdate(aggregatorId);
 
     // Get the latest feed result
     // This is encoded as decimal * 10^18 to avoid floating point issues
     // Some feeds require negative numbers, so results are int128's, but this example uses positive numbers
-    int128 result = latestUpdate.result;
+    result = latestUpdate.result;
 
     // In this example, we revert if the result is negative
-    if (result &#x3C; 0) {
+    if (result < 0) {
       revert InvalidResult(result);
     }
 
@@ -272,7 +271,7 @@ contract Example {
     emit FeedData(latestUpdate.result);
   }
 }
-</code></pre>
+```
 
 #### Review
 
@@ -282,7 +281,7 @@ This contract:
 2. Defines a function `getFeedData`
 3. Checks if the transaction fee is paid, using `switchboard.getFee(bytes[] calldata updates)`.
 4. Submits the updates to the Switchboard contract using `switchboard.updateFeeds(bytes[] calldata updates)`.
-5. Reads the latest value from the feed using `switchboard.getLatestValue(bytes32 feedId)`.
+5. Reads the latest value from the feed using `switchboard.getLatestValue(bytes32 aggregatorId)`.
 6. Emits the latest result from the feed.
 
 
@@ -306,7 +305,9 @@ bun add ethers
 #### index.ts
 
 ```typescript
-import { EVM } from "@switchboard-xyz/on-demand";
+import {
+  CrossbarClient,
+} from "@switchboard-xyz/on-demand";
 import * as ethers from "ethers";
 ```
 
@@ -315,22 +316,24 @@ import * as ethers from "ethers";
 #### Setting up the call
 
 ```typescript
+// for initial testing and development, you can use the rate-limited 
+// https://crossbar.switchboard.xyz instance of crossbar
+const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+
 // Get the latest update data for the feed
-// feedId: `bytes32` string of the feed ID, ex: 0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10
-// encoded: `bytes` string of the encoded update for the feed which can be used in your contract
-const { feedId, encoded } = await EVM.fetchResult({
-  feedId: "0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10",
-  chainId: 1115, // 1115 here is the chainId for CORE Testnet
+const { encoded } = await crossbar.fetchEVMResults({
+  aggregatorIds: ["0x0eae481a0c635fdfa18ccdccc0f62dfc34b6ef2951f239d4de4acfab0bcdca71"],
+  chainId: 1115, // 1115 here is the chainId for Core Testnet
 });
 ```
 
-2. Here we're getting the results for the `feedId` from Switchboard using the default crossbar deployment.&#x20;
+2. Here we're getting the results for the `aggregatorId` from Switchboard using the default crossbar deployment.&#x20;
 
 #### Creating contract bindings
 
 ```typescript
 // Target contract address
-const exampleAddress = "0xc65f0acf9df6b4312d3f3ce42a778767b3e66b8a";
+const exampleAddress = process.env.CONTRACT_ADDRESS as string;
 
 // (this is the readable ABI format)
 const abi = ["function getFeedData(bytes[] calldata updates) public payable"];
@@ -341,16 +344,8 @@ const abi = ["function getFeedData(bytes[] calldata updates) public payable"];
 const exampleContract = new ethers.Contract(exampleAddress, abi, provider);
 ```
 
-3. Add the example contract binding with the `getFeedData` call in the ABI.&#x20;
-
-#### Adding the call
-
-```typescript
-// Update feeds
-await exampleContract.getFeedData(encoded);
-```
-
-4. Pass the encoded updates `bytes[] calldata` into the getFeedData call. This will send the transaction over the wire.&#x20;
+3. Pass the encoded updates `bytes[] calldata` into the getFeedData call. This will send the transaction over the wire.&#x20;
+4. In order to submit transactions on the target chain, you need to plug in the right RPC and private key. The `signerWithProvider` will be what we pass into the contract.&#x20;
 
 #### Getting the provider
 
@@ -368,15 +363,21 @@ const provider = new ethers.JsonRpcProvider(
 const signerWithProvider = new ethers.Wallet(pk, provider);
 ```
 
-5. In order to submit transactions on the target chain, you need to plug in the right RPC and private key. The `signerWithProvider` will be what we pass into the contract.&#x20;
+5. Add the example contract binding with the `getFeedData` call in the ABI.&#x20;
+
+#### Adding the call
+
+```typescript
+// Update feeds
+await exampleContract.getFeedData(encoded);
+```
 
 #### Putting it together
 
 Here we're connecting all of these components. We're compiling all of calls into a system where we can pull the encoded updates, and calling the contract.&#x20;
 
-<pre class="language-typescript"><code class="lang-typescript">import { EVM } from "@switchboard-xyz/on-demand";
-import {
-  // ...
+<pre class="language-typescript"><code class="lang-typescript">import {
+  CrossbarClient,
 } from "@switchboard-xyz/on-demand";
 import * as ethers from "ethers";
 
@@ -385,12 +386,14 @@ import * as ethers from "ethers";
 // Create a Switchboard On-Demand job
 <strong>const chainId = 1115; // Core Devnet (as an example)
 </strong>
+// for initial testing and development, you can use the rate-limited 
+// https://crossbar.switchboard.xyz instance of crossbar
+const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+
 // Get the latest update data for the feed
-// feedId: `bytes32` string of the feed ID, ex: 0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10
-// encoded: `bytes` string of the encoded update for the feed which can be used in your contract
-const { feedId, encoded } = await EVM.fetchResult({
-  feedId: "0x0f762b759dca5b4421fba1cf6fba452cdf76fb9cc6d8183722a78358a8339d10",
-  chainId,
+const { encoded } = await crossbar.fetchEVMResults({
+  aggregatorIds: ["0x0eae481a0c635fdfa18ccdccc0f62dfc34b6ef2951f239d4de4acfab0bcdca71"],
+  chainId, // 1115 here is the chainId for Core Testnet
 });
 
 // Target contract address

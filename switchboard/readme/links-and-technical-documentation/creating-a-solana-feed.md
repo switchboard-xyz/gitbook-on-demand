@@ -21,7 +21,7 @@ The required fields are:
 
 Setting these configs in the builder is as simple as filling in the inputs and clicking "Create Account" to make the feed:
 
-<figure><img src="../../.gitbook/assets/image (8).png" alt=""><figcaption><p>Configuring a feed via UI</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (8).png" alt=""><figcaption><p>Configuring a feed via UI</p></figcaption></figure>
 
 ### Switchboard Feed Page
 
@@ -29,7 +29,7 @@ Once you create the feed, you'll be taken to a page where you can see the curren
 
 Since this is an On-Demand feed, updates will be read in only when they're needed (alternatively with a pusher service).&#x20;
 
-<figure><img src="../../.gitbook/assets/image (16).png" alt=""><figcaption><p>Pull Feed Page</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (16).png" alt=""><figcaption><p>Pull Feed Page</p></figcaption></figure>
 
 Another important component is Switchboard's instance of Crossbar, a convenience server for using on-demand updates.&#x20;
 

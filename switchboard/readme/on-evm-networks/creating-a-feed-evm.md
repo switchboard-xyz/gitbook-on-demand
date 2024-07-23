@@ -2,7 +2,7 @@
 description: Configuring EVM feeds
 ---
 
-# Creating a Feed
+# Creating a Feed (EVM)
 
 ## Feed Configuration
 
@@ -21,7 +21,7 @@ The required fields are:
 
 Setting these configs in the builder is as simple as filling in the inputs and clicking "Create Account" to make the feed:
 
-<figure><img src="../../.gitbook/assets/image (7).png" alt=""><figcaption><p>Builder Configs</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (7).png" alt=""><figcaption><p>Builder Configs</p></figcaption></figure>
 
 ### Switchboard Feed Page
 
@@ -29,7 +29,15 @@ Once you create the feed, you'll be taken to a page where you can see the curren
 
 Since this is an on-demand feed, updates will be read in only when they're needed (alternatively with a pusher service).&#x20;
 
-<figure><img src="../../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure>
 
-Another important component is Switchboard's instance of Crossbar, a convenience server for using on-demand updates.&#x20;
+### Getting Aggregator ID&#x20;
+
+Once you've created the feed on-chain, you can save the value from the **Address** field under **FEED DATA**. The address is equivalent to your **Aggregator ID** (aggregatorId). This is used to identify feeds on-chain.&#x20;
+
+Feeds are internal structs in Switchboard, not their own contracts with addresses.  `aggregatorId`'s are used to identify them.&#x20;
+
+
+
+
 
