@@ -124,14 +124,13 @@ Getting feed updates is a simple process if you have the relevant keys and the @
 
 #### Calling Switchboard to Update Feeds
 
-```typescript
-import { web3, AnchorProvider, Program } from "@coral-xyz/anchor";
-import {
-  PullFeed,
+<pre class="language-typescript"><code class="lang-typescript">import { web3, AnchorProvider, Program } from "@coral-xyz/anchor";
+<strong>import {
+</strong>  PullFeed,
   loadLookupTables,
   SB_ON_DEMAND_PID
 } from "@switchboard-xyz/on-demand";
-```
+</code></pre>
 
 1. Add import  from[ @coral-xyz/anchor](https://www.npmjs.com/package/@coral-xyz/anchor).
 
