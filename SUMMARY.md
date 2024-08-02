@@ -3,8 +3,8 @@
 ## Switchboard
 
 * [Switchboard On-Demand (Pull)](README.md)
-  * [Quick Start](switchboard/readme/quick-start.md)
   * [Why Switchboard On-Demand?](switchboard/readme/why-switchboard-on-demand.md)
+  * [Quick Start](switchboard/readme/quick-start.md)
   * [Architecture Design](switchboard/readme/architecture-design.md)
   * [Designing Feeds](switchboard/readme/designing-feeds/README.md)
     * [How Feeds are Resolved](switchboard/readme/designing-feeds/how-feeds-are-resolved.md)
