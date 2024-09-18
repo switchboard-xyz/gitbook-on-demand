@@ -28,12 +28,16 @@ cd install/bare-metal/docker
 ├── 61_cfg_disable_deprecated_v2.sh
 ├── 61_cfg_disable_devnet.sh
 ├── 61_cfg_disable_mainnet.sh
+├── 70_cfg_enable_watchtower.sh
+├── 71_cfg_disable_watchtower.sh
 ├── 90_docker_compose_up.sh
 ├── 91_docker_compose_wrapper.sh
 └── 99_docker_compose_down.sh
 ```
 
 From here, we can start running all the scripts, step by step, using the first two chars in the filename as a numerical order, starting from the smallest and going in ascending order.
+
+Although you will only see below a description of some of the steps, please take each and every of them into consideration in regards to your specific setup and situation.
 
 ### Step by step installation
 
@@ -47,7 +51,7 @@ This step will simply install Docker (Community Edition) on your system to enabl
 ./10-sgx-install.sh
 ```
 
-This step will nstall all the necessary Intel SGX components and libraries on your system for secure enclave operations.
+This step will install all the necessary Intel SGX components and libraries on your system for secure enclave operations.
 
 You may be asked to reboot your system, but let's wait til the next step to do so.
 
@@ -63,7 +67,7 @@ Reboot done? good! Now you can proceed with:
 ./12-sgx-mcu-check.sh
 ```
 
-which is just to verifies if the SGX Machine Certificate Unit (MCU) was properly updated. If the current version is the same or higher than the old one, you can continue.
+which is just to verify that the SGX Machine Certificate Unit (MCU) was properly updated. If the current version is the same or higher than the old one, you can continue.
 
 Another quick checking step (that is also optional):
 
@@ -73,7 +77,13 @@ Another quick checking step (that is also optional):
 
 This step will run a quick check about your SGX  status and configuration and show the Security Advisories that Intel has published and affect your current hardware.
 
-There are some advisories that we mitigate in code, but ideally you should have an empty list here.
+You should see toward the end of the output, a line containing \`SGX QUOTE VERIFY\` similar to:
+
+```
+SGX QUOTE VERIFY: (true, ["INTEL-SA-00828", "INTEL-SA-00289", "INTEL-SA-00615"])
+```
+
+There are some advisories that we mitigate in code (like the ones in the example) but ideally you should have an empty list here.
 
 ### **Creating a payer.json Solana Account**
 
@@ -118,7 +128,7 @@ To send your request simply run:
 ./51-oracle-prepare-request.sh mainnet # run this for mainnet
 ```
 
-You will be prompted if you intend to also run a `Guardian`. Answer `no` unless you what it is :sunglasses:.
+You will be prompted if you intend to also run a `Guardian`. Answer `no` unless you what know it is :sunglasses:.
 
 Save the output of the command above and follow the link provided to send your request. Our operators will receive your request and provide you permission to be included in the queue as soon as possible.
 
@@ -150,6 +160,20 @@ Now that everything is configured and ready, you need to enable or disable the s
 
 Disable the network you're not using and enable the one you are using, you can run the same step multiple time if you're unsure whether you already run it or not.
 
+### \[OPTIONAL] Enable watchtower auto-update mechanism
+
+To make maintenance and regular updates easier for our partners we propose a mechanism based on `watchtower` this software will monitor our repos automatically for you and pull and deploy newer versions of our Oracle automatically without any intervention on your side.
+
+If you want to enable this feature, please run:
+
+```
+./70_cfg_enable_watchtower.sh
+```
+
+You can always disable it by running step `./71_cfg_disable_watchtower.sh`.
+
+If you don't use watchtower, please note that old Oracles that are not up-to-date will be excluded from running tasks in our queues.
+
 ### Finally start your Oracle!
 
 If everything went well, it's now just a matter of running:
@@ -158,7 +182,7 @@ If everything went well, it's now just a matter of running:
 ./90_docker_compose_up.sh
 ```
 
-And you own Switchboard on-demand Oracle should be up and running!
+And your own Switchboard on-demand Oracle should be up and running!
 
 You should see Docker Compose run through some output where it downloads the container images and starts them and then drops to background where it will continue execution.
 

@@ -2,7 +2,7 @@
 description: Set a solid foundation
 ---
 
-# Installation: setup via scripts
+# Installation: Setup Via Scripts
 
 In this part of the setup we decided to create dedicated sections, each per different "platform" that we envisioned you could be using.
 
@@ -39,14 +39,12 @@ When there's two steps with the same initial number (ie: `60_cfg_enable_devnet.s
 
 Read the output and watch carefully for specific instructions from the script themselves, though usually they will be VERY visible and highlighted like:
 
-```bash
-echo " "
-echo "==================================================="
-echo "=                !!! IMPORTANT !!!                ="
-echo "=  COPY/SAVE THE OUTPUT ABOVE, BEFORE PROCEEDING  ="
-echo "=  THEN TYPE 'exit' TO LEAVE THIS TMP CONTAINER.  ="
-echo "==================================================="
-echo " "
+```
+===================================================
+=                !!! IMPORTANT !!!                =
+=  COPY/SAVE THE OUTPUT ABOVE, BEFORE PROCEEDING  =
+=  THEN TYPE 'exit' TO LEAVE THIS TMP CONTAINER.  =
+===================================================
 ```
 
-Should be self-explanatory enough :grimacing: so you should miss any of those instructions.
+Should be self-explanatory enough :grimacing: so you should just be able to follow scripts in numerical order.

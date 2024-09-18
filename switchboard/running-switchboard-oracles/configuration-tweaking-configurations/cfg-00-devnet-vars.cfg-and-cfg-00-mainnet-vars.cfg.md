@@ -75,11 +75,13 @@ If you chose the Kubernetes setup, you'll have to come back to this, once you ha
 NAMESPACE="switchboard-oracle-${NETWORK}"
 
 # INGRESS gateway
-ORACLE_INGRESS="https://${IP4}.xip.switchboard-oracles.xyz/devnet"
-GATEWAY_INGRESS="https://${IP4}.xip.switchboard-oracles.xyz/devnet"
-GUARDIAN_INGRESS="https://${IP4}.xip.switchboard-oracles.xyz/devnet"
+ORACLE_INGRESS="https://${CLUSTER_DOMAIN}/devnet"
+GATEWAY_INGRESS="https://${CLUSTER_DOMAIN}/devnet"
+GUARDIAN_INGRESS="https://${CLUSTER_DOMAIN}/devnet"
+
+DOCKER_IMAGE_TAG="${DEVNET_DOCKER_IMAGE_TAG}"
 ```
 
 This section is mostly meant to stay untouched unless you know what you're changing.
 
-If you changed the `CLUSTER_DOMAIN` variable in the `00-common-vars.cfg` file, then you also need to adjust the `*_INGRESS` variable accordingly, remember to leave the `/devnet` and `/mainnet` string at the end to be able to host multiple Oracles on the same Docker Compose node.  &#x20;
+If you changed the `CLUSTER_DOMAIN` variable in the `00-common-vars.cfg` file, then you also need to adjust the `*_INGRESS` variables accordingly, remember to leave the `/devnet` and `/mainnet` string at the end to be able to host multiple Oracles on the same Docker Compose node.  &#x20;

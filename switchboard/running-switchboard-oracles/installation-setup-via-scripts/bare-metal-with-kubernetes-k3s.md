@@ -6,8 +6,6 @@ description: Your server, your cloud, your data...
 
 ### Initial setup steps
 
-Congrats, you've chosen the easier and straightforward solution to get to a running Oracle quickly.
-
 First of all, let's move to the proper directory:
 
 ```bash
@@ -117,7 +115,7 @@ To send your request simply run:
 ./51-oracle-prepare-request.sh mainnet # run this for mainnet
 ```
 
-You will be prompted if you intend to also run a `Guardian`. Answer `no` unless you what it is :sunglasses:.
+You will be prompted if you intend to also run a `Guardian`. Answer `no` unless you know what it is :sunglasses:.
 
 Save the output of the command above and follow the link provided to send your request. Our operators will receive your request and provide you permission to be included in the queue as soon as possible.
 
@@ -144,37 +142,69 @@ To proceed, let's start by installing Kubernetes with `k3s` using the following 
 ./60-k3s-install.sh
 ```
 
-This will just download and install `k3s` and start it. Then let's run:
+This will just download and install `k3s` and start it.&#x20;
+
+For the following steps, you should only run the ones that apply to your specific Kubernetes setup, so you can read the comments below, the content of the scripts or the output of the scripts:
 
 ```bash
-# only choose the one that applies to your setup
-./61-k3s-apps.sh # uses devnet by default
-./61-k3s-apps.sh devnet  # equivalent to above
-./61-k3s-apps.sh mainnet # run this for mainnet
+./70-k8s-apps-cert-manager.sh # installs cert-manager
+./71-k8s-apps-sgx.sh # installs SGX libraries
 ```
 
-This step will install all the dependency apps needed to run our Oracle code. Next you should run:
+This step will install SGX and TLS certificate manager dependencies needed to run our Oracle code.&#x20;
+
+Next you should install our Ingress toolset based on `nginx`, just specify which option suits your setup best:&#x20;
+
+```sh
+./72-k8s-apps-ingress-nginx.sh            # uses `bare-metal` by default
+./72-k8s-apps-ingress-nginx.sh bare-metal # only run one of these lines
+./72-k8s-apps-ingress-nginx.sh azure      # only run one of these lines
+```
+
+This will install nginx with the correct platform setup specified by the argument you specified.
+
+### \[OPTIONAL] Enable metrics reporting and monitoring
+
+While the following step is optional, we recommend running it as this will send statistics about your Oracle to our systems so that we can keep an eye on anomalies or outliers behaviors and warn you promptly if we detect any and keep our network safe:
 
 ```bash
 # only choose the one that applies to your setup - optional step
-./70-k3s-vmagent.sh # uses devnet by default
-./70-k3s-vmagent.sh devnet  # equivalent to above
-./70-k3s-vmagent.sh mainnet # run this for mainnet
+./73-k8s-apps-vmagent.sh # uses devnet by default
+./73-k8s-apps-vmagent.sh devnet  # equivalent to above
+./73-k8s-apps-vmagent.sh mainnet # run this for mainnet
 ```
 
-While this step is optional, we recommend running it as will send statistics about your Oracle to our systems so that we can keep an eye on anomalies or outliers behaviors and warn you promptly if we detect any.
+### \[OPTIONAL] Enable watchtower auto-update mechanism
+
+To make maintenance and regular updates easier for our partners we propose a mechanism based on `watchtower`.
+
+This software will monitor our repos automatically for you and pull and deploy newer versions of our Oracle automatically without any intervention on your side.
+
+If you want to enable this feature, please run:
+
+```
+./74-k8s-apps-watchtower.sh
+```
+
+You can always disable it by removing it via `helm`.
+
+If you don't use watchtower, please note that old Oracles that are not up-to-date will be excluded from running tasks in our queues.
+
+### \[OPTIONAL] Secrets management via Infisical
 
 Next is another optional step:
 
 ```bash
 # only choose the one that applies to your setup - optional step
-./71-infisical-operator.sh # uses devnet by default
-./71-infisical-operator.sh devnet  # equivalent to above
-./71-infisical-operator.sh mainnet # run this for mainnet
+./75-k8s-apps-infisical.sh # uses devnet by default
+./75-k8s-apps-infisical.sh devnet  # equivalent to above
+./75-k8s-apps-infisical.sh mainnet # run this for mainnet
 ```
 
 This will install all the needed artifacts and code for our integration with [Infisical](https://infisical.com/). \
 This step is optional and needs to be completed by the data present in your `cfg` file with all the variables starting with `INFISICAL_`.
+
+### \[OPTIONAL] TLS certificate creation test
 
 Another optional step:
 
@@ -185,11 +215,11 @@ Another optional step:
 ./80-test-cert-setup.sh mainnet # run this for mainnet
 ```
 
-This script will create an Ingress that will test your Kuberentes installation, DNS setup and the entire flow.
+This script will create an Ingress that will test your Kubernetes installation, DNS setup and the entire flow.
 
 To verify that it's working, run the script above, give it 3-5 minutes and then visit the DNS record you decided to use for your system.
 
-When done, please `81-test-cert-cleanup.sh` to clean up the artificats that the test created.
+When done, please `81-test-cert-cleanup.sh` to clean up the artifacts that the test created.
 
 ### Finally start your Oracle!
 
