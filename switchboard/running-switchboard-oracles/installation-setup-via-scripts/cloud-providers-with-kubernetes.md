@@ -110,12 +110,10 @@ This step will install SGX and TLS certificate manager dependencies needed to ru
 Next you should install our Ingress toolset based on `nginx`, just specify which option suits your setup best:&#x20;
 
 ```sh
-./72-k8s-apps-ingress-nginx.sh            # uses `bare-metal` by default
-./72-k8s-apps-ingress-nginx.sh bare-metal # only run one of these lines
-./72-k8s-apps-ingress-nginx.sh azure      # only run one of these lines
+./72-k8s-apps-ingress-nginx.sh azure # deploys nginx
 ```
 
-This will install nginx with the correct platform setup specified by the argument you provide.
+This will install nginx with the correct platform setup.
 
 ### \[OPTIONAL] Enable metrics reporting and monitoring
 

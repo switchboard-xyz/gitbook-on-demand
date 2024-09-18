@@ -153,15 +153,13 @@ For the following steps, you should only run the ones that apply to your specifi
 
 This step will install SGX and TLS certificate manager dependencies needed to run our Oracle code.&#x20;
 
-Next you should install our Ingress toolset based on `nginx`, just specify which option suits your setup best:&#x20;
+Next you should install our Ingress toolset based on `nginx`:&#x20;
 
 ```sh
-./72-k8s-apps-ingress-nginx.sh            # uses `bare-metal` by default
-./72-k8s-apps-ingress-nginx.sh bare-metal # only run one of these lines
-./72-k8s-apps-ingress-nginx.sh azure      # only run one of these lines
+./72-k8s-apps-ingress-nginx.sh bare-metal # deploys nginx
 ```
 
-This will install nginx with the correct platform setup specified by the argument you specified.
+This will install nginx with the correct platform setup.
 
 ### \[OPTIONAL] Enable metrics reporting and monitoring
 
