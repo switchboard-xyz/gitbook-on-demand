@@ -74,7 +74,13 @@ import {
 
 // ... simulation logic ... 
 
-const [pullIx, responses, _, luts] = await pullFeed.fetchUpdateIx({ crossbarClient: crossbar });
+const [pullIx, responses, _, luts] = await pullFeed.fetchUpdateIx({ 
+      crossbarClient: crossbar,
+      
+      // On SVM Chains (that aren't Solana) add your chain and network:
+      // chain: "eclipse",
+      // network: "mainnet",
+});
 
 const tx = await asV0Tx({
       connection,
