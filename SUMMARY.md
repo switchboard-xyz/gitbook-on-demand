@@ -60,6 +60,7 @@
 * [Running Crossbar](switchboard/running-crossbar/README.md)
   * [Installation](switchboard/running-crossbar/installation.md)
   * [Docker Compose](switchboard/running-crossbar/docker-compose.md)
+  * [Solana Pusher](switchboard/running-crossbar/solana-pusher.md)
 * [Switchboard Command Line](switchboard/switchboard-command-line.md)
 * [Running Switchboard Oracles](switchboard/running-switchboard-oracles/README.md)
   * [Prerequisites: quick intro](switchboard/running-switchboard-oracles/prerequisites/README.md)
