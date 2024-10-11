@@ -8,11 +8,11 @@ description: A Telegram bot for keeping Switchboard On-Demand feeds fresh
 
 {% embed url="https://t.me/realCrankBot" %}
 
-**CrankBot** is a Telegram bot inspired by BonkBot, designed to crank Switchboard on-demand feeds on Solana. It aims to provide users with a customizable, transparent, and easy-to-use interface for managing Switchboard on-demand cranks.
+**CrankBot** is a Telegram bot inspired by BonkBot, designed to crank Switchboard On-Demand feeds on Solana. It aims to provide users with a customizable, transparent, and easy-to-use interface for managing Switchboard On-Demand cranks.
 
 ### Getting Started
 
-To get started with the Switchboard Crankbot (alpha), run `/start` . This will create a keypair for your account, and log the new public key associated with that account. You can then add feeds by simply typing in the feed public key. Try it now with a feed from the [Switchboard Explorer](https://ondemand.switchboard.xyz/solana/mainnet)!&#x20;
+To get started with the Switchboard Crankbot (alpha), run `/start` . This will create a keypair for your account, and log the new public key associated with that account. You can then add feeds by simply typing in the feed public key. Try it now with a feed from [Switchboard's On-Demand Explorer](https://ondemand.switchboard.xyz/solana/mainnet)!&#x20;
 
 As soon as you have a feed added and the account funded, you can run `/crank` to start receiving updates.&#x20;
 
