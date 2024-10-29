@@ -32,6 +32,6 @@ If you choose to go with the Kubernetes based setup:
 * kubectl
 * (optional) k9s
 
-## ... definitely some SGX! :unlock:
+## ... definitely some TEE (AMD SEV or SGX)! :unlock:
 
-In order to enable _**SGX**_ (more on this in the next section) a minimal knowledge about navigating a server/computer motherboard BIOS could potentially also be needed, especially in case of going with the bare-metal solution but in general depending on the way you provision your hardware.
+In order to enable **Trusted Computing** via **AMD SEV** or _**SGX**_ (more on this in the next section) a minimal knowledge about navigating a server/computer motherboard BIOS could potentially also be needed, especially in case of going with the bare-metal solution but in general depending on the way you provision your hardware.

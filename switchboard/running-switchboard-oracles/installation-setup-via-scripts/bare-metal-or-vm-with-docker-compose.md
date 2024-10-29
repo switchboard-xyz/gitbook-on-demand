@@ -2,7 +2,7 @@
 description: Containers... containers everywhere.
 ---
 
-# Bare Metal with Docker Compose
+# Bare Metal or VM with Docker Compose
 
 ### Initial setup steps
 
@@ -47,6 +47,8 @@ Although you will only see below a description of some of the steps, please take
 
 This step will simply install Docker (Community Edition) on your system to enable containerized application deployments.
 
+_**!!! SKIP ALL THE FOLLOWING STEPS ABOUT SGX IF YOU ARE ON AN AMD SEV SYSTEM !!!**_
+
 ```shell
 ./10-sgx-install.sh
 ```
@@ -84,6 +86,8 @@ SGX QUOTE VERIFY: (true, ["INTEL-SA-00828", "INTEL-SA-00289", "INTEL-SA-00615"])
 ```
 
 There are some advisories that we mitigate in code (like the ones in the example) but ideally you should have an empty list here.
+
+_**!!! YOU CAN RESUME FROM HERE - IF YOU ARE ON AN AMD SEV SYSTEM !!!**_
 
 ### **Creating a payer.json Solana Account**
 

@@ -1,8 +1,8 @@
 ---
-description: The power of Kubernetes on bare metal
+description: The power of Kubernetes on bare metal and VM
 ---
 
-# Bare Metal with Kubernetes (K3s)
+# SGX: Bare Metal with Kubernetes (K3s)
 
 If your team has knowledge about Kubernetes, you should be already aware of the many advantages and power that it provides (scalability, flexibility, great tooling, etc..) so we won't go too deep into those aspects here.
 

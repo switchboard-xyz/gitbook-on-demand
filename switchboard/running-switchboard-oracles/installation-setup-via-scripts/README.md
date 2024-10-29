@@ -48,3 +48,5 @@ Read the output and watch carefully for specific instructions from the script th
 ```
 
 Should be self-explanatory enough :grimacing: so you should just be able to follow scripts in numerical order.
+
+Right now AMD SEV is only supported via Docker Compose, if you want to use Kubernetes you'll have to stick with SGX.
