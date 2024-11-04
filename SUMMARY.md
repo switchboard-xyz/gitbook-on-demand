@@ -31,6 +31,8 @@
     * [Integrating On-Chain (EVM)](switchboard/readme/on-evm-networks/integrating-on-chain-evm.md)
     * [Integrating into Frontends](switchboard/readme/on-evm-networks/integrating-into-frontends.md)
     * [Links and Technical Docs](switchboard/readme/on-evm-networks/links-and-technical-docs.md)
+  * [On Sui](switchboard/readme/on-sui/README.md)
+    * [Getting Started](switchboard/readme/on-sui/getting-started.md)
   * [Oracle Aggregator](switchboard/readme/oracle-aggregator.md)
   * [Migrating to Switchboard](switchboard/readme/migrating-to-switchboard/README.md)
     * [Using Chainlink](switchboard/readme/migrating-to-switchboard/using-chainlink/README.md)

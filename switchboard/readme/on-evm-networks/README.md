@@ -1,6 +1,6 @@
 # On EVM Networks
 
-We have built some cross-chain bridges and the Switchboard On-Demand service allows users to create custom data feeds on the Ethereum Virtual Machine (EVM) networks.&#x20;
+We have built some tooling for the Switchboard On-Demand service allows users to create custom data feeds on the Ethereum Virtual Machine (EVM) networks.&#x20;
 
 ### Deployments
 
