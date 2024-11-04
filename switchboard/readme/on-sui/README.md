@@ -4,12 +4,16 @@ description: Using Switchboard On-Demand on Sui
 
 # On Sui
 
-Switchboard On-Demand service allows you to create custom data feeds on the Sui Network with ease and aggregate data from pretty much any source.&#x20;
+**DISCLAIMER: SWITCHBOARD ON-DEMAND FOR SUI IS UNAUDITED. USE AT YOUR OWN RISK.**
 
-### Deployments
+## Switchboard On-Demand Integration Guide
 
-* Sui Testnet: [0x509b09fb8d4c6bdddbf398fdd4a505386d0bf94560c1a52700820cc78a7e5b86](https://suiscan.xyz/testnet/object/0x509b09fb8d4c6bdddbf398fdd4a505386d0bf94560c1a52700820cc78a7e5b86/txs)
-* Sui Mainnet: [0x957633c1fd294857390f99dda23524eee7d8bb1671acd7e0c05aaeba38dc98f4](https://suiscan.xyz/mainnet/object/0x957633c1fd294857390f99dda23524eee7d8bb1671acd7e0c05aaeba38dc98f4/txs)
+### Active Deployments
+
+The Switchboard On-Demand service is currently deployed on the following networks:
+
+* Mainnet: [0x0b884dbc39d915f32a82cc62dabad75ca3efd3c568c329eba270b03c6f58cbd8](https://suiscan.xyz/mainnet/object/0x0b884dbc39d915f32a82cc62dabad75ca3efd3c568c329eba270b03c6f58cbd8)
+* Testnet: [0x81fc6bbc64b7968e631b2a5b3a88652f91a617534e3755efab2f572858a30989](https://suiscan.xyz/testnet/object/0x81fc6bbc64b7968e631b2a5b3a88652f91a617534e3755efab2f572858a30989)
 
 ### Getting Started
 
