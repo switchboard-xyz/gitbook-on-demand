@@ -4,12 +4,12 @@
 
 Website:
 
-* [https://www.ovh.com/](https://www.vultr.com/products/bare-metal/#pricing) (for European customers)
-* [https://us.ovhcloud.com](https://us.ovhcloud.com) (for US customers)
+* [https://www.ovh.com/](https://www.ovhcloud.com/en/bare-metal/) (for European customers)
+* [https://us.ovhcloud.com](https://us.ovhcloud.com/bare-metal/) (for US customers)
 
 Product types supporting SGX:
 
-* Bare Metal - Advance-2 Gen 2 - Intel E-2388G
+* Bare Metal - any offering with - Intel E-2388G and newer
 
 ### Process  to enable SGX
 
