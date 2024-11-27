@@ -4,7 +4,8 @@ Today, we will review the implementation of Switchboard Secrets within your orac
 
 `npm i @switchboard-xyz/on-demand @switchboard-xyz/common`
 
-Using these SDK's you can design your data feed to securely embed and use secrets just like your regular Switchboard on-demand data feeds.
+Using these SDK's you can design your data feed to securely embed and use secrets just like your regular Switchboard on-demand data feeds.\
+If you are looking for a more non-technical UI based approach, Switchboard has a dedicated UI builder to create and manage your secrets [here!](https://secrets.switchboard.xyz/connect)
 
 ### Step 1: **Set Up Your Environment:** <a href="#step-1-set-up-your-environment" id="step-1-set-up-your-environment"></a>
 
