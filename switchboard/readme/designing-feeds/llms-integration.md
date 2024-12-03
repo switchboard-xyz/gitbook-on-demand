@@ -1,6 +1,6 @@
 # LLMs Integration
 
-The `LlmTask` in Switchboard enables integration with Large Language Models (LLMs) for dynamic, AI-powered data generation. You can configure the task to work with providers like OpenAI, Groq, or GrokXAI to include machine learning insights in your data feeds.
+The `LlmTask` in Switchboard enables integration with Large Language Models (LLMs) for dynamic, AI-powered data generation. You can configure the task to work with providers like OpenAI, Groq, or GrokXAI to include AI insights in your data feeds.
 
 ## Supported Providers
 
