@@ -13,6 +13,7 @@
     * [REST APIs with HttpTask](switchboard/readme/designing-feeds/rest-apis-with-httptask.md)
     * [Variables with CacheTask](switchboard/readme/designing-feeds/variables-with-cachetask.md)
     * [Bounding Results](switchboard/readme/designing-feeds/bounding-results.md)
+    * [LLMs Integration](switchboard/readme/designing-feeds/llms-integration.md)
     * [FAQ](switchboard/readme/designing-feeds/faq.md)
   * [On Solana / SVM Networks](switchboard/readme/links-and-technical-documentation/README.md)
     * [Developers: Quickstart!](switchboard/readme/links-and-technical-documentation/developers-build-and-use.md)
