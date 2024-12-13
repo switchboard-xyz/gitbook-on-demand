@@ -16,13 +16,13 @@ npm add @switchboard-xyz/on-demand # alias for `i --save`
 
 ## Reading a Feed
 
-Showing a feed's current value can be helpful for demonstrating an estimated execution price. Since oracle nodes are heavily rate limited, it's useful to simulate using a [Crossbar Server](../../running-crossbar/).&#x20;
+Showing a feed's current value can be helpful for demonstrating an estimated execution price. Since oracle nodes are heavily rate limited, it's useful to simulate using a [Crossbar Server](../../crossbar-and-task-runner/).&#x20;
 
 ### What's a Crossbar Server?
 
 Crossbar is a utility server for interacting with Switchboard which anyone can run, and everybody is encouraged to run their own instance. It can store and pull feeds from IPFS (using centralized providers or your own now), it can get encoded updates, and it can simulate feeds using a local instance of a [Task-Runner](../designing-feeds/how-feeds-are-resolved.md). \
 \
-Why run your instance? The public crossbar node is fairly rate-limited, and oracle nodes are heavily rate-limited. In the future, oracle providers may offer API keys you may be able to plug into crossbar for elevated rates. But for now, if you want to hammer a crossbar server with simulates, it's recommended that you [run your own instance](../../running-crossbar/installation.md).&#x20;
+Why run your instance? The public crossbar node is fairly rate-limited, and oracle nodes are heavily rate-limited. In the future, oracle providers may offer API keys you may be able to plug into crossbar for elevated rates. But for now, if you want to hammer a crossbar server with simulates, it's recommended that you [run your own instance](../../crossbar-and-task-runner/run-crossbar-with-docker-compose.md).&#x20;
 
 ### Streaming Simulations
 
@@ -147,7 +147,7 @@ const feed = new PublicKey("6qmsMwtMmeqMgZEhyLv1Pe4wcqT5iKwJAWnmzmnKjf83");
 const feedAccount = new PullFeed(switchboard, feed);
 ```
 
-2. Create the PullFeed account object. This is an off-chain wrapper class with utility functions for interacting with pull feeds. Here `useConnection` and `useAnchorWallet` would be coming from [Anza's Wallet Adapter](https://anza-xyz.github.io/wallet-adapter/modules/\_solana\_wallet\_adapter\_react.html), but any anchor provider would work.&#x20;
+2. Create the PullFeed account object. This is an off-chain wrapper class with utility functions for interacting with pull feeds. Here `useConnection` and `useAnchorWallet` would be coming from [Anza's Wallet Adapter](https://anza-xyz.github.io/wallet-adapter/modules/_solana_wallet_adapter_react.html), but any anchor provider would work.&#x20;
 
 ```typescript
 // Get anchor program

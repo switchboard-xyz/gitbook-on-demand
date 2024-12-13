@@ -19,7 +19,7 @@ Change the dependencies section of your `Cargo.toml` file from:
 
 #### Typescript SDK <a href="#typescript-sdk" id="typescript-sdk"></a>
 
-Pyth provides two Typescript packages, [@pythnetwork/price-service-client](https://github.com/pyth-network/pyth-crosschain/tree/main/price\_service/client/js) and [@pythnetwork/pyth-solana-receiver](https://github.com/pyth-network/pyth-crosschain/tree/main/target\_chains/solana/sdk/js/pyth\_solana\_receiver), for fetching Pyth prices and submitting them to the blockchain respectively. You can replace these packages with the single Switchboard Typescript SDK, [@switchboard-xyz/on-demand](https://www.npmjs.com/package/@switchboard-xyz/on-demand) with has a similar responsibility.
+Pyth provides two Typescript packages, [@pythnetwork/price-service-client](https://github.com/pyth-network/pyth-crosschain/tree/main/price_service/client/js) and [@pythnetwork/pyth-solana-receiver](https://github.com/pyth-network/pyth-crosschain/tree/main/target_chains/solana/sdk/js/pyth_solana_receiver), for fetching Pyth prices and submitting them to the blockchain respectively. You can replace these packages with the single Switchboard Typescript SDK, [@switchboard-xyz/on-demand](https://www.npmjs.com/package/@switchboard-xyz/on-demand) with has a similar responsibility.
 
 Get started by installing our [Javascript/Typescript SDK](https://switchboard-docs.web.app/) via:
 
@@ -107,7 +107,7 @@ pub fn example(ctx: Context<Example>) -> Result<()> {
 
 ## Updating Off-chain Code
 
-The Pyth network leverages **hermes**, a middleman server, to distribute encoded pythnet update data to end-users. Switchboard applies a similar approach with [Crossbar](../../../running-crossbar/), but on Solana it's unnecessary since it's Switchboard's home-base.&#x20;
+The Pyth network leverages **hermes**, a middleman server, to distribute encoded pythnet update data to end-users. Switchboard applies a similar approach with [Crossbar](../../../crossbar-and-task-runner/), but on Solana it's unnecessary since it's Switchboard's home-base.&#x20;
 
 ### Step 1: Updating Imports
 

@@ -48,7 +48,7 @@ When you create a feed in the UI, you'll see a field titled **Address**, which c
 
 #### Feeds only exist per network
 
-**Feeds only exist on a single network.** A feed created on Arbitrum will not work if one tries to read its result onto Morph**. The feed would need to be re-created** on Morph for it to work.&#x20;
+**Feeds only exist on a single network.** A feed created on Arbitrum will not work if one tries to read its result onto Morp&#x68;**. The feed would need to be re-created** on Morph for it to work.&#x20;
 
 ## Step 2: Solidity Integration
 
@@ -135,7 +135,7 @@ This contract:
 
 #### Simulating a Result
 
-You might want to show some ticker on a user interface for a particular Switchboard feed. Using [Crossbar](../../running-crossbar/) and its Typescript SDK.&#x20;
+You might want to show some ticker on a user interface for a particular Switchboard feed. Using [Crossbar](../../crossbar-and-task-runner/) and its Typescript SDK.&#x20;
 
 <pre class="language-typescript"><code class="lang-typescript">import {
   CrossbarClient,

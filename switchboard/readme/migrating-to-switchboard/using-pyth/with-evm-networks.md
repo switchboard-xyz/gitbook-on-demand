@@ -133,7 +133,7 @@ import * as ethers from "ethers";
 
 ### Step 2: Connect the Client
 
-The next step is connecting the Crossbar Client. [Crossbar](../../../running-crossbar/) is a utility server that allows us to easily simulate feeds (thereby getting an estimated result), query oracles for prices, and a few other utility functions used to make using Switchboard easier. The Pyth Hermes server has a similar function of brokering data from pythnet.&#x20;
+The next step is connecting the Crossbar Client. [Crossbar](../../../crossbar-and-task-runner/) is a utility server that allows us to easily simulate feeds (thereby getting an estimated result), query oracles for prices, and a few other utility functions used to make using Switchboard easier. The Pyth Hermes server has a similar function of brokering data from pythnet.&#x20;
 
 #### Pyth
 

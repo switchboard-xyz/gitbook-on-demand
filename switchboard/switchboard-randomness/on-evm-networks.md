@@ -131,7 +131,7 @@ Here we're just calling **`updateFeeds`** which is routing the encoded updates i
 
 ## Step 2: Resolve Randomness Off-Chain
 
-The next step is to get the encoded randomness resolution from Switchboard. Here's an example using [Crossbar](../running-crossbar/) and its Typescript SDK.
+The next step is to get the encoded randomness resolution from Switchboard. Here's an example using [Crossbar](../crossbar-and-task-runner/) and its Typescript SDK.
 
 <pre class="language-typescript"><code class="lang-typescript">import {
   CrossbarClient,
