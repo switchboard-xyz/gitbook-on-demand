@@ -9,7 +9,7 @@ description: Operating a crossbar server with Docker Compose
 
 Crossbar can be run pretty easily with Docker. The instructions below will walk you through running Crossbar in Docker containers using Docker Compose.
 
-For Swagger documentation, see: [https://crossbar.switchboard.xyz/docs](run-crossbar-with-docker-compose.md#overview)
+For Swagger documentation, see: [https://crossbar.switchboard.xyz/docs](https://crossbar.switchboard.xyz/docs)
 
 ### Crossbar and Task Runner Simulator
 
