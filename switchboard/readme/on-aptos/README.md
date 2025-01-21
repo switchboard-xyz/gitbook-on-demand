@@ -1,5 +1,5 @@
 ---
-description: Using Switchboard On-Demand on APtos
+description: Using Switchboard On-Demand on Aptos
 ---
 
 # On Aptos

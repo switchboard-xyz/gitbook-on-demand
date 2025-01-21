@@ -8,6 +8,8 @@ description: Using Switchboard On-Demand on Sui
 
 ## Switchboard On-Demand Integration Guide
 
+Examples and sourc code for the On-Demand on Sui can be found [here](https://github.com/switchboard-xyz/sui/).
+
 ### Active Deployments
 
 The Switchboard On-Demand service is currently deployed on the following networks:
