@@ -1,9 +1,5 @@
 # Getting Started
 
-DISCLAIMER: SWITCHBOARD ON-DEMAND FOR SUI IS UNAUDITED. USE AT YOUR OWN RISK.&#x20;
-
-### Installation
-
 You can install the Switchboard On-Demand Typescript [Sui-SDK](https://www.npmjs.com/package/@switchboard-xyz/sui-sdk) by running:
 
 <pre class="language-bash"><code class="lang-bash"><strong># Add the Switchboard Sui Typescript

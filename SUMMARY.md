@@ -34,6 +34,8 @@
     * [Links and Technical Docs](switchboard/readme/on-evm-networks/links-and-technical-docs.md)
   * [On Sui](switchboard/readme/on-sui/README.md)
     * [Getting Started](switchboard/readme/on-sui/getting-started.md)
+  * [On Aptos](switchboard/readme/on-aptos/README.md)
+    * [Getting Started](switchboard/readme/on-aptos/getting-started.md)
   * [Oracle Aggregator](switchboard/readme/oracle-aggregator.md)
   * [Migrating to Switchboard](switchboard/readme/migrating-to-switchboard/README.md)
     * [Using Chainlink](switchboard/readme/migrating-to-switchboard/using-chainlink/README.md)

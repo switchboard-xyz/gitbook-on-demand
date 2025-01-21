@@ -1,19 +1,21 @@
 ---
-description: Using Switchboard On-Demand on Sui
+description: Using Switchboard On-Demand on APtos
 ---
 
-# On Sui
+# On Aptos
 
-**DISCLAIMER: SWITCHBOARD ON-DEMAND FOR SUI IS CURRENTLY PENDING AUDIT**
+**DISCLAIMER: SWITCHBOARD ON-DEMAND ON APTOS IS CURRENTLY PENDING AUDIT**
 
 ## Switchboard On-Demand Integration Guide
+
+A repository with examples can be found [here](https://github.com/switchboard-xyz/aptos/).
 
 ### Active Deployments
 
 The Switchboard On-Demand service is currently deployed on the following networks:
 
-* Mainnet: [0xe6717fb7c9d44706bf8ce8a651e25c0a7902d32cb0ff40c0976251ce8ac25655](https://suiscan.xyz/mainnet/object/0xe6717fb7c9d44706bf8ce8a651e25c0a7902d32cb0ff40c0976251ce8ac25655)
-* Testnet: [0x578b91ec9dcc505439b2f0ec761c23ad2c533a1c23b0467f6c4ae3d9686709f6](https://suiscan.xyz/testnet/object/0x578b91ec9dcc505439b2f0ec761c23ad2c533a1c23b0467f6c4ae3d9686709f6)
+* Aptos Mainnet: [0xfea54925b5ac1912331e2e62049849b37842efaea298118b66f85a59057752b8](https://explorer.aptoslabs.com/object/0xfea54925b5ac1912331e2e62049849b37842efaea298118b66f85a59057752b8/modules/code/aggregator?network=mainnet)
+* Aptos Testnet: [0x81fc6bbc64b7968e631b2a5b3a88652f91a617534e3755efab2f572858a30989](https://explorer.aptoslabs.com/object/0x4fc1809ffb3c5ada6b4e885d4dbdbeb70cbdd99cbc0c8485965d95c2eab90935/modules/code/aggregator?network=testnet)
 
 ### Getting Started
 
