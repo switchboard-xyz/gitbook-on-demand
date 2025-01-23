@@ -12,6 +12,7 @@ Getting started with Switchboard on-demand on frontends requires the use of the 
 
 ```sh
 npm add @switchboard-xyz/on-demand # alias for `i --save`
+npm add @switchboard-xyz/common 
 ```
 
 ## Reading a Feed
@@ -29,7 +30,7 @@ Why run your instance? The public crossbar node is fairly rate-limited, and orac
 ```typescript
 import {
   CrossbarClient,
-} from "@switchboard-xyz/on-demand";
+} from "@switchboard-xyz/common";
 
 const crossbar = new CrossbarClient("http://myCrossbarDeployment.com");
 
@@ -72,7 +73,7 @@ In the above code block we're printing the feed values every 10 seconds to the c
 ```typescript
 import {
   CrossbarClient,
-} from "@switchboard-xyz/on-demand";
+} from "@switchboard-xyz/common";
 
 const crossbar = new CrossbarClient("http://myCrossbarDeployment.com");
 ```
