@@ -153,7 +153,6 @@ import * as sb from "@switchboard-xyz/on-demand";
 // Initialize Surge client
 const surge = new sb.Surge({
   apiKey: process.env.SURGE_API_KEY!,
-  gatewayUrl: 'wss://surge.switchboard.xyz/mainnet',
 });
 
 // Subscribe to price feeds
