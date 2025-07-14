@@ -9,7 +9,7 @@ Switchboard introduces two revolutionary approaches to oracle data delivery that
 
 ## 🚀 Bundle Method: The New Standard
 
-### What Makes Bundles Revolutionary?
+### Why are bundles faster than other oracle solutions?
 
 The bundle method represents a paradigm shift in how oracle data is delivered on Solana:
 
@@ -25,22 +25,24 @@ Oracle → Bundle → Your Program (direct use)
 
 ### Key Benefits
 
-| Feature | Bundle Method | Traditional Feeds |
-|---------|--------------|-------------------|
-| **Transaction Cost** | ~0.00015 SOL | ~0.002 SOL |
-| **Write Locks** | None | Required |
-| **Parallelization** | Unlimited | Limited |
-| **Setup Time** | Instant | 5-10 minutes |
-| **Maintenance** | None | Crank required |
+| Feature              | Bundle Method | Traditional Feeds |
+| -------------------- | ------------- | ----------------- |
+| **Transaction Cost** | FREE          | \~0.0001 SOL      |
+| **Write Locks**      | None          | Required          |
+| **Parallelization**  | Unlimited     | Limited           |
+| **Setup Time**       | Instant       | 5-10 minutes      |
+| **Maintenance**      | None          | Crank required    |
 
 ### How Bundles Work
 
 #### 1. **Stateless Architecture**
-- No on-chain accounts to create or maintain
-- Prices are verified and used directly in your transaction
-- Multiple programs can read the same price simultaneously
+
+* No on-chain accounts to create or maintain
+* Prices are verified and used directly in your transaction
+* Multiple programs can read the same price simultaneously
 
 #### 2. **Efficient Signature Verification**
+
 ```typescript
 // Fetch the latest price bundle
 const [sigVerifyIx, bundle] = await queue.fetchUpdateBundleIx(gateway, crossbar, [
@@ -61,6 +63,7 @@ const tx = await asV0Tx({
 ```
 
 #### 3. **On-Chain Verification**
+
 ```rust
 let verified_bundle = BundleVerifierBuilder::from(&bundle)
     .queue(&queue)
@@ -82,13 +85,15 @@ Understanding bundle sizes helps optimize your transactions:
 **Base Formula**: `Total bytes = 34 + (n × 96) + (m × 49)`
 
 Where:
-- `n` = number of oracles
-- `m` = number of feeds
+
+* `n` = number of oracles
+* `m` = number of feeds
 
 **Examples:**
-- 1 oracle, 1 feed: ~179 bytes
-- 3 oracles, 5 feeds: ~563 bytes
-- 3 oracles, 10 feeds: ~812 bytes
+
+* 1 oracle, 1 feed: \~179 bytes
+* 3 oracles, 5 feeds: \~563 bytes
+* 3 oracles, 10 feeds: \~812 bytes
 
 ### Quick Start with Bundles
 
@@ -135,10 +140,10 @@ Total Latency: <100ms (vs 1000ms+ for traditional)
 
 ### Key Features
 
-- **Sub-100ms Latency**: Direct oracle-to-client streaming
-- **Event-Driven**: Receive updates as prices change
-- **No Polling**: Persistent WebSocket eliminates overhead
-- **Bundle Compatible**: Convert streams to on-chain bundles seamlessly
+* **Sub-100ms Latency**: Direct oracle-to-client streaming
+* **Event-Driven**: Receive updates as prices change
+* **No Polling**: Persistent WebSocket eliminates overhead
+* **Bundle Compatible**: Convert streams to on-chain bundles seamlessly
 
 ### Surge Implementation
 
@@ -176,6 +181,7 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 ### Use Case Examples
 
 #### High-Frequency Trading
+
 ```typescript
 surge.on('update', async (response) => {
   const opportunity = checkArbitrage(response.data);
@@ -188,6 +194,7 @@ surge.on('update', async (response) => {
 ```
 
 #### Real-Time Dashboards
+
 ```typescript
 surge.on('update', (response) => {
   // Instant UI updates
@@ -197,6 +204,7 @@ surge.on('update', (response) => {
 ```
 
 #### MEV Protection
+
 ```typescript
 surge.on('update', async (response) => {
   if (response.data.price <= targetPrice) {
@@ -209,35 +217,39 @@ surge.on('update', async (response) => {
 
 ## Choosing the Right Solution
 
-| Use Case | Surge 🌊 | Bundles 📦 | Traditional |
-|----------|----------|------------|-------------|
-| **HFT Bots** | ✅ Best | ✅ Good | ❌ Too Slow |
-| **DeFi Protocols** | ✅ Good | ✅ Best | ✅ Works |
-| **Real-time Apps** | ✅ Best | ✅ Good | ❌ Too Slow |
-| **Analytics** | ✅ Good | ✅ Good | ✅ Best |
-| **Latency** | <100ms | <1s | 2-10s |
-| **Cost Model** | Subscription | Per TX | Per Update |
+| Use Case           | Surge 🌊     | Bundles 📦 | Traditional |
+| ------------------ | ------------ | ---------- | ----------- |
+| **HFT Bots**       | ✅ Best       | ✅ Good     | ❌ Too Slow  |
+| **DeFi Protocols** | ✅ Good       | ✅ Best     | ✅ Works     |
+| **Real-time Apps** | ✅ Best       | ✅ Good     | ❌ Too Slow  |
+| **Analytics**      | ✅ Good       | ✅ Good     | ✅ Best      |
+| **Latency**        | <100ms       | <1s        | 2-10s       |
+| **Cost Model**     | Subscription | Per TX     | Per Update  |
 
 ### When to Use Bundles
-- Smart contract integrations
-- DeFi protocols requiring multiple price points
-- Cost-sensitive applications
-- Standard trading applications
+
+* Smart contract integrations
+* DeFi protocols requiring multiple price points
+* Cost-sensitive applications
+* Standard trading applications
 
 ### When to Use Surge
-- High-frequency trading systems
-- Real-time price displays
-- Latency-critical applications
-- MEV-sensitive operations
+
+* High-frequency trading systems
+* Real-time price displays
+* Latency-critical applications
+* MEV-sensitive operations
 
 ## Getting Started
 
 ### For Bundles
+
 1. Get a feed hash from [Switchboard On-Demand](https://ondemand.switchboard.xyz)
 2. Use the bundle examples: [GitHub Repository](https://github.com/switchboard-xyz/sb-on-demand-examples)
 3. Integrate into your program using the verification pattern
 
 ### For Surge
+
 1. Contact Switchboard team for API access
 2. Set up WebSocket connection with your API key
 3. Subscribe to desired price feeds
@@ -245,7 +257,7 @@ surge.on('update', async (response) => {
 
 ## Next Steps
 
-- Explore the [complete examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
-- Read about [on-chain integration](integrating-your-feed-on-chain.md)
-- Learn about [feed design](part-1-designing-and-simulating-your-feed/)
-- Join our [Discord](https://discord.gg/switchboard) for support
+* Explore the [complete examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+* Read about [on-chain integration](integrating-your-feed-on-chain.md)
+* Learn about [feed design](part-1-designing-and-simulating-your-feed/)
+* Join our [Discord](https://discord.gg/switchboard) for support
