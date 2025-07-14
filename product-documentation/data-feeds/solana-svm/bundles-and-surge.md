@@ -182,7 +182,7 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 #### High-Frequency Trading
 
 ```typescript
-surge.on('update', async (response) => {
+surge.on('update', async (response: sb.SurgeUpdate) => {
   const opportunity = checkArbitrage(response.data);
   if (opportunity?.profit > MIN_PROFIT) {
     // Execute within milliseconds
@@ -195,7 +195,7 @@ surge.on('update', async (response) => {
 #### Real-Time Dashboards
 
 ```typescript
-surge.on('update', (response) => {
+surge.on('update', (response: sb.SurgeUpdate) => {
   // Instant UI updates
   priceDisplay[response.data.symbol] = response.data.price;
   metrics.latency = Date.now() - response.data.source_ts_ms;
@@ -205,7 +205,7 @@ surge.on('update', (response) => {
 #### MEV Protection
 
 ```typescript
-surge.on('update', async (response) => {
+surge.on('update', async (response: sb.SurgeUpdate) => {
   if (response.data.price <= targetPrice) {
     // Submit at optimal moment
     const tx = await createLimitOrder(response);
@@ -260,9 +260,9 @@ import { useEffect, useState } from 'react';
 interface PriceData {
   symbol: string;
   price: number;
-  timestamp: number;
+  source_ts_ms: number;
   source: string;
-  confidence: number;
+  feedHash: string;
 }
 
 export function PriceFeed({ symbol }: { symbol: string }) {
@@ -288,9 +288,9 @@ export function PriceFeed({ symbol }: { symbol: string }) {
         setPriceData({
           symbol: data.symbol,
           price: data.price,
-          timestamp: data.timestamp,
+          source_ts_ms: data.source_ts_ms,
           source: data.source,
-          confidence: data.confidence
+          feedHash: data.feedHash
         });
       }
     };
@@ -314,7 +314,7 @@ export function PriceFeed({ symbol }: { symbol: string }) {
       <div className="price">${priceData.price.toFixed(2)}</div>
       <div className="source">via {priceData.source}</div>
       <div className="latency">
-        Latency: {Date.now() - priceData.timestamp}ms
+        Latency: {Date.now() - priceData.source_ts_ms}ms
       </div>
     </div>
   );
@@ -380,7 +380,7 @@ async function getPriceHistory(symbol: string, minutes: number = 60) {
   
   // Format for charting library
   return history.map(point => ({
-    time: point.timestamp,
+    time: point.source_ts_ms,
     value: point.price
   }));
 }
@@ -481,15 +481,15 @@ export function TradingDashboard() {
   useEffect(() => {
     const crossbar = new CrossbarClient({
       url: 'wss://api.yourdapp.com/ws',
-      onPriceUpdate: (symbol, price) => {
-        setPrices(prev => ({ ...prev, [symbol]: price }));
+      onPriceUpdate: (symbol, priceData) => {
+        setPrices(prev => ({ ...prev, [symbol]: priceData }));
         
         // Update history for charts
         setHistory(prev => ({
           ...prev,
           [symbol]: [...(prev[symbol] || []).slice(-100), {
             time: Date.now(),
-            price: price.value
+            price: priceData.price
           }]
         }));
       },
