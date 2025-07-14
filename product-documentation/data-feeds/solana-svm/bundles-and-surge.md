@@ -177,7 +177,53 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 });
 ```
 
-### Use Case Examples
+### Primary Use Cases
+
+#### 📈 Perpetual Exchanges
+
+```typescript
+// Real-time mark price updates for perpetuals
+surge.on('update', async (response: sb.SurgeUpdate) => {
+  const market = perpetuals.get(response.data.symbol);
+  
+  // Update mark price instantly
+  market.markPrice = response.data.price;
+  
+  // Check liquidations with zero latency
+  const underwaterPositions = await market.checkLiquidations(response.data.price);
+  for (const position of underwaterPositions) {
+    const [ix, bundle] = response.toBundleIx();
+    await liquidatePosition(position, ix, bundle);
+  }
+  
+  // Calculate funding rates
+  await market.updateFundingRate(response.data);
+});
+```
+
+#### 🔄 Oracle-Based AMMs
+
+```typescript
+// Next-gen AMM using oracle prices (no impermanent loss)
+class OracleAMM {
+  async handlePriceUpdate(response: sb.SurgeUpdate) {
+    // Update pricing curve with oracle data
+    this.pairs[response.data.symbol] = {
+      price: response.data.price,
+      timestamp: response.data.source_ts_ms
+    };
+  }
+  
+  async swap(tokenA: string, tokenB: string, amount: number) {
+    const price = this.pairs[`${tokenA}/${tokenB}`].price;
+    const output = amount * price * (1 - FEE);
+    
+    // Use bundle for on-chain verification
+    const [ix, bundle] = this.latestUpdate.toBundleIx();
+    return await executeSwap(ix, bundle, output);
+  }
+}
+```
 
 #### High-Frequency Trading
 
@@ -188,28 +234,6 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
     // Execute within milliseconds
     const [ix, bundle] = response.toBundleIx();
     await executeArbitrageTrade(ix, bundle);
-  }
-});
-```
-
-#### Real-Time Dashboards
-
-```typescript
-surge.on('update', (response: sb.SurgeUpdate) => {
-  // Instant UI updates
-  priceDisplay[response.data.symbol] = response.data.price;
-  metrics.latency = Date.now() - response.data.source_ts_ms;
-});
-```
-
-#### MEV Protection
-
-```typescript
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  if (response.data.price <= targetPrice) {
-    // Submit at optimal moment
-    const tx = await createLimitOrder(response);
-    await sendWithMevProtection(tx);
   }
 });
 ```

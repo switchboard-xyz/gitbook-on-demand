@@ -2,6 +2,18 @@
 
 * [Switchboard On Demand](README.md)
 
+## 🌊 Switchboard Surge
+
+* [Surge Overview](surge-overview.md)
+* [Getting Started with Surge](product-documentation/data-feeds/solana-svm/bundles-and-surge.md)
+* [Surge Integration Guide](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-switchboard-surge-ultra-low-latency-streaming)
+* [Using Crossbar for Surge](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-using-crossbar-to-stream-surge-prices-to-your-ui)
+
+## 📦 Bundles: The New Standard
+
+* [Bundle Method Overview](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-bundle-method-the-new-standard)
+* [Bundle Quick Start](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#quick-start-with-bundles)
+
 ## Understanding Switchboard
 
 * [Introduction](understanding-switchboard/introduction/README.md)
