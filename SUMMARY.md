@@ -18,6 +18,7 @@
 * [Data Feeds](product-documentation/data-feeds/README.md)
   * [Getting Started with Switchboard Data Feeds](product-documentation/data-feeds/getting-started-with-switchboard-data-feeds.md)
   * [Solana / SVM](product-documentation/data-feeds/solana-svm/README.md)
+    * [Bundles and Surge: Next-Generation Oracle Solutions](product-documentation/data-feeds/solana-svm/bundles-and-surge.md)
     * [Part 1: Designing and Simulating Your Feed](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/README.md)
       * [Option 1: Drag-and-Drop Feed Builder](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-1-drag-and-drop-feed-builder.md)
       * [Option 2: Designing a Feed in Typescript](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-2-designing-a-feed-in-typescript.md)
