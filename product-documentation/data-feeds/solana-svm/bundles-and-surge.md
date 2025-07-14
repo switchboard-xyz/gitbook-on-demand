@@ -243,13 +243,13 @@ surge.on('update', async (response) => {
 
 ### For Bundles
 
-1. Get a feed hash from [Switchboard On-Demand](https://ondemand.switchboard.xyz)
+1. Get a feed hash from [Switchboard Bundle Builder](https://beta.ondemand.switchboard.xyz/bundle-builder)
 2. Use the bundle examples: [GitHub Repository](https://github.com/switchboard-xyz/sb-on-demand-examples)
 3. Integrate into your program using the verification pattern
 
 ### For Surge
 
-1. Contact Switchboard team for API access
+1. Contact Switchboard team for API access: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
 2. Set up WebSocket connection with your API key
 3. Subscribe to desired price feeds
 4. Handle updates in your application
