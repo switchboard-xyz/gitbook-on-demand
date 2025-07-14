@@ -173,6 +173,10 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 ### 1. Request API Access
 Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
 
+- **Approval time**: ~3 days
+- **Requirements**: None - open to all developers
+- **Waitlist**: Yes, processed on first-come basis
+
 ### 2. Install the SDK
 ```bash
 npm install @switchboard-xyz/on-demand
@@ -185,13 +189,19 @@ yarn add @switchboard-xyz/on-demand
 import * as sb from "@switchboard-xyz/on-demand";
 
 const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!
+  apiKey: process.env.SURGE_API_KEY!,
+  // Leave gatewayUrl empty for automatic default selection
 });
 
+// Get all available Surge feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log('Available feeds:', availableFeeds);
+
+// Subscribe to specific feeds
 await surge.connectAndSubscribe([
-  { symbol: 'BTC/USDT', source: 'BINANCE' },
-  { symbol: 'ETH/USDT', source: 'BINANCE' },
-  { symbol: 'SOL/USDT', source: 'COINBASE' }
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+  { symbol: 'SOL/USD' }
 ]);
 
 surge.on('update', (response: sb.SurgeUpdate) => {
@@ -199,25 +209,22 @@ surge.on('update', (response: sb.SurgeUpdate) => {
 });
 ```
 
-## Pricing
+## Pricing & Limits
 
-### Developer Tier
-- Perfect for testing and development
-- Limited request rate
-- Community support
+### Current Pricing (Launch Phase)
+- **Surge API**: FREE during launch phase
+- **Bundles**: FREE during launch phase
 
-### Professional Tier
-- Production-ready performance
-- Higher rate limits
-- Priority support
+### Rate Limits
+- **Surge**: 5 concurrent WebSocket connections per API key
+- **Bundles**: 30 requests per minute
+- **Auto-reconnect**: Built-in automatic reconnection on disconnect
 
-### Enterprise Tier
-- Unlimited requests
-- Custom SLA
-- Dedicated support
-- White-glove onboarding
+### Future Pricing
+- Developer, Professional, and Enterprise tiers coming soon
+- Early adopters will receive special pricing
 
-Contact sales for pricing: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
+Contact for enterprise needs: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
 
 ## Technical Specifications
 
@@ -227,11 +234,25 @@ Contact sales for pricing: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
 - Client processing: ~10ms
 - **Total: <100ms**
 
+### Discovering Available Feeds
+
+Use the `getSurgeFeeds()` method to see all available trading pairs:
+
+```typescript
+const surge = new sb.Surge({ apiKey: YOUR_API_KEY });
+const feeds = await surge.getSurgeFeeds();
+
+// Example output format
+feeds.forEach(feed => {
+  console.log(`${feed.symbol}`);
+});
+```
+
 ### Supported Assets
 - All major cryptocurrency pairs
-- Forex rates
-- Commodities
-- Custom feeds available
+- Multiple exchange sources available
+- New pairs added regularly
+- Custom feeds available on request
 
 ### Data Centers
 - US East (Primary)

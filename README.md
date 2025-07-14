@@ -14,9 +14,10 @@ Switchboard Surge represents the future of oracle technology, delivering real-ti
 
 - **⚡ Ultra-Low Latency**: <100ms from price source to your application
 - **🔄 Real-Time Streaming**: WebSocket connections deliver prices as they change
-- **💰 Cost Efficient**: Pay for what you use with subscription-based pricing
+- **💰 Currently FREE**: No cost during launch phase (5 concurrent connections)
 - **🔗 Seamless Integration**: Convert streams to on-chain bundles instantly
-- **🌐 Global Scale**: Enterprise-grade infrastructure with 99.9% uptime
+- **🌐 Auto-Reconnect**: Built-in connection recovery
+- **📊 Enterprise-Ready**: 99.9% uptime with global infrastructure
 
 ### Quick Start with Surge
 
@@ -26,12 +27,17 @@ import * as sb from "@switchboard-xyz/on-demand";
 // Initialize Surge
 const surge = new sb.Surge({
   apiKey: process.env.SURGE_API_KEY!
+  // No gatewayUrl needed - uses default
 });
+
+// Discover available feeds
+const feeds = await surge.getSurgeFeeds();
+console.log(`${feeds.length} feeds available`);
 
 // Stream real-time prices
 await surge.connectAndSubscribe([
-  { symbol: 'BTC/USDT', source: 'BINANCE' },
-  { symbol: 'SOL/USDT', source: 'COINBASE' }
+  { symbol: 'BTC/USD' },
+  { symbol: 'SOL/USD' }
 ]);
 
 // Handle price updates
@@ -52,10 +58,10 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 
 ## 📦 Switchboard Bundles: The New Standard
 
-For on-chain integrations, Switchboard's revolutionary bundle method eliminates write locks and reduces costs by 90%:
+For on-chain integrations, Switchboard's revolutionary bundle method eliminates write locks and reduces costs:
 
 - **No Write Locks**: Unlimited parallelization
-- **90% Lower Costs**: ~0.00015 SOL vs traditional feeds
+- **Currently FREE**: No cost during launch phase (30 requests/min)
 - **Instant Setup**: No accounts to create or maintain
 - **Zero Maintenance**: No cranks or upkeep required
 

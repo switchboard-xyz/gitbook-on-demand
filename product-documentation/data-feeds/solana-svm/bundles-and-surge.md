@@ -153,12 +153,17 @@ import * as sb from "@switchboard-xyz/on-demand";
 // Initialize Surge client
 const surge = new sb.Surge({
   apiKey: process.env.SURGE_API_KEY!,
+  // gatewayUrl is optional - leave empty for automatic selection
 });
+
+// Discover available feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log(`Found ${availableFeeds.length} available feeds`);
 
 // Subscribe to price feeds
 await surge.connectAndSubscribe([
-  { symbol: 'BTC/USDT', source: 'BINANCE' },
-  { symbol: 'SOL/USDT', source: 'COINBASE' },
+  { symbol: 'BTC/USD' },
+  { symbol: 'SOL/USD' },
 ]);
 
 // Handle real-time updates
@@ -267,7 +272,7 @@ Create a `.env` file for Crossbar:
 # Surge configuration
 SURGE_API_KEY=your_surge_api_key_here
 SURGE_GATEWAY_URL=wss://surge.switchboard.xyz/mainnet
-SURGE_FEEDS=BTC/USDT:BINANCE,ETH/USDT:BINANCE,SOL/USDT:COINBASE
+SURGE_FEEDS=BTC/USD,ETH/USD,SOL/USD
 
 # Crossbar settings
 CROSSBAR_PORT=8080
@@ -285,7 +290,6 @@ interface PriceData {
   symbol: string;
   price: number;
   source_ts_ms: number;
-  source: string;
   feedHash: string;
 }
 
@@ -313,7 +317,6 @@ export function PriceFeed({ symbol }: { symbol: string }) {
           symbol: data.symbol,
           price: data.price,
           source_ts_ms: data.source_ts_ms,
-          source: data.source,
           feedHash: data.feedHash
         });
       }
@@ -336,7 +339,6 @@ export function PriceFeed({ symbol }: { symbol: string }) {
     <div className="price-feed">
       <h3>{priceData.symbol}</h3>
       <div className="price">${priceData.price.toFixed(2)}</div>
-      <div className="source">via {priceData.source}</div>
       <div className="latency">
         Latency: {Date.now() - priceData.source_ts_ms}ms
       </div>
@@ -361,7 +363,7 @@ async function fetchPrice(symbol: string) {
 
 // Poll for updates
 setInterval(async () => {
-  const price = await fetchPrice('BTC/USDT');
+  const price = await fetchPrice('BTC/USD');
   updateUI(price);
 }, 1000); // Poll every second
 ```
@@ -375,7 +377,7 @@ const ws = new WebSocket('ws://localhost:8080/ws');
 ws.onopen = () => {
   ws.send(JSON.stringify({
     type: 'subscribe',
-    feeds: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'AVAX/USDT']
+    feeds: ['BTC/USD', 'ETH/USD', 'SOL/USD', 'AVAX/USD']
   }));
 };
 
@@ -521,8 +523,8 @@ export function TradingDashboard() {
     });
 
     crossbar.subscribe([
-      'BTC/USDT', 'ETH/USDT', 'SOL/USDT',
-      'AVAX/USDT', 'MATIC/USDT', 'DOT/USDT'
+      'BTC/USD', 'ETH/USD', 'SOL/USD',
+      'AVAX/USD', 'MATIC/USD', 'DOT/USD'
     ]);
 
     return () => crossbar.disconnect();
@@ -550,14 +552,14 @@ export function TradingDashboard() {
 
 ## Choosing the Right Solution
 
-| Use Case           | Surge 🌊     | Bundles 📦 | Traditional |
-| ------------------ | ------------ | ---------- | ----------- |
-| **HFT Bots**       | ✅ Best       | ✅ Good     | ❌ Too Slow  |
-| **DeFi Protocols** | ✅ Good       | ✅ Best     | ✅ Works     |
-| **Real-time Apps** | ✅ Best       | ✅ Good     | ❌ Too Slow  |
-| **Analytics**      | ✅ Good       | ✅ Good     | ✅ Best      |
-| **Latency**        | <100ms       | <1s        | 2-10s       |
-| **Cost Model**     | Subscription | Per TX     | Per Update  |
+| Feature | Surge 🌊 | Bundles 📦 | Traditional |
+|---------|----------|------------|-------------|
+| **Best For** | Perpetuals, Oracle AMMs | DeFi, Smart Contracts | Analytics |
+| **Latency** | <100ms | <1s | 2-10s |
+| **Current Cost** | FREE | FREE | Gas fees |
+| **Rate Limits** | 5 connections | 30 req/min | N/A |
+| **Auto-reconnect** | ✅ Built-in | N/A | N/A |
+| **Write Locks** | None | None | Required |
 
 ### When to Use Bundles
 
@@ -583,10 +585,13 @@ export function TradingDashboard() {
 
 ### For Surge
 
-1. Contact Switchboard team for API access: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
+1. Request API access: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
+   - Approval time: ~3 days
+   - No requirements - open to all
+   - Currently FREE with 5 concurrent connections
 2. Set up WebSocket connection with your API key
 3. Subscribe to desired price feeds
-4. Handle updates in your application
+4. Auto-reconnection is handled automatically
 
 ## Next Steps
 
