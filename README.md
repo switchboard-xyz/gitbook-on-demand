@@ -60,9 +60,10 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 
 For on-chain integrations, Switchboard's revolutionary bundle method eliminates write locks and reduces costs:
 
+- **No Data Feed Accounts**: Zero setup - no accounts to create or fund
 - **No Write Locks**: Unlimited parallelization
 - **Currently FREE**: No cost during launch phase (30 requests/min)
-- **Instant Setup**: No accounts to create or maintain
+- **Instant Setup**: Start using prices immediately
 - **Zero Maintenance**: No cranks or upkeep required
 
 [Learn About Bundles →](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-bundle-method-the-new-standard)

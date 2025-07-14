@@ -26,6 +26,12 @@ Total Latency: <100ms
 - **Event-driven updates** deliver prices as they change
 - **No polling overhead** with persistent WebSocket connections
 
+### 🎯 Zero Setup
+- **No data feed accounts** to create or manage
+- **No on-chain deployment** required
+- **No SOL funding** needed for accounts
+- **Instant access** with just an API key
+
 ### 💰 Cost Efficiency
 - **Subscription-based pricing** - pay for what you use
 - **No gas fees** for receiving updates
@@ -253,13 +259,6 @@ feeds.forEach(feed => {
 - Multiple exchange sources available
 - New pairs added regularly
 - Custom feeds available on request
-
-### Data Centers
-- US East (Primary)
-- US West
-- Europe
-- Asia-Pacific
-- More regions coming soon
 
 ## FAQ
 

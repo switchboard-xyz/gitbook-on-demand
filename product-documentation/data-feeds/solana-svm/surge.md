@@ -4,6 +4,14 @@
 
 Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for perpetual exchanges, oracle-based AMMs, and high-frequency trading systems.
 
+### 🚀 Zero Setup Required
+
+Just like bundles, Surge requires **NO data feed accounts**:
+- ❌ No need to create on-chain feed accounts
+- ❌ No need to deploy or manage contracts
+- ❌ No need to fund accounts with SOL
+- ✅ Just get an API key and start streaming prices instantly!
+
 ## Architecture
 
 ```

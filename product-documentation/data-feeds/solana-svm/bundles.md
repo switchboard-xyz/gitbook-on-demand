@@ -4,6 +4,14 @@
 
 The bundle method represents a paradigm shift in how oracle data is delivered on Solana, eliminating write locks and reducing costs by 90%.
 
+### 🚀 No Data Feed Accounts Required
+
+Unlike traditional oracle solutions, bundles require **ZERO setup**:
+- ❌ No need to create data feed accounts
+- ❌ No need to fund accounts with SOL
+- ❌ No need to manage account permissions
+- ✅ Just fetch a feed hash and start using prices immediately!
+
 ## Why are bundles faster than other oracle solutions?
 
 ```
@@ -30,6 +38,7 @@ Oracle → Bundle → Your Program (direct use)
 
 ### 1. **Stateless Architecture**
 
+* **No data feed accounts** - Start using prices without any account creation
 * No on-chain accounts to create or maintain
 * Prices are verified and used directly in your transaction
 * Multiple programs can read the same price simultaneously
