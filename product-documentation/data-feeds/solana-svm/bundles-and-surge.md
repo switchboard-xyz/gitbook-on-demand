@@ -214,6 +214,316 @@ surge.on('update', async (response) => {
 });
 ```
 
+## 🖥️ Using Crossbar to Stream Surge Prices to Your UI
+
+### What is Crossbar?
+
+Crossbar is Switchboard's local gateway service that enables you to stream real-time oracle prices directly to your frontend applications. It acts as a bridge between the Surge WebSocket feeds and your UI, providing a simple HTTP/WebSocket interface for price updates.
+
+### Setting Up Crossbar for Surge Streaming
+
+#### 1. **Run Crossbar Locally**
+
+```bash
+# Using Docker Compose (recommended)
+git clone https://github.com/switchboard-xyz/crossbar
+cd crossbar
+docker-compose up -d
+
+# Crossbar will be available at:
+# HTTP: http://localhost:8080
+# WebSocket: ws://localhost:8080/ws
+```
+
+#### 2. **Configure Surge Connection**
+
+Create a `.env` file for Crossbar:
+
+```bash
+# Surge configuration
+SURGE_API_KEY=your_surge_api_key_here
+SURGE_GATEWAY_URL=wss://surge.switchboard.xyz/mainnet
+SURGE_FEEDS=BTC/USDT:BINANCE,ETH/USDT:BINANCE,SOL/USDT:COINBASE
+
+# Crossbar settings
+CROSSBAR_PORT=8080
+ENABLE_CORS=true
+ALLOWED_ORIGINS=http://localhost:3000,https://yourdapp.com
+```
+
+#### 3. **Frontend Integration**
+
+```typescript
+// React example with real-time price updates
+import { useEffect, useState } from 'react';
+
+interface PriceData {
+  symbol: string;
+  price: number;
+  timestamp: number;
+  source: string;
+  confidence: number;
+}
+
+export function PriceFeed({ symbol }: { symbol: string }) {
+  const [priceData, setPriceData] = useState<PriceData | null>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
+
+  useEffect(() => {
+    // Connect to Crossbar WebSocket
+    const websocket = new WebSocket('ws://localhost:8080/ws');
+    
+    websocket.onopen = () => {
+      console.log('Connected to Crossbar');
+      // Subscribe to specific price feed
+      websocket.send(JSON.stringify({
+        type: 'subscribe',
+        feeds: [symbol]
+      }));
+    };
+
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'price_update' && data.symbol === symbol) {
+        setPriceData({
+          symbol: data.symbol,
+          price: data.price,
+          timestamp: data.timestamp,
+          source: data.source,
+          confidence: data.confidence
+        });
+      }
+    };
+
+    websocket.onerror = (error) => {
+      console.error('Crossbar WebSocket error:', error);
+    };
+
+    setWs(websocket);
+
+    return () => {
+      websocket.close();
+    };
+  }, [symbol]);
+
+  if (!priceData) return <div>Loading...</div>;
+
+  return (
+    <div className="price-feed">
+      <h3>{priceData.symbol}</h3>
+      <div className="price">${priceData.price.toFixed(2)}</div>
+      <div className="source">via {priceData.source}</div>
+      <div className="latency">
+        Latency: {Date.now() - priceData.timestamp}ms
+      </div>
+    </div>
+  );
+}
+```
+
+### Advanced Crossbar Features
+
+#### 1. **HTTP Polling Alternative**
+
+For simpler integrations, Crossbar also provides HTTP endpoints:
+
+```typescript
+// Fetch latest price via HTTP
+async function fetchPrice(symbol: string) {
+  const response = await fetch(`http://localhost:8080/api/price/${symbol}`);
+  const data = await response.json();
+  return data;
+}
+
+// Poll for updates
+setInterval(async () => {
+  const price = await fetchPrice('BTC/USDT');
+  updateUI(price);
+}, 1000); // Poll every second
+```
+
+#### 2. **Batch Price Requests**
+
+```typescript
+// Subscribe to multiple feeds simultaneously
+const ws = new WebSocket('ws://localhost:8080/ws');
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    type: 'subscribe',
+    feeds: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'AVAX/USDT']
+  }));
+};
+
+// Handle batch updates
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  if (data.type === 'batch_update') {
+    data.prices.forEach(price => {
+      updatePriceDisplay(price.symbol, price);
+    });
+  }
+};
+```
+
+#### 3. **Historical Data Access**
+
+Crossbar can cache recent price history:
+
+```typescript
+// Get price history for charting
+async function getPriceHistory(symbol: string, minutes: number = 60) {
+  const response = await fetch(
+    `http://localhost:8080/api/history/${symbol}?minutes=${minutes}`
+  );
+  const history = await response.json();
+  
+  // Format for charting library
+  return history.map(point => ({
+    time: point.timestamp,
+    value: point.price
+  }));
+}
+```
+
+### Production Deployment
+
+#### 1. **Crossbar with Reverse Proxy**
+
+```nginx
+# nginx configuration
+upstream crossbar {
+    server localhost:8080;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name api.yourdapp.com;
+
+    location /ws {
+        proxy_pass http://crossbar;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /api/ {
+        proxy_pass http://crossbar;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+#### 2. **Monitoring and Alerts**
+
+```typescript
+// Monitor connection health
+class CrossbarConnection {
+  private reconnectAttempts = 0;
+  private maxReconnects = 5;
+  
+  connect() {
+    this.ws = new WebSocket(this.url);
+    
+    this.ws.onclose = () => {
+      if (this.reconnectAttempts < this.maxReconnects) {
+        setTimeout(() => {
+          this.reconnectAttempts++;
+          this.connect();
+        }, Math.pow(2, this.reconnectAttempts) * 1000);
+      } else {
+        this.onMaxReconnectsReached();
+      }
+    };
+    
+    this.ws.onopen = () => {
+      this.reconnectAttempts = 0;
+      this.onConnected();
+    };
+  }
+}
+```
+
+### Best Practices
+
+1. **Connection Management**
+   - Implement automatic reconnection logic
+   - Handle network interruptions gracefully
+   - Use connection pooling for multiple feeds
+
+2. **Performance Optimization**
+   - Throttle UI updates to prevent overwhelming renders
+   - Use React.memo or similar for price components
+   - Implement virtual scrolling for large price lists
+
+3. **Error Handling**
+   - Fallback to HTTP polling if WebSocket fails
+   - Display connection status to users
+   - Log errors for monitoring
+
+4. **Security**
+   - Use WSS (WebSocket Secure) in production
+   - Implement rate limiting
+   - Validate all incoming data
+
+### Example: Complete Trading Dashboard
+
+```typescript
+import { useEffect, useState } from 'react';
+import { LineChart } from 'recharts';
+
+export function TradingDashboard() {
+  const [prices, setPrices] = useState({});
+  const [history, setHistory] = useState({});
+  const [connection, setConnection] = useState('disconnected');
+
+  useEffect(() => {
+    const crossbar = new CrossbarClient({
+      url: 'wss://api.yourdapp.com/ws',
+      onPriceUpdate: (symbol, price) => {
+        setPrices(prev => ({ ...prev, [symbol]: price }));
+        
+        // Update history for charts
+        setHistory(prev => ({
+          ...prev,
+          [symbol]: [...(prev[symbol] || []).slice(-100), {
+            time: Date.now(),
+            price: price.value
+          }]
+        }));
+      },
+      onConnectionChange: setConnection
+    });
+
+    crossbar.subscribe([
+      'BTC/USDT', 'ETH/USDT', 'SOL/USDT',
+      'AVAX/USDT', 'MATIC/USDT', 'DOT/USDT'
+    ]);
+
+    return () => crossbar.disconnect();
+  }, []);
+
+  return (
+    <div className="dashboard">
+      <ConnectionStatus status={connection} />
+      
+      <div className="price-grid">
+        {Object.entries(prices).map(([symbol, data]) => (
+          <PriceCard
+            key={symbol}
+            symbol={symbol}
+            price={data.price}
+            change={data.change24h}
+            chart={history[symbol] || []}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
 ## Choosing the Right Solution
 
 | Use Case           | Surge 🌊     | Bundles 📦 | Traditional |
