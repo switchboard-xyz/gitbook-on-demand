@@ -12,12 +12,18 @@ Just like bundles, Surge requires **NO data feed accounts**:
 - ❌ No need to fund accounts with SOL
 - ✅ Just get an API key and start streaming prices instantly!
 
+## How is Surge So Fast?
+
+Surge capitalizes on Switchboard's SAIL framework to verify a hardware proof of the oracle upon joining the network, proving the oracle signing prices is only running verified Switchboard code. This oracle then streams directly from price discovery sources without needing to report state to any middleware layer like its own L1.
+
+Other pull oracles gather price information, write to a state layer, and come to consensus. Surge verifies a hardware proof on bootup to prove its legitimacy and unalterability and streams directly to users.
+
 ## Architecture
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │  Price Sources  │────▶│  Oracle Network │────▶│  Surge Gateway  │
-│  (CEX, DEX)     │     │                 │     │   (WebSocket)   │
+│  (CEX, DEX)     │     │   (SAIL Verified)│     │   (WebSocket)   │
 └─────────────────┘     └─────────────────┘     └────────┬────────┘
                                                          │
                                               ┌──────────▼──────────┐

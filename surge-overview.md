@@ -232,6 +232,26 @@ surge.on('update', (response: sb.SurgeUpdate) => {
 
 Contact for enterprise needs: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
 
+## How is Surge So Fast?
+
+Surge capitalizes on Switchboard's SAIL framework to verify a hardware proof of the oracle upon joining the network, proving the oracle signing prices is only running verified Switchboard code. This oracle then streams directly from price discovery sources without needing to report state to any middleware layer like its own L1.
+
+### Traditional Pull Oracles vs Surge
+
+**Traditional Pull Oracles:**
+1. Gather price information
+2. Write to a state layer
+3. Come to consensus
+4. Then make data available
+
+**Surge:**
+1. Verifies a hardware proof on bootup to prove its legitimacy and unalterability
+2. Streams directly to users from price sources
+3. No middleware layer needed
+4. No consensus delays
+
+This architecture eliminates multiple steps that add latency in traditional oracle systems, enabling true sub-100ms performance.
+
 ## Technical Specifications
 
 ### Latency Breakdown
