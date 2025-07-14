@@ -18,7 +18,6 @@
 * [Data Feeds](product-documentation/data-feeds/README.md)
   * [Getting Started with Switchboard Data Feeds](product-documentation/data-feeds/getting-started-with-switchboard-data-feeds.md)
   * [Solana / SVM](product-documentation/data-feeds/solana-svm/README.md)
-    * [Bundles and Surge: Next-Generation Oracle Solutions](product-documentation/data-feeds/solana-svm/bundles-and-surge.md)
     * [Part 1: Designing and Simulating Your Feed](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/README.md)
       * [Option 1: Drag-and-Drop Feed Builder](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-1-drag-and-drop-feed-builder.md)
       * [Option 2: Designing a Feed in Typescript](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-2-designing-a-feed-in-typescript.md)
@@ -57,15 +56,16 @@
 
 ## 📦 Bundles: The New Standard
 
-* [Bundle Method Overview](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-bundle-method-the-new-standard)
-* [Bundle Quick Start](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#quick-start-with-bundles)
+* [Bundle Method Overview](product-documentation/data-feeds/solana-svm/bundles.md)
+* [Bundle Quick Start](product-documentation/data-feeds/solana-svm/bundles.md#quick-start-with-bundles)
+* [Bundle Integration Examples](product-documentation/data-feeds/solana-svm/bundles.md#real-world-use-cases)
 
 ## 🌊 Switchboard Surge
 
 * [Surge Overview](surge-overview.md)
-* [Getting Started with Surge](product-documentation/data-feeds/solana-svm/bundles-and-surge.md)
-* [Surge Integration Guide](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-switchboard-surge-ultra-low-latency-streaming)
-* [Using Crossbar for Surge](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-using-crossbar-to-stream-surge-prices-to-your-ui)
+* [Getting Started with Surge](product-documentation/data-feeds/solana-svm/surge.md)
+* [Surge Implementation Guide](product-documentation/data-feeds/solana-svm/surge.md#implementation)
+* [Using Crossbar for Surge](product-documentation/data-feeds/solana-svm/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
 
 ## Tooling and Resources
 
