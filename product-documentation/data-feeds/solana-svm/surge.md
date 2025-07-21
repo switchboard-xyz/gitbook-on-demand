@@ -1,4 +1,4 @@
-# Switchboard Surge: Ultra-Low Latency WebSocket Streaming
+# Getting Started with Surge
 
 ## Overview
 
@@ -7,10 +7,11 @@ Switchboard Surge is the industry's fastest oracle data delivery system, providi
 ### 🚀 Zero Setup Required
 
 Just like bundles, Surge requires **NO data feed accounts**:
-- ❌ No need to create on-chain feed accounts
-- ❌ No need to deploy or manage contracts
-- ❌ No need to fund accounts with SOL
-- ✅ Just get an API key and start streaming prices instantly!
+
+* ❌ No need to create on-chain feed accounts
+* ❌ No need to deploy or manage contracts
+* ❌ No need to fund accounts with SOL
+* ✅ Just get an API key and start streaming prices instantly!
 
 ## How is Surge So Fast?
 
@@ -216,18 +217,18 @@ export function PriceFeed({ symbol }: { symbol: string }) {
 
 ## Current Limits & Pricing
 
-- **Cost**: FREE during launch phase
-- **Rate Limits**: 5 concurrent WebSocket connections per API key
-- **Auto-reconnect**: Built-in automatic reconnection on disconnect
-- **Approval Time**: ~3 days for API key
-- **Requirements**: None - open to all developers
+* **Cost**: FREE during launch phase
+* **Rate Limits**: 5 concurrent WebSocket connections per API key
+* **Auto-reconnect**: Built-in automatic reconnection on disconnect
+* **Approval Time**: \~3 days for API key
+* **Requirements**: None - open to all developers
 
 ## Getting Started
 
 1. Request API access: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
-   - Approval time: ~3 days
-   - No requirements - open to all
-   - Currently FREE with 5 concurrent connections
+   * Approval time: \~3 days
+   * No requirements - open to all
+   * Currently FREE with 5 concurrent connections
 2. Set up WebSocket connection with your API key
 3. Subscribe to desired price feeds
 4. Auto-reconnection is handled automatically
@@ -235,17 +236,19 @@ export function PriceFeed({ symbol }: { symbol: string }) {
 ## FAQ
 
 ### How is Surge different from bundles?
+
 Surge streams data directly to your application via WebSocket for real-time use. Bundles are for on-chain smart contract integration. You can convert Surge updates to bundles when needed.
 
 ### What happens on disconnect?
+
 The SDK includes automatic reconnection logic with exponential backoff. Your application will seamlessly recover from network interruptions.
 
 ### Can I use custom feeds?
+
 Contact the Switchboard team for custom feed requests.
 
 ## Next Steps
 
-- View the [complete Surge overview](../../../surge-overview.md)
-- Explore [code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
-- Learn about [Crossbar gateway](../../../tooling-and-resources/crossbar/)
-- Join our [Discord](https://discord.gg/switchboard) for support
+* Explore [code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+* Learn about [Crossbar gateway](../../../tooling-and-resources/crossbar/)
+* Join our [Discord](https://discord.gg/switchboard) for support
