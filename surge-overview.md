@@ -1,4 +1,4 @@
-# 🌊 Switchboard Surge
+# 🌊 Surge Overview
 
 ## The Future of Oracle Technology
 
@@ -7,12 +7,14 @@ Switchboard Surge is the industry's fastest oracle data delivery system, providi
 ## Why Surge Changes Everything
 
 ### Traditional Oracle Flow (Slow)
+
 ```
 Price Source → Oracle → Blockchain Write → Your App Reads
 Total Latency: 2-10 seconds
 ```
 
 ### Surge Flow (Lightning Fast)
+
 ```
 Price Source → Oracle → Direct WebSocket → Your App
 Total Latency: <100ms
@@ -21,38 +23,44 @@ Total Latency: <100ms
 ## Key Features
 
 ### ⚡ Unmatched Performance
-- **Sub-100ms latency** from price source to your application
-- **Direct streaming** eliminates blockchain bottlenecks
-- **Event-driven updates** deliver prices as they change
-- **No polling overhead** with persistent WebSocket connections
+
+* **Sub-100ms latency** from price source to your application
+* **Direct streaming** eliminates blockchain bottlenecks
+* **Event-driven updates** deliver prices as they change
+* **No polling overhead** with persistent WebSocket connections
 
 ### 🎯 Zero Setup
-- **No data feed accounts** to create or manage
-- **No on-chain deployment** required
-- **No SOL funding** needed for accounts
-- **Instant access** with just an API key
+
+* **No data feed accounts** to create or manage
+* **No on-chain deployment** required
+* **No SOL funding** needed for accounts
+* **Instant access** with just an API key
 
 ### 💰 Cost Efficiency
-- **Subscription-based pricing** - pay for what you use
-- **No gas fees** for receiving updates
-- **Reduced on-chain costs** when converting to bundles
-- **Enterprise pricing** available for high-volume users
+
+* **Subscription-based pricing** - pay for what you use
+* **No gas fees** for receiving updates
+* **Reduced on-chain costs** when converting to bundles
+* **Enterprise pricing** available for high-volume users
 
 ### 🔗 Seamless Integration
-- **Simple SDK** with TypeScript/JavaScript support
-- **WebSocket API** for any programming language
-- **Bundle conversion** for on-chain use when needed
-- **Crossbar gateway** for frontend integration
+
+* **Simple SDK** with TypeScript/JavaScript support
+* **WebSocket API** for any programming language
+* **Bundle conversion** for on-chain use when needed
+* **Crossbar gateway** for frontend integration
 
 ### 🛡️ Enterprise-Grade Reliability
-- **99.9% uptime SLA** for production applications
-- **Global infrastructure** with multiple regions
-- **Automatic failover** and redundancy
-- **Professional support** available
+
+* **99.9% uptime SLA** for production applications
+* **Global infrastructure** with multiple regions
+* **Automatic failover** and redundancy
+* **Professional support** available
 
 ## Primary Use Cases
 
 ### 📈 Perpetual Exchanges
+
 Surge is the perfect oracle solution for perpetual trading platforms, providing the ultra-low latency needed for:
 
 ```typescript
@@ -95,6 +103,7 @@ class PerpetualExchange {
 ```
 
 ### 🔄 Oracle-Based AMMs
+
 Build the next generation of AMMs that use real-time oracle prices instead of liquidity pools:
 
 ```typescript
@@ -139,6 +148,7 @@ class OracleAMM {
 ```
 
 ### High-Frequency Trading & Arbitrage
+
 ```typescript
 // Capitalize on price discrepancies across venues
 surge.on('update', async (response: sb.SurgeUpdate) => {
@@ -158,6 +168,7 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 ```
 
 ### Liquidation Engines
+
 ```typescript
 // Instant liquidations for lending protocols
 surge.on('update', async (response: sb.SurgeUpdate) => {
@@ -177,13 +188,15 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 ## Getting Started
 
 ### 1. Request API Access
+
 Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
 
-- **Approval time**: ~3 days
-- **Requirements**: None - open to all developers
-- **Waitlist**: Yes, processed on first-come basis
+* **Approval time**: \~3 days
+* **Requirements**: None - open to all developers
+* **Waitlist**: Yes, processed on first-come basis
 
 ### 2. Install the SDK
+
 ```bash
 npm install @switchboard-xyz/on-demand
 # or
@@ -191,6 +204,7 @@ yarn add @switchboard-xyz/on-demand
 ```
 
 ### 3. Connect and Stream
+
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
 
@@ -218,17 +232,20 @@ surge.on('update', (response: sb.SurgeUpdate) => {
 ## Pricing & Limits
 
 ### Current Pricing (Launch Phase)
-- **Surge API**: FREE during launch phase
-- **Bundles**: FREE during launch phase
+
+* **Surge API**: FREE during launch phase
+* **Bundles**: FREE during launch phase
 
 ### Rate Limits
-- **Surge**: 5 concurrent WebSocket connections per API key
-- **Bundles**: 30 requests per minute
-- **Auto-reconnect**: Built-in automatic reconnection on disconnect
+
+* **Surge**: 5 concurrent WebSocket connections per API key
+* **Bundles**: 30 requests per minute
+* **Auto-reconnect**: Built-in automatic reconnection on disconnect
 
 ### Future Pricing
-- Developer, Professional, and Enterprise tiers coming soon
-- Early adopters will receive special pricing
+
+* Developer, Professional, and Enterprise tiers coming soon
+* Early adopters will receive special pricing
 
 Contact for enterprise needs: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
 
@@ -239,12 +256,14 @@ Surge capitalizes on Switchboard's SAIL framework to verify a hardware proof of 
 ### Traditional Pull Oracles vs Surge
 
 **Traditional Pull Oracles:**
+
 1. Gather price information
 2. Write to a state layer
 3. Come to consensus
 4. Then make data available
 
 **Surge:**
+
 1. Verifies a hardware proof on bootup to prove its legitimacy and unalterability
 2. Streams directly to users from price sources
 3. No middleware layer needed
@@ -255,10 +274,11 @@ This architecture eliminates multiple steps that add latency in traditional orac
 ## Technical Specifications
 
 ### Latency Breakdown
-- Oracle processing: ~10ms
-- Network transmission: ~20-50ms
-- Client processing: ~10ms
-- **Total: <100ms**
+
+* Oracle processing: \~10ms
+* Network transmission: \~20-50ms
+* Client processing: \~10ms
+* **Total: <100ms**
 
 ### Discovering Available Feeds
 
@@ -275,28 +295,32 @@ feeds.forEach(feed => {
 ```
 
 ### Supported Assets
-- All major cryptocurrency pairs
-- Multiple exchange sources available
-- New pairs added regularly
-- Custom feeds available on request
+
+* All major cryptocurrency pairs
+* Multiple exchange sources available
+* New pairs added regularly
+* Custom feeds available on request
 
 ## FAQ
 
 ### How is Surge different from traditional oracles?
+
 Surge streams data directly to your application via WebSocket, bypassing the blockchain entirely for reads. This eliminates gas costs and reduces latency from seconds to milliseconds.
 
 ### Can I use Surge data on-chain?
+
 Yes! Surge updates can be converted to bundle format for on-chain use with a simple SDK call: `response.toBundleIx()`
 
 ### What's the reliability?
+
 Surge operates with 99.9% uptime SLA, automatic failover, and global redundancy. Enterprise customers get dedicated infrastructure.
 
 ### How do I handle disconnections?
+
 The SDK includes automatic reconnection logic with exponential backoff. Your application will seamlessly recover from network interruptions.
 
 ## Next Steps
 
-- [Read the full integration guide](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-switchboard-surge-ultra-low-latency-streaming)
-- [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
-- [Join our Discord](https://discord.gg/switchboard)
-- [Request API access](https://tinyurl.com/yqubsr8e)
+* [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+* [Join our Discord](https://discord.gg/switchboard)
+* [Request API access](https://tinyurl.com/yqubsr8e)
