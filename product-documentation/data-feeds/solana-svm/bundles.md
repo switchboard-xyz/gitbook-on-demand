@@ -1,4 +1,4 @@
-# Bundle Method: The New Standard for On-Chain Oracle Data
+# Bundle Method Overview
 
 ## Overview
 
@@ -7,10 +7,11 @@ The bundle method represents a paradigm shift in how oracle data is delivered on
 ### 🚀 No Data Feed Accounts Required
 
 Unlike traditional oracle solutions, bundles require **ZERO setup**:
-- ❌ No need to create data feed accounts
-- ❌ No need to fund accounts with SOL
-- ❌ No need to manage account permissions
-- ✅ Just fetch a feed hash and start using prices immediately!
+
+* ❌ No need to create data feed accounts
+* ❌ No need to fund accounts with SOL
+* ❌ No need to manage account permissions
+* ✅ Just fetch a feed hash and start using prices immediately!
 
 ## Why are bundles faster than other oracle solutions?
 
@@ -28,7 +29,7 @@ Oracle → Bundle → Your Program (direct use)
 
 | Feature              | Bundle Method | Traditional Feeds |
 | -------------------- | ------------- | ----------------- |
-| **Transaction Cost** | FREE          | ~0.0001 SOL       |
+| **Transaction Cost** | FREE          | \~0.0001 SOL      |
 | **Write Locks**      | None          | Required          |
 | **Parallelization**  | Unlimited     | Limited           |
 | **Setup Time**       | Instant       | 5-10 minutes      |
@@ -87,13 +88,15 @@ Understanding bundle sizes helps optimize your transactions:
 **Base Formula**: `Total bytes = 34 + (n × 96) + (m × 49)`
 
 Where:
+
 * `n` = number of oracles
 * `m` = number of feeds
 
 **Examples:**
-* 1 oracle, 1 feed: ~179 bytes
-* 3 oracles, 5 feeds: ~563 bytes
-* 3 oracles, 10 feeds: ~812 bytes
+
+* 1 oracle, 1 feed: \~179 bytes
+* 3 oracles, 5 feeds: \~563 bytes
+* 3 oracles, 10 feeds: \~812 bytes
 
 ## Quick Start with Bundles
 
@@ -112,6 +115,7 @@ bun run scripts/runBundle.ts --feedHash YOUR_FEED_HASH
 ## Real-World Use Cases
 
 ### DeFi Lending Protocol
+
 ```rust
 pub fn liquidate_position(ctx: Context<Liquidate>, bundle: Vec<u8>) -> Result<()> {
     // Verify the bundle
@@ -136,6 +140,7 @@ pub fn liquidate_position(ctx: Context<Liquidate>, bundle: Vec<u8>) -> Result<()
 ```
 
 ### Perpetual DEX
+
 ```typescript
 async function executeTrade(
   amount: number,
@@ -173,6 +178,7 @@ async function executeTrade(
 ```
 
 ### Stablecoin Minting
+
 ```typescript
 async function mintStablecoin(collateralAmount: number) {
   // Fetch collateral asset prices
@@ -213,16 +219,16 @@ async function mintStablecoin(collateralAmount: number) {
 
 ## When to Use Bundles
 
-- Smart contract integrations
-- DeFi protocols requiring multiple price points
-- Cost-sensitive applications
-- Standard trading applications
+* Smart contract integrations
+* DeFi protocols requiring multiple price points
+* Cost-sensitive applications
+* Standard trading applications
 
 ## Current Limits
 
-- **Rate Limit**: 30 requests per minute
-- **Cost**: FREE during launch phase
-- **No maintenance**: No cranks or accounts needed
+* **Rate Limit**: 30 requests per minute
+* **Cost**: FREE during launch phase
+* **No maintenance**: No cranks or accounts needed
 
 ## Getting Started
 
@@ -232,6 +238,6 @@ async function mintStablecoin(collateralAmount: number) {
 
 ## Next Steps
 
-- [On-chain integration guide](integrating-your-feed-on-chain.md)
-- [Feed design tutorial](part-1-designing-and-simulating-your-feed/)
-- [Code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+* [On-chain integration guide](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana#-quick-start-30-seconds-to-first-price)
+* [Feed design tutorial](part-1-designing-and-simulating-your-feed/)
+* [Code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)

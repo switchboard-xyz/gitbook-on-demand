@@ -62,7 +62,7 @@
 
 ## 🌊 Switchboard Surge
 
-* [Surge Overview](surge-overview.md)
+* [🌊 Surge Overview](surge-overview.md)
 * [Getting Started with Surge](product-documentation/data-feeds/solana-svm/surge.md)
 * [Surge Implementation Guide](product-documentation/data-feeds/solana-svm/surge.md#implementation)
 * [Using Crossbar for Surge](product-documentation/data-feeds/solana-svm/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
