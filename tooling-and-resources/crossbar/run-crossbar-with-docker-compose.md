@@ -44,13 +44,9 @@ services:
       SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
 
       # task-runner-simulator
-      TASK_RUNNER_URL: ${TASK_RUNNER_URL:-"http://task-runner:8080"}
+      TASK_RUNNER_URL: "http://task-runner:8080"
       
-      # ipfs gateways
-      PINATA_JWT_KEY: ${PINATA_JWT_KEY}
-      PINATA_GATEWAY_KEY: ${PINATA_GATEWAY_KEY}
-      # or 
-      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL}
+      IPFS_GATEWAY_URL: "http://ipfs:8080"
 
       # Required for SUI projects
       SUI_MAINNET_RPC: ${SUI_MAINNET_RPC}
