@@ -43,9 +43,7 @@ services:
       SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-"https://api.mainnet-beta.solana.com"}
       SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
 
-      # task-runner-simulator
       TASK_RUNNER_URL: "http://task-runner:8080"
-      
       IPFS_GATEWAY_URL: "http://ipfs:8080"
 
       # Required for SUI projects
