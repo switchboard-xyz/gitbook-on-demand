@@ -40,30 +40,23 @@ services:
     image: switchboardlabs/crossbar:latest
     depends_on:
       - ipfs
-    ports:
-      - "8080:8080"
+    ports: ["8080:8080"]
     environment:
       <<: *rpc-env
       TASK_RUNNER_URL: "http://task-runner:8080"
       IPFS_GATEWAY_URL: "http://ipfs:8080"
   task-runner:
     image: switchboardlabs/task-runner-simulator
-    ports:
-      - "8000:8080"
+    ports: ["8000:8080"]
     environment:
       <<: *rpc-env
-
   ipfs:
     image: ipfs/kubo:latest
     container_name: ipfs_node
     volumes:
       - ./ipfs_staging:/export
       - ./ipfs_data:/data/ipfs
-    ports:
-      - "4001:4001"     # Swarm listening port
-      - "4001:4001/udp" # Swarm UDP
-      - "5001:5001"     # API port
-      - "8090:8080"     # Gateway port (host 8090 → container 8080)
+    ports: ["4001:4001", "4001:4001/udp", "5001:5001", "8090:8080"]
     environment:
       - IPFS_PROFILE=server
       - IPFS_PATH=/data/ipfs
