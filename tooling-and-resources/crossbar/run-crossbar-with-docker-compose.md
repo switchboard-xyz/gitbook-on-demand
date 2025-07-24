@@ -34,6 +34,8 @@ version: '3.8'
 services:
   crossbar:
     image: switchboardlabs/crossbar:latest
+    depends_on:
+      - ipfs
     ports:
       - "8080:8080"
     environment:
@@ -70,10 +72,7 @@ services:
       MORPH_MAINNET_RPC: ${MORPH_MAINNET_RPC}
       MORPH_HOLESKY_RPC: ${MORPH_HOLESKY_RPC}
       ARBITRUM_SEPOLIA_RPC: ${ARBITRUM_SEPOLIA_RPC}
-      ARBITRUM_ONE_RPC: ${ARBITRUM_ONE_RPC}
-  
-
-      
+      ARBITRUM_ONE_RPC: ${ARBITRUM_ONE_RPC}    
   task-runner:
     image: switchboardlabs/task-runner-simulator
     ports:
@@ -82,6 +81,21 @@ services:
       # dedicated solana rpc's recommended
       SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-"https://api.mainnet-beta.solana.com"}
       SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: ipfs_node
+    volumes:
+      - ./ipfs_staging:/export
+      - ./ipfs_data:/data/ipfs
+    ports:
+      - "4001:4001"     # Swarm listening port
+      - "4001:4001/udp" # Swarm UDP
+      - "5001:5001"     # API port
+      - "8090:8080"     # Gateway port (changed from 8080 to avoid conflict)
+    environment:
+      - IPFS_PROFILE=server
+      - IPFS_PATH=/data/ipfs
+    restart: unless-stopped
 ```
 
 #### **Step 3: Create the `.env` File**
