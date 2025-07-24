@@ -53,20 +53,6 @@ services:
       # Required for Aptos projects
       APTOS_MAINNET_RPC: ${APTOS_MAINNET_RPC}
       APTOS_TESTNET_RPC: ${APTOS_TESTNET_RPC}
-      
-      # RPCs (all optional)
-      SOLANA_MAINNET_PUBLIC_RPC: ${SOLANA_MAINNET_PUBLIC_RPC} # will default to mainnet rpc if not listed
-      SOLANA_DEVNET_PUBLIC_RPC: ${SOLANA_DEVNET_PUBLIC_RPC} # will default to devnet rpc if not listed
-      ECLIPSE_MAINNET_RPC: ${ECLIPSE_MAINNET_RPC}
-      ECLIPSE_TESTNET_RPC: ${ECLIPSE_TESTNET_RPC}
-      ETH_MAINNET_RPC: ${ETH_MAINNET_RPC}
-      ETH_HOLESKY_RPC: ${ETH_HOLESKY_RPC}
-      CORE_MAINNET_RPC: ${CORE_MAINNET_RPC}
-      CORE_TESTNET_RPC: ${CORE_TESTNET_RPC}
-      MORPH_MAINNET_RPC: ${MORPH_MAINNET_RPC}
-      MORPH_HOLESKY_RPC: ${MORPH_HOLESKY_RPC}
-      ARBITRUM_SEPOLIA_RPC: ${ARBITRUM_SEPOLIA_RPC}
-      ARBITRUM_ONE_RPC: ${ARBITRUM_ONE_RPC}    
   task-runner:
     image: switchboardlabs/task-runner-simulator
     ports:
