@@ -84,33 +84,10 @@ services:
 
 ```bash
 # .env file
-# delete any environment variables that you're not using
 
 # recommended, but optional
 SOLANA_MAINNET_RPC="your-mainnet-rpc-url"
 SOLANA_DEVNET_RPC="your-devnet-rpc-url"
-
-# ipfs
-PINATA_JWT_KEY="your-pinata-jwt-key"
-PINATA_GATEWAY_KEY="your-pinata-gateway-key"
-# or
-IPFS_GATEWAY_URL="your-ipfs-gateway-url"
-
-# RPCs (all optional)
-SUI_MAINNET_RPC="your-sui-testnet-rpc"
-SUI_TESTNET_RPC="your-sui-testnet-rpc"
-APTOS_MAINNET_RPC="your-aptos-mainnet-rpc"
-APTOS_TESTNET_RPC="your-aptos-testnet-rpc"
-ECLIPSE_MAINNET_RPC="your-eclipse-mainnet-rpc"
-ECLIPSE_TESTNET_RPC="your-eclipse-testnet-rpc"
-ETH_MAINNET_RPC="your-eth-mainnet-rpc"
-ETH_HOLESKY_RPC="your-eth-holesky-rpc"
-CORE_MAINNET_RPC="your-core-mainnet-rpc"
-CORE_TESTNET_RPC="your-core-testnet-rpc"
-MORPH_MAINNET_RPC="your-morph-mainnet-rpc"
-MORPH_HOLESKY_RPC="your-morph-holesky-rpc"
-ARBITRUM_SEPOLIA_RPC="your-arbitrum-sepolia-rpc"
-ARBITRUM_ONE_RPC="your-arbitrum-one-rpc"
 ```
 
 #### **Step 4: Build and Run the Docker Container**
