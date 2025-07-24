@@ -65,7 +65,7 @@ await surge.connectAndSubscribe([
 ]);
 
 // Handle real-time updates
-surge.on('update', async (response: sb.SurgeUpdate) => {
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
   console.log(`${response.data.symbol}: $${response.data.price}`);
   console.log(`Latency: ${Date.now() - response.data.source_ts_ms}ms`);
   
