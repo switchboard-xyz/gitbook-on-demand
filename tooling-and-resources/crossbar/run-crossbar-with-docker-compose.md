@@ -31,6 +31,10 @@ Before running crossbar, ensure you have the following
 ```yaml
 version: '3.8'
 
+x-rpc-env: &rpc-env
+  SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-https://api.mainnet-beta.solana.com}
+  SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-https://api.devnet.solana.com}
+
 services:
   crossbar:
     image: switchboardlabs/crossbar:latest
@@ -39,28 +43,16 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # dedicated solana rpc's recommended
-      SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-"https://api.mainnet-beta.solana.com"}
-      SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
-
+      <<: *rpc-env
       TASK_RUNNER_URL: "http://task-runner:8080"
       IPFS_GATEWAY_URL: "http://ipfs:8080"
-
-      # Required for SUI projects
-      SUI_MAINNET_RPC: ${SUI_MAINNET_RPC}
-      SUI_TESTNET_RPC: ${SUI_TESTNET_RPC}
-      
-      # Required for Aptos projects
-      APTOS_MAINNET_RPC: ${APTOS_MAINNET_RPC}
-      APTOS_TESTNET_RPC: ${APTOS_TESTNET_RPC}
   task-runner:
     image: switchboardlabs/task-runner-simulator
     ports:
       - "8000:8080"
     environment:
-      # dedicated solana rpc's recommended
-      SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-"https://api.mainnet-beta.solana.com"}
-      SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
+      <<: *rpc-env
+
   ipfs:
     image: ipfs/kubo:latest
     container_name: ipfs_node
@@ -71,7 +63,7 @@ services:
       - "4001:4001"     # Swarm listening port
       - "4001:4001/udp" # Swarm UDP
       - "5001:5001"     # API port
-      - "8090:8080"     # Gateway port (changed from 8080 to avoid conflict)
+      - "8090:8080"     # Gateway port (host 8090 → container 8080)
     environment:
       - IPFS_PROFILE=server
       - IPFS_PATH=/data/ipfs
