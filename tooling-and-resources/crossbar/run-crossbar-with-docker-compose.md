@@ -33,7 +33,7 @@ version: '3.8'
 
 services:
   crossbar:
-    image: switchboardlabs/crossbar:latest
+    image: switchboardlabs/crossbar:stable
     ports:
       - "8080:8080"  # HTTP API
       - "8081:8081"  # WebSocket
