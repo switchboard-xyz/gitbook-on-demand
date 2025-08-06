@@ -2,7 +2,9 @@
 
 ## Crossbar: Switchboard's Utility Server
 
-Crossbar is a utility server designed to simplify interactions with the Switchboard network. It provides essential functionalities for simulating and resolving feeds across various blockchains. Crossbar comes with a set of useful utility functions for resolving feeds on all chains with active Switchboard deployments, IPFS utilities for storing and fetching jobs, and a simulator for constantly fetching feed updates for liquidators and other bots.
+Crossbar is a high-performance utility server implemented in Rust, designed to simplify interactions with the Switchboard network. It provides essential functionalities for simulating and resolving feeds across various blockchains. Crossbar comes with a set of useful utility functions for resolving feeds on all chains with active Switchboard deployments, IPFS utilities for storing and fetching jobs, and built-in simulation capabilities for constantly fetching feed updates for liquidators and other bots.
+
+> **Note**: The Rust version includes built-in simulation and no longer requires a separate Task Runner Simulator service.
 
 > Running your own instance of Crossbar is highly recommended for user interfaces and bots that require frequent price simulations.
 
@@ -29,6 +31,40 @@ Crossbar provides tailored features for specific blockchains:
 
 * **Fetch Encoded Updates:** Obtain an encoded update for a feed to submit on-chain via a contract explorer (like Etherscan), eliminating the need to include feed definitions directly in your frontend.
 * **Settle Randomness:** Fetch a settlement message for resolving randomness requests when using Switchboard's EVM Randomness features.
+
+### Rust Implementation Benefits
+
+The Rust implementation provides several advantages:
+- **High Performance:** Built with actix-web for maximum throughput
+- **Built-in Simulation:** No separate Task Runner Simulator required
+- **WebSocket Support:** Real-time data streaming capabilities
+- **Memory Efficiency:** Optimized for high concurrent connections
+- **Simplified Deployment:** Single binary with minimal dependencies
+
+### Environment Variables
+
+All environment variables are optional and have sensible defaults:
+
+**Core Configuration:**
+- `PORT` (default: 8080) - HTTP server port
+- `WS_PORT` (default: 8081) - WebSocket server port
+- `DISABLE_API` (default: false) - Disable HTTP API entirely
+
+**Performance:**
+- `BROADCAST_WORKER_THREADS` (default: 32) - Tokio worker threads
+- `SIMULATION_CACHE_TTL_SECONDS` (default: 3) - Cache TTL
+- `DISABLE_CACHE` (default: false) - Disable caching
+
+**Blockchain RPCs (Recommended):**
+- `SOLANA_MAINNET_RPC_URL` - Solana mainnet RPC
+- `SOLANA_DEVNET_RPC_URL` - Solana devnet RPC
+
+**IPFS (Optional):**
+- `IPFS_GATEWAY_URL` (default: https://ipfs.io) - IPFS gateway
+- `PINATA_JWT_KEY` - Pinata storage key
+- `KUBO_URL` - Local IPFS node
+
+For a complete list of environment variables, see the [Docker Compose guide](run-crossbar-with-docker-compose.md#environment-variables-reference).
 
 #### Public Instance of Crossbar
 

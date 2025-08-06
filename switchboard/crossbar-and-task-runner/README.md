@@ -2,9 +2,11 @@
 description: The Switchboard utility server for simulation and resolving feeds.
 ---
 
-# Crossbar and Task Runner
+# Crossbar
 
-**Crossbar** is a useful utility service for interacting with the Switchboard network. It comes loaded with utility functions for resolving feeds on all chains with active Switchboard deployments, IPFS utilities for storing and fetching jobs, and a simulator for constantly fetching feed updates for liquidators and other bots.
+**Crossbar** is a useful utility service for interacting with the Switchboard network. It comes loaded with utility functions for resolving feeds on all chains with active Switchboard deployments, IPFS utilities for storing and fetching jobs, and a built-in simulator for constantly fetching feed updates for liquidators and other bots.
+
+> **Note**: The Rust version of Crossbar includes built-in simulation capabilities and no longer requires a separate Task Runner Simulator service.
 
 {% hint style="info" %}
 ### Running an instance of this service is highly recommended for user interfaces and bots that will simulate prices with high frequency.&#x20;

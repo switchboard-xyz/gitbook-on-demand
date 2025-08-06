@@ -11,17 +11,17 @@ Crossbar can be run pretty easily with Docker. The instructions below will walk 
 
 For Swagger documentation, see: [https://crossbar.switchboard.xyz/docs](https://crossbar.switchboard.xyz/docs)
 
-### Crossbar and Task Runner Simulator
+### Crossbar Rust Implementation
 
-Crossbar uses another piece of software called Task Runner Simulator to simulate feeds. You can provide Crossbar with the address of the Task Runner Simulator instance via an environment variable. If you don't provide it, Crossbar will fall back on using the public Task Runner Simulator endpoint at `crossbar.switchboard.xyz`, however it's not recommended to rely on this and we don't provide any guarantee of service. The instructions in this guide include running the Task Runner Simulator server alongside Crossbar.
+The current version of Crossbar is implemented in Rust and includes built-in simulation capabilities, eliminating the need for a separate Task Runner Simulator service. This provides better performance and simplified deployment.
 
 ### Prerequisites
 
 Before running crossbar, ensure you have the following
 
 * **Docker** and **Docker Compose** installed on your machine.
-* A custom **Solana RPC** for Task Runner Simulator actions (optional - strongly recommended)
-* **Pinata** or another **IPFS** node for job storage
+* A custom **Solana RPC** for improved performance (optional - strongly recommended)
+* **Pinata** or another **IPFS** node for job storage (optional)
 
 #### **Step 1: Set Up Your Project Directory**
 
@@ -43,54 +43,40 @@ services:
   crossbar:
     image: switchboardlabs/crossbar:latest
     ports:
-      - "8080:8080"
+      - "8080:8080"  # HTTP API
+      - "8081:8081"  # WebSocket
     environment:
-      # dedicated solana rpc's recommended
-      SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-"https://api.mainnet-beta.solana.com"}
-      SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
-
-      # task-runner-simulator
-      TASK_RUNNER_URL: ${TASK_RUNNER_URL:-"http://task-runner:8080"}
+      # === Core Configuration ===
+      PORT: ${PORT:-8080}
+      WS_PORT: ${WS_PORT:-8081}
+      DISABLE_API: ${DISABLE_API:-false}
       
-      # ipfs gateways
-      PINATA_JWT_KEY: ${PINATA_JWT_KEY}
-      PINATA_GATEWAY_KEY: ${PINATA_GATEWAY_KEY}
-      # or 
-      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL}
-
-      # Required for SUI projects
-      SUI_MAINNET_RPC: ${SUI_MAINNET_RPC}
-      SUI_TESTNET_RPC: ${SUI_TESTNET_RPC}
+      # === Blockchain RPCs (Optional - Recommended) ===
+      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-"https://api.mainnet-beta.solana.com"}
+      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-"https://api.devnet.solana.com"}
       
-      # Required for Aptos projects
-      APTOS_MAINNET_RPC: ${APTOS_MAINNET_RPC}
-      APTOS_TESTNET_RPC: ${APTOS_TESTNET_RPC}
+      # === IPFS Configuration (Optional) ===
+      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-"https://ipfs.io"}
+      PINATA_JWT_KEY: ${PINATA_JWT_KEY}  # Optional: for IPFS storage
+      PINATA_GATEWAY_KEY: ${PINATA_GATEWAY_KEY}  # Optional: for IPFS storage
+      KUBO_URL: ${KUBO_URL}  # Optional: for local IPFS node
       
-      # RPCs (all optional)
-      SOLANA_MAINNET_PUBLIC_RPC: ${SOLANA_MAINNET_PUBLIC_RPC} # will default to mainnet rpc if not listed
-      SOLANA_DEVNET_PUBLIC_RPC: ${SOLANA_DEVNET_PUBLIC_RPC} # will default to devnet rpc if not listed
-      ECLIPSE_MAINNET_RPC: ${ECLIPSE_MAINNET_RPC}
-      ECLIPSE_TESTNET_RPC: ${ECLIPSE_TESTNET_RPC}
-      ETH_MAINNET_RPC: ${ETH_MAINNET_RPC}
-      ETH_HOLESKY_RPC: ${ETH_HOLESKY_RPC}
-      CORE_MAINNET_RPC: ${CORE_MAINNET_RPC}
-      CORE_TESTNET_RPC: ${CORE_TESTNET_RPC}
-      MORPH_MAINNET_RPC: ${MORPH_MAINNET_RPC}
-      MORPH_HOLESKY_RPC: ${MORPH_HOLESKY_RPC}
-      ARBITRUM_SEPOLIA_RPC: ${ARBITRUM_SEPOLIA_RPC}
-      ARBITRUM_ONE_RPC: ${ARBITRUM_ONE_RPC}
-  
-
+      # === Database (Optional) ===
+      DATABASE_URL: ${DATABASE_URL}  # Optional: PostgreSQL connection
       
-  task-runner:
-    image: switchboardlabs/task-runner-simulator
-    ports:
-      - "8000:8080"
-    environment:
-      # dedicated solana rpc's recommended
-      SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-"https://api.mainnet-beta.solana.com"}
-      SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-"https://api.devnet.solana.com"}
+      # === Performance Tuning (Optional) ===
+      BROADCAST_WORKER_THREADS: ${BROADCAST_WORKER_THREADS:-32}
+      SIMULATION_CACHE_TTL_SECONDS: ${SIMULATION_CACHE_TTL_SECONDS:-3}
+      DISABLE_CACHE: ${DISABLE_CACHE:-false}
       
+      # === Logging & Debugging (Optional) ===
+      RUST_LOG: ${RUST_LOG:-"info"}
+      IS_LOCALHOST: ${IS_LOCALHOST:-false}
+      
+      # === Legacy Environment Variables (Optional) ===
+      # Note: These are supported for backwards compatibility
+      SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC}  # Maps to SOLANA_MAINNET_RPC_URL
+      SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC}    # Maps to SOLANA_DEVNET_RPC_URL
 ```
 
 #### **Step 3: Create the `.env` File**
@@ -99,33 +85,37 @@ services:
 
 ```bash
 # .env file
-# delete any environment variables that you're not using
+# All environment variables are optional and have sensible defaults
+# Only uncomment and set the variables you need to customize
 
-# recommended, but optional
-SOLANA_MAINNET_RPC="your-mainnet-rpc-url"
-SOLANA_DEVNET_RPC="your-devnet-rpc-url"
+# === Core Configuration ===
+# PORT=8080
+# WS_PORT=8081
+# DISABLE_API=false
 
-# ipfs
-PINATA_JWT_KEY="your-pinata-jwt-key"
-PINATA_GATEWAY_KEY="your-pinata-gateway-key"
-# or
-IPFS_GATEWAY_URL="your-ipfs-gateway-url"
+# === Blockchain RPCs (Recommended for better performance) ===
+SOLANA_MAINNET_RPC_URL="your-mainnet-rpc-url"
+SOLANA_DEVNET_RPC_URL="your-devnet-rpc-url"
 
-# RPCs (all optional)
-SUI_MAINNET_RPC="your-sui-testnet-rpc"
-SUI_TESTNET_RPC="your-sui-testnet-rpc"
-APTOS_MAINNET_RPC="your-aptos-mainnet-rpc"
-APTOS_TESTNET_RPC="your-aptos-testnet-rpc"
-ECLIPSE_MAINNET_RPC="your-eclipse-mainnet-rpc"
-ECLIPSE_TESTNET_RPC="your-eclipse-testnet-rpc"
-ETH_MAINNET_RPC="your-eth-mainnet-rpc"
-ETH_HOLESKY_RPC="your-eth-holesky-rpc"
-CORE_MAINNET_RPC="your-core-mainnet-rpc"
-CORE_TESTNET_RPC="your-core-testnet-rpc"
-MORPH_MAINNET_RPC="your-morph-mainnet-rpc"
-MORPH_HOLESKY_RPC="your-morph-holesky-rpc"
-ARBITRUM_SEPOLIA_RPC="your-arbitrum-sepolia-rpc"
-ARBITRUM_ONE_RPC="your-arbitrum-one-rpc"
+# === IPFS Configuration (Optional) ===
+# IPFS_GATEWAY_URL="https://ipfs.io"
+# PINATA_JWT_KEY="your-pinata-jwt-key"
+# PINATA_GATEWAY_KEY="your-pinata-gateway-key"
+# KUBO_URL="http://localhost:5001"
+
+# === Database (Optional - only if you need persistence) ===
+# DATABASE_URL="postgresql://user:pass@localhost/crossbar"
+
+# === Performance Tuning (Optional) ===
+# BROADCAST_WORKER_THREADS=32
+# SIMULATION_CACHE_TTL_SECONDS=3
+# DISABLE_CACHE=false
+
+# === Development & Debugging (Optional) ===
+# RUST_LOG="debug"
+# IS_LOCALHOST=true
+# TOKIO_CONSOLE=true
+# TOKIO_CONSOLE_PORT=6669
 
 ```
 

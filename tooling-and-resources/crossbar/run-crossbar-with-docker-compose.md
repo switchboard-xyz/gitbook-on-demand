@@ -6,17 +6,17 @@ Crossbar can be run pretty easily with Docker. The instructions below will walk 
 
 For Swagger documentation, see: [https://crossbar.switchboard.xyz/docs](https://crossbar.switchboard.xyz/docs)
 
-#### Crossbar and Task Runner Simulator
+#### Crossbar Rust Implementation
 
-Crossbar uses another piece of software called Task Runner Simulator to simulate feeds. You can provide Crossbar with the address of the Task Runner Simulator instance via an environment variable. If you don't provide it, Crossbar will fall back on using the public Task Runner Simulator endpoint at `crossbar.switchboard.xyz`, however it's not recommended to rely on this and we don't provide any guarantee of service. The instructions in this guide include running the Task Runner Simulator server alongside Crossbar.
+The current version of Crossbar is implemented in Rust and includes built-in simulation capabilities, eliminating the need for a separate Task Runner Simulator service. This provides better performance and simplified deployment.
 
 #### Prerequisites
 
 Before running crossbar, ensure you have the following
 
 * **Docker** and **Docker Compose** installed on your machine.
-* A custom **Solana RPC** for Task Runner Simulator actions (optional - strongly recommended)
-* **Pinata** or another **IPFS** node for job storage
+* A custom **Solana RPC** for improved performance (optional - strongly recommended)
+* **Pinata** or another **IPFS** node for job storage (optional)
 
 #### **Step 1: Set Up Your Project Directory**
 
@@ -31,36 +31,29 @@ Before running crossbar, ensure you have the following
 ```yaml
 version: '3.8'
 
-x-rpc-env: &rpc-env
-  SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-https://api.mainnet-beta.solana.com}
-  SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-https://api.devnet.solana.com}
-
 services:
   crossbar:
     image: switchboardlabs/crossbar:latest
-    depends_on:
-      - ipfs
-    ports: ["8080:8080"]
+    ports:
+      - "8080:8080"  # HTTP API
+      - "8081:8081"  # WebSocket
     environment:
-      <<: *rpc-env
-      TASK_RUNNER_URL: "http://task-runner:8080"
-      IPFS_GATEWAY_URL: "http://ipfs:8080"
-  task-runner:
-    image: switchboardlabs/task-runner-simulator
-    ports: ["8000:8080"]
-    environment:
-      <<: *rpc-env
-  ipfs:
-    image: ipfs/kubo:latest
-    container_name: ipfs_node
-    volumes:
-      - ./ipfs_staging:/export
-      - ./ipfs_data:/data/ipfs
-    ports: ["4001:4001", "4001:4001/udp", "5001:5001", "8090:8080"]
-    environment:
-      - IPFS_PROFILE=server
-      - IPFS_PATH=/data/ipfs
-    restart: unless-stopped
+      # === Core Configuration ===
+      PORT: ${PORT:-8080}
+      WS_PORT: ${WS_PORT:-8081}
+      
+      # === Blockchain RPCs (Optional - Recommended) ===
+      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-"https://api.mainnet-beta.solana.com"}
+      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-"https://api.devnet.solana.com"}
+      
+      # === IPFS Configuration (Optional) ===
+      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-"https://ipfs.io"}
+      PINATA_JWT_KEY: ${PINATA_JWT_KEY}
+      PINATA_GATEWAY_KEY: ${PINATA_GATEWAY_KEY}
+      
+      # === Performance (Optional) ===
+      BROADCAST_WORKER_THREADS: ${BROADCAST_WORKER_THREADS:-32}
+      RUST_LOG: ${RUST_LOG:-"info"}
 ```
 
 #### **Step 3: Create the `.env` File**
@@ -69,10 +62,16 @@ services:
 
 ```bash
 # .env file
+# All environment variables are optional and have sensible defaults
 
-# recommended, but optional
-SOLANA_MAINNET_RPC="your-mainnet-rpc-url"
-SOLANA_DEVNET_RPC="your-devnet-rpc-url"
+# Recommended for better performance
+SOLANA_MAINNET_RPC_URL="your-mainnet-rpc-url"
+SOLANA_DEVNET_RPC_URL="your-devnet-rpc-url"
+
+# Optional IPFS configuration
+# PINATA_JWT_KEY="your-pinata-jwt-key"
+# PINATA_GATEWAY_KEY="your-pinata-gateway-key"
+# IPFS_GATEWAY_URL="https://ipfs.io"
 ```
 
 #### **Step 4: Build and Run the Docker Container**
@@ -112,6 +111,55 @@ This command will stop and remove the containers defined in your `docker-compose
 * **Updating Environment Variables**: If you need to update the environment variables, edit the `.env` file and restart the container:
 
 `docker-compose down docker-compose up -d`
+
+## Environment Variables Reference
+
+### Core Server Configuration
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `PORT` | Optional | `8080` | HTTP server port |
+| `WS_PORT` | Optional | `8081` | WebSocket server port |
+| `DISABLE_API` | Optional | `false` | Set to "true" to disable HTTP API |
+
+### Blockchain RPC Configuration
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `SOLANA_MAINNET_RPC_URL` | Optional | `https://api.mainnet-beta.solana.com` | Solana mainnet RPC endpoint |
+| `SOLANA_DEVNET_RPC_URL` | Optional | `https://api.devnet.solana.com` | Solana devnet RPC endpoint |
+
+### IPFS Configuration
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `IPFS_GATEWAY_URL` | Optional | `https://ipfs.io` | IPFS gateway for fetching data |
+| `PINATA_JWT_KEY` | Optional | - | Pinata JWT key for storage |
+| `PINATA_GATEWAY_KEY` | Optional | - | Pinata gateway key |
+| `KUBO_URL` | Optional | - | Local Kubo IPFS node URL |
+
+### Database Configuration (Optional)
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `DATABASE_URL` | Optional | - | PostgreSQL connection string |
+| `PGUSER` | Optional | - | PostgreSQL username |
+| `PGPASSWORD` | Optional | - | PostgreSQL password |
+| `PGDATABASE` | Optional | - | PostgreSQL database name |
+| `PGHOST` | Optional | - | PostgreSQL host |
+| `PGPORT` | Optional | - | PostgreSQL port |
+
+### Performance & Caching
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `BROADCAST_WORKER_THREADS` | Optional | `32` | Number of Tokio worker threads |
+| `SIMULATION_CACHE_TTL_SECONDS` | Optional | `3` | Cache TTL for simulations |
+| `DISABLE_CACHE` | Optional | `false` | Disable caching entirely |
+| `RATE_LIMIT` | Optional | - | Rate limiting configuration |
+
+### Development & Debugging
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `RUST_LOG` | Optional | `info` | Log level (error, warn, info, debug, trace) |
+| `TOKIO_CONSOLE` | Optional | `false` | Enable tokio console debugging |
+| `TOKIO_CONSOLE_PORT` | Optional | `6669` | Port for tokio console |
+| `IS_LOCALHOST` | Optional | `false` | Development mode flag |
 
 ### Testing it out:
 
