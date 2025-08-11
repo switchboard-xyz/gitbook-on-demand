@@ -105,9 +105,12 @@
     * [Bare Metal with Kubernetes (K3s) + AMD SEV SNP](switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md)
 * [Enable Staking to your Oracle](switchboard-protocol/enable-staking-to-your-oracle.md)
 * [Providing stake to Switchboard](switchboard-protocol/providing-stake-to-switchboard.md)
-* [Tokenomics](switchboard-protocol/tokenomics.md)
 
 ## Frequently Asked Questions and Glossary
 
 * [FAQ](frequently-asked-questions-and-glossary/faq.md)
 * [Glossary](frequently-asked-questions-and-glossary/glossary.md)
+
+## Group 1
+
+* [Tokenomics](group-1/tokenomics.md)
