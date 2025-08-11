@@ -110,7 +110,3 @@
 
 * [FAQ](frequently-asked-questions-and-glossary/faq.md)
 * [Glossary](frequently-asked-questions-and-glossary/glossary.md)
-
-## Group 1
-
-* [Tokenomics](group-1/tokenomics.md)

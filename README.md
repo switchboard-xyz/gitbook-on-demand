@@ -135,7 +135,7 @@ For on-chain integrations, Switchboard's revolutionary bundle method eliminates 
 
 * [Running an Oracle](switchboard-protocol/running-a-switchboard-oracle/)
 * [(Re)staking](switchboard-protocol/re-staking/)
-* [Tokenomics](group-1/tokenomics.md)
+* [Tokenomics](broken-reference)
 
 ***
 
