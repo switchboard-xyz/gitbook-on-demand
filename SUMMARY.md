@@ -38,7 +38,7 @@
       * [Integrating into Frontends (EVM)](product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-into-frontends-evm.md)
   * [Aptos](product-documentation/data-feeds/aptos.md)
   * [Sui](product-documentation/data-feeds/sui.md)
-  * [Iota](product-documentation/data-feeds/sui-1.md)
+  * [Iota](product-documentation/data-feeds/iota.md)
   * [Movement](product-documentation/data-feeds/movement.md)
   * [Starknet](product-documentation/data-feeds/starknet.md)
   * [Optional Features](product-documentation/data-feeds/optional-features/README.md)
