@@ -33,7 +33,7 @@ version: '3.8'
 
 services:
   crossbar:
-    image: switchboardlabs/crossbar:stable
+    image: switchboardlabs/rust-crossbar:stable
     ports:
       - "8080:8080"  # HTTP API
       - "8081:8081"  # WebSocket
@@ -115,51 +115,57 @@ This command will stop and remove the containers defined in your `docker-compose
 ## Environment Variables Reference
 
 ### Core Server Configuration
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `PORT` | Optional | `8080` | HTTP server port |
-| `WS_PORT` | Optional | `8081` | WebSocket server port |
+
+| Variable      | Type     | Default | Description                       |
+| ------------- | -------- | ------- | --------------------------------- |
+| `PORT`        | Optional | `8080`  | HTTP server port                  |
+| `WS_PORT`     | Optional | `8081`  | WebSocket server port             |
 | `DISABLE_API` | Optional | `false` | Set to "true" to disable HTTP API |
 
 ### Blockchain RPC Configuration
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
+
+| Variable                 | Type     | Default                               | Description                 |
+| ------------------------ | -------- | ------------------------------------- | --------------------------- |
 | `SOLANA_MAINNET_RPC_URL` | Optional | `https://api.mainnet-beta.solana.com` | Solana mainnet RPC endpoint |
-| `SOLANA_DEVNET_RPC_URL` | Optional | `https://api.devnet.solana.com` | Solana devnet RPC endpoint |
+| `SOLANA_DEVNET_RPC_URL`  | Optional | `https://api.devnet.solana.com`       | Solana devnet RPC endpoint  |
 
 ### IPFS Configuration
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `IPFS_GATEWAY_URL` | Optional | `https://ipfs.io` | IPFS gateway for fetching data |
-| `PINATA_JWT_KEY` | Optional | - | Pinata JWT key for storage |
-| `PINATA_GATEWAY_KEY` | Optional | - | Pinata gateway key |
-| `KUBO_URL` | Optional | - | Local Kubo IPFS node URL |
+
+| Variable             | Type     | Default           | Description                    |
+| -------------------- | -------- | ----------------- | ------------------------------ |
+| `IPFS_GATEWAY_URL`   | Optional | `https://ipfs.io` | IPFS gateway for fetching data |
+| `PINATA_JWT_KEY`     | Optional | -                 | Pinata JWT key for storage     |
+| `PINATA_GATEWAY_KEY` | Optional | -                 | Pinata gateway key             |
+| `KUBO_URL`           | Optional | -                 | Local Kubo IPFS node URL       |
 
 ### Database Configuration (Optional)
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `DATABASE_URL` | Optional | - | PostgreSQL connection string |
-| `PGUSER` | Optional | - | PostgreSQL username |
-| `PGPASSWORD` | Optional | - | PostgreSQL password |
-| `PGDATABASE` | Optional | - | PostgreSQL database name |
-| `PGHOST` | Optional | - | PostgreSQL host |
-| `PGPORT` | Optional | - | PostgreSQL port |
+
+| Variable       | Type     | Default | Description                  |
+| -------------- | -------- | ------- | ---------------------------- |
+| `DATABASE_URL` | Optional | -       | PostgreSQL connection string |
+| `PGUSER`       | Optional | -       | PostgreSQL username          |
+| `PGPASSWORD`   | Optional | -       | PostgreSQL password          |
+| `PGDATABASE`   | Optional | -       | PostgreSQL database name     |
+| `PGHOST`       | Optional | -       | PostgreSQL host              |
+| `PGPORT`       | Optional | -       | PostgreSQL port              |
 
 ### Performance & Caching
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `BROADCAST_WORKER_THREADS` | Optional | `32` | Number of Tokio worker threads |
-| `SIMULATION_CACHE_TTL_SECONDS` | Optional | `3` | Cache TTL for simulations |
-| `DISABLE_CACHE` | Optional | `false` | Disable caching entirely |
-| `RATE_LIMIT` | Optional | - | Rate limiting configuration |
+
+| Variable                       | Type     | Default | Description                    |
+| ------------------------------ | -------- | ------- | ------------------------------ |
+| `BROADCAST_WORKER_THREADS`     | Optional | `32`    | Number of Tokio worker threads |
+| `SIMULATION_CACHE_TTL_SECONDS` | Optional | `3`     | Cache TTL for simulations      |
+| `DISABLE_CACHE`                | Optional | `false` | Disable caching entirely       |
+| `RATE_LIMIT`                   | Optional | -       | Rate limiting configuration    |
 
 ### Development & Debugging
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `RUST_LOG` | Optional | `info` | Log level (error, warn, info, debug, trace) |
-| `TOKIO_CONSOLE` | Optional | `false` | Enable tokio console debugging |
-| `TOKIO_CONSOLE_PORT` | Optional | `6669` | Port for tokio console |
-| `IS_LOCALHOST` | Optional | `false` | Development mode flag |
+
+| Variable             | Type     | Default | Description                                 |
+| -------------------- | -------- | ------- | ------------------------------------------- |
+| `RUST_LOG`           | Optional | `info`  | Log level (error, warn, info, debug, trace) |
+| `TOKIO_CONSOLE`      | Optional | `false` | Enable tokio console debugging              |
+| `TOKIO_CONSOLE_PORT` | Optional | `6669`  | Port for tokio console                      |
+| `IS_LOCALHOST`       | Optional | `false` | Development mode flag                       |
 
 ### Testing it out:
 
