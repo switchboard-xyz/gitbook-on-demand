@@ -81,6 +81,8 @@
 
 ## Switchboard Protocol
 
+* [Governance & Tokenomics](switchboard-protocol/governance-and-tokenomics.md)
+* [SWTCH Token Overview](switchboard-protocol/swtch-token-overview.md)
 * [(Re)staking](switchboard-protocol/re-staking/README.md)
   * [What is (re)staking?](switchboard-protocol/re-staking/what-is-re-staking.md)
   * [What are Node Consensus Networks (NCNs)?](switchboard-protocol/re-staking/what-are-node-consensus-networks-ncns.md)
