@@ -145,8 +145,7 @@ Whether you've participated in Switchboard Orbs points programs, staked with Fra
 #### For DApps & High-Volume Users
 
 1. **Stake for Access**: Hold svSWTCH for higher rate limits and premium features
-2. **Switchboard Surge**: Access fastest data feeds with svSWTCH holdings
-3. **Fair Resource Allocation**: Priority access through protocol&#x20;
+2. **Participate**: Vote on proposals and engage in community discussions
 
 ### Community & Resources
 
@@ -162,7 +161,7 @@ Whether you've participated in Switchboard Orbs points programs, staked with Fra
 
 **What is SWTCH?** SWTCH is the backbone of the economic security model that powers the Switchboard protocol. Designed to secure and incentivize participation in the most decentralized oracle network, SWTCH boosts data reliability and integrity for the fastest feeds in crypto.
 
-**What can I do with my SWTCH?** SWTCH holders can stake their tokens to secure the Switchboard oracle network and enhance data reliability across DeFi. Staking SWTCH mints svSWTCH, which unlocks staking rewards and governance power. For oracle operators, staked svSWTCH represents "skin in the game," backing their feeds and aligning incentives with network integrity.
+**What can I do with my SWTCH?** SWTCH holders can stake their tokens to secure the Switchboard oracle network and enhance data reliability across DeFi. Staking SWTCH mints svSWTCH, which unlocks staking rewards and governance power. For oracle operators, staked svSWTCH aligns economic incentives and helps ensure network reliability.
 
 **Can I use SWTCH to pay for price feeds?** SWTCH can be staked and delegated to oracles within the Switchboard network. Stakers unlock higher rate limits, allowing users to take full advantage of Switchboard Surge.
 
