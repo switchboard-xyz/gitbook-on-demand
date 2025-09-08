@@ -29,12 +29,12 @@ Oracle → Oracle Quote → Your Program (direct use)
 
 | Feature              | Oracle Quotes (Ed25519) | Traditional Feeds |
 | -------------------- | ----------------------- | ----------------- |
-| **Transaction Cost** | ~0.00015 SOL           | ~0.002 SOL        |
-| **Update Latency**   | <1 second              | 2-10 seconds      |
-| **Write Locks**      | None                   | Required          |
-| **Setup Time**       | Instant                | 5-10 minutes      |
-| **Parallel Access**  | Unlimited              | Limited           |
-| **Compute Units**    | 485 CU                 | 3,000+ CU         |
+| **Transaction Cost** | \~0.00015 SOL           | \~0.002 SOL       |
+| **Update Latency**   | <1 second               | 2-10 seconds      |
+| **Write Locks**      | None                    | Required          |
+| **Setup Time**       | Instant                 | 5-10 minutes      |
+| **Parallel Access**  | Unlimited               | Limited           |
+| **Compute Units**    | \~70 CU                 | 3,000+ CU         |
 
 ## How Oracle Quotes Work
 
@@ -110,20 +110,20 @@ The Oracle Quotes system leverages several advanced optimizations:
 
 ### Performance Comparison
 
-| Operation | Oracle Quotes | Traditional Feeds | Improvement |
-| --------- | ------------- | ----------------- | ----------- |
-| **Signature Verification** | 485 CU | 3,000+ CU | 6x faster |
-| **Data Access** | Direct read | Account + deserialize | 4x faster |
-| **Total Transaction Cost** | ~0.00015 SOL | ~0.002 SOL | 90% cheaper |
+| Operation                  | Oracle Quotes | Traditional Feeds     | Improvement |
+| -------------------------- | ------------- | --------------------- | ----------- |
+| **Signature Verification** | 485 CU        | 3,000+ CU             | 6x faster   |
+| **Data Access**            | Direct read   | Account + deserialize | 4x faster   |
+| **Total Transaction Cost** | \~0.00015 SOL | \~0.002 SOL           | 90% cheaper |
 
 ## Security Model
 
 Oracle Quotes maintain the same security guarantees as traditional feeds:
 
-- **Multi-Oracle Consensus**: Requires signatures from multiple independent oracles
-- **Slashable Security**: Oracles have economic stake that can be slashed for misbehavior
-- **Freshness Validation**: Built-in staleness checks prevent replay attacks
-- **Cryptographic Integrity**: Ed25519 signatures ensure data authenticity
+* **Multi-Oracle Consensus**: Requires signatures from multiple independent oracles
+* **Slashable Security**: Oracles have economic stake that can be slashed for misbehavior
+* **Freshness Validation**: Built-in staleness checks prevent replay attacks
+* **Cryptographic Integrity**: Ed25519 signatures ensure data authenticity
 
 ## Getting Started
 
@@ -269,6 +269,7 @@ const tx = await sb.asV0Tx({
 Oracle Quotes are designed to be a drop-in replacement for traditional feeds:
 
 ### Before (Traditional Feeds)
+
 ```rust
 // Required: Create and fund feed accounts
 // Higher compute cost, write locks, slower updates
@@ -277,7 +278,8 @@ let feed_account = ctx.accounts.price_feed.load()?;
 let price = feed_account.get_result()?.try_into()?;
 ```
 
-### After (Oracle Quotes)  
+### After (Oracle Quotes)
+
 ```rust
 // No setup required, instant access, 90% lower cost
 
@@ -288,21 +290,17 @@ let price = quote.feeds().next().unwrap().value();
 
 ## Frequently Asked Questions
 
-**Q: Do Oracle Quotes work on all Solana networks?**
-A: Yes! Oracle Quotes work on Mainnet, Devnet, and Testnet with the same API.
+**Q: Do Oracle Quotes work on all Solana networks?** A: Yes! Oracle Quotes work on Mainnet, Devnet, and Testnet with the same API.
 
-**Q: Can I batch multiple feeds in one Oracle Quote?**
-A: Yes! You can include multiple feed hashes in a single `fetchUpdateBundleIx()` call.
+**Q: Can I batch multiple feeds in one Oracle Quote?** A: Yes! You can include multiple feed hashes in a single `fetchUpdateBundleIx()` call.
 
-**Q: What's the maximum number of feeds per Oracle Quote?**  
+**Q: What's the maximum number of feeds per Oracle Quote?**\
 A: The limit depends on transaction size constraints, but typically 10-20 feeds per quote.
 
-**Q: How fresh is the oracle data?**
-A: Oracle Quotes are typically updated within 1 second of price changes, with built-in staleness validation.
+**Q: How fresh is the oracle data?** A: Oracle Quotes are typically updated within 1 second of price changes, with built-in staleness validation.
 
-**Q: Are Oracle Quotes more secure than traditional feeds?**
-A: Yes! Same security model but with additional Ed25519 cryptographic verification and no write lock attack vectors.
+**Q: Are Oracle Quotes more secure than traditional feeds?** A: Yes! Same security model but with additional Ed25519 cryptographic verification and no write lock attack vectors.
 
----
+***
 
 **Ready to get started?** Check out our [complete integration examples](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana) and start building with Oracle Quotes today!
