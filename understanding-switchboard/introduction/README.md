@@ -2,7 +2,7 @@
 
 ## Switchboard: _The_ Everything Oracle.
 
-It's not just another oracle; it's the fastest, most customisable and _only_ permissionless oracle protocol out there. Trusted by leading decentralised applications to secure over $5 billion in value, Switchboard offers unparalleled data access across multiple blockchains.
+It's not just another oracle; it's the fastest, most customisable and _only_ permissionless oracle protocol out there. Trusted by leading decentralised applications, Switchboard offers unparalleled data access across multiple blockchains.
 
 Switchboard allows any decentralised application access to:
 
