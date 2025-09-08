@@ -109,20 +109,7 @@ Switchboard leverages Jito's Node Consensus Network for:
 * **Majority Thresholds**: Different requirements for various proposal types
 * **Delegation**: Ability to delegate voting power to trusted representatives
 
-## Cross-Chain Governance
 
-### Multi-Chain Coordination
-
-Switchboard's governance extends across supported blockchains through:
-
-* **Unified Token**: Single SWTCH token across all chains
-* **Access Control:** Protocol governance controls access levels to the network related to fees and request limits
-
-### Interoperability Benefits
-
-* **Consistent Policies**: Uniform oracle standards across all networks
-* **Shared Security**: Collective economic guarantees for all chains
-* **Efficient Capital**: Staking pool secures multiple networks
 
 ## Token Claim & Getting Started
 
@@ -159,7 +146,7 @@ Whether you've participated in Switchboard Orbs points programs, staked with Fra
 
 1. **Stake for Access**: Hold svSWTCH for higher rate limits and premium features
 2. **Switchboard Surge**: Access fastest data feeds with svSWTCH holdings
-3. **Fair Resource Allocation**: Priority access through protocol investment
+3. **Fair Resource Allocation**: Priority access through protocol&#x20;
 
 ### Community & Resources
 

@@ -42,8 +42,8 @@ SWTCH is the governance and utility token that powers the Switchboard oracle net
 ### ⚡ Enhanced Access
 
 * Higher rate limits for data requests with svSWTCH holdings
-* Free access to Switchboard Surge premium features
-* Priority access to new products and integrations
+
+
 
 ## Staking Process
 
@@ -63,13 +63,12 @@ SWTCH is the governance and utility token that powers the Switchboard oracle net
 ### DApp Developers & Protocols
 
 * **Cost Optimization**: Stake for better rate limits instead of higher fees
-* **Premium Features**: Access to Switchboard Surge and advanced tooling
 * **Network Voice**: Governance participation in protocol evolution
 
 ### Token Holders & DeFi Users
 
-* **Passive Income**: Earn yield from network fees and rewards
-* **Governance Rights**: Influence the future of oracle infrastructure
+* **Yield Generation**: Earn yield helping secure the network
+* **Governance Participation**: Influence the future of oracle infrastructure&#x20;
 * **Cross-Chain Benefits**: Single token securing multiple blockchain networks
 
 ## Getting Started
@@ -90,7 +89,7 @@ SWTCH is the governance and utility token that powers the Switchboard oracle net
 
 1. Review [staking benefits](re-staking/) for your application
 2. Integrate [enhanced rate limits](../product-documentation/data-feeds/) with svSWTCH
-3. Explore [Switchboard Surge](../product-documentation/data-feeds/) for real-time data
+3. Explore [Switchboard Surge](../product-documentation/data-feeds/) to take advantage of higher rate limits
 
 ## Related Documentation
 
