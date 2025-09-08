@@ -1,10 +1,22 @@
 ---
-hidden: true
+description: Enable svSWTCH delegation to your oracle through Jito NCN integration
 ---
 
-# Enable Staking to your Oracle
+# Enable Staking to Your Oracle
 
-Setting up your oracle to start earning is easy. In less than 5 minutes, Jito vaults can start delegating stake to your oracle to start earning!
+Setting up your oracle to start earning SWTCH rewards is easy. In less than 5 minutes, Jito vaults can start delegating stake to your oracle to start earning!
+
+## Overview
+
+Oracle operators in the Switchboard network **must have svSWTCH delegated to them** to participate. This "skin in the game" model ensures oracle incentives are aligned with network security and data reliability.
+
+**Benefits of enabling staking:**
+- 🏆 **Earn SWTCH rewards** from network fees and subsidies
+- 📈 **Competitive advantage** - more delegation = more work opportunities  
+- 🔒 **Network participation** - required to validate and submit oracle data
+- ⚡ **Performance rewards** - high uptime and accuracy earn bonus rewards
+
+For complete details on the economic model, see [Governance & Tokenomics](governance-and-tokenomics.md).
 
 To start earning, you must first create your NCN operator or provide a pre-existing operator. This operator account is what manages the permissions to allow stake to be delegated to your oracle from a Jito vault.
 

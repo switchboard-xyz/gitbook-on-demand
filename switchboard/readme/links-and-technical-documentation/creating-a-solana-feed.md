@@ -52,13 +52,13 @@ If you don't feel like dealing with this tool, remember that the solana keypair 
 1. Add the dependencies for [@switchboard-xyz/on-demand](https://www.npmjs.com/package/@switchboard-xyz/on-demand) into the file:
 
 ```typescript
+import * as sb from "@switchboard-xyz/on-demand";
 import {
   AnchorUtils,
   PullFeed,
   CrossbarClient,
   OracleJob,
-  getDefaultQueue,
-  getDefaultDevnetQueue,
+  Queue,
   asV0Tx,
 } from "@switchboard-xyz/on-demand";
 ```
@@ -67,11 +67,11 @@ import {
    \
    **Note:** Queues in the context of Switchboard are subnets of Oracles that respond to feed updates.\
    \
-   Call `getDefaultQueue(solanaRPCUrl: string)`  to pull the Switchboard Mainnet Queue. Calling `getDefaultDevnetQueue(solanaRPCUrl: string)` will pull the Switchboard Devnet queue.&#x20;
+   Call `Queue.loadDefault(program)` to load the default queue for your configured network.&#x20;
 
 ```typescript
 // Get the queue for the network you're deploying on
-let queue = await getDefaultQueue(); // or `getDefaultDevnetQueue()` for devnet,
+let queue = await Queue.loadDefault(program); // This loads the default queue for your configured network
 ```
 
 3. For ease of use, and displaying your Jobs on the [Explorer](https://ondemand.switchboard.xyz/solana/mainnet), you should store your feeds with CrossBar. This is a service that will store valid Job definitions on [IPFS](https://ipfs.io).&#x20;
@@ -111,8 +111,8 @@ const ix = await pullFeed.initIx({
   maxVariance: 1.0, // the maximum variance allowed for the feed results
   minResponses: 1, // minimum number of responses of jobs to allow
   feedHash: Buffer.from(feedHash.slice(2), "hex"), // the feed hash
-  minSampleSize: 1; // The minimum number of samples required for setting feed value
-  maxStaleness: 60; // The maximum number of slots that can pass before a feed value is considered stale.
+  minSampleSize: 1, // The minimum number of samples required for setting feed value
+  maxStaleness: 60, // The maximum number of slots that can pass before a feed value is considered stale.
   payer: payer.publicKey, // the payer of the feed
 });
 ```
@@ -159,13 +159,13 @@ The assembled contract should go through the steps we've built:
 #### index.ts
 
 ```typescript
+import * as sb from "@switchboard-xyz/on-demand";
 import {
   AnchorUtils,
   PullFeed,
   CrossbarClient,
   OracleJob,
-  getDefaultQueue,
-  getDefaultDevnetQueue,
+  Queue,
   asV0Tx,
 } from "@switchboard-xyz/on-demand";
 
@@ -220,7 +220,7 @@ if (response.ok) {
 console.log("Storing and creating the feed...\n");
 
 // Get the queue for the network you're deploying on
-let queue = await getDefaultQueue(); // or `getDefaultDevnetQueue()` for devnet,
+let queue = await Queue.loadDefault(program); // This loads the default queue for your configured network
 
 // Get the crossbar server client
 const crossbarClient = CrossbarClient.default();
@@ -240,8 +240,8 @@ const ix = await pullFeed.initIx({
   maxVariance: 1.0, // the maximum variance allowed for the feed results
   minResponses: 1, // minimum number of responses of jobs to allow
   feedHash: Buffer.from(feedHash.slice(2), "hex"), // the feed hash
-  minSampleSize: 1; // The minimum number of samples required for setting feed value
-  maxStaleness: 300; // The maximum number of slots that can pass before a feed value is considered stale.
+  minSampleSize: 1, // The minimum number of samples required for setting feed value
+  maxStaleness: 300, // The maximum number of slots that can pass before a feed value is considered stale.
   payer: payer.publicKey, // the payer of the feed
 });
 

@@ -1,6 +1,12 @@
 # Switchboard on Solana
 
-### Solana Push
+### Solana On-Demand
+
+* Typescript SDK: [@switchboard-xyz/on-demand](https://www.npmjs.com/package/@switchboard-xyz/on-demand)
+* Rust SDK: [switchboard-on-demand](https://crates.io/crates/switchboard-on-demand)
+* Examples Repository: [sb-on-demand-examples/solana](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana)
+
+### Solana Push (Legacy)
 
 * Typescript SDK: [https://github.com/switchboard-xyz/solana-sdk/tree/main/javascript/solana.js](https://github.com/switchboard-xyz/solana-sdk/tree/main/javascript/solana.js)
 * Rust SDK: [https://crates.io/crates/switchboard-solana](https://crates.io/crates/switchboard-solana)

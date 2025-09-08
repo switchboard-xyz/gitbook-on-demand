@@ -4,6 +4,8 @@
 
 The bundle method represents a paradigm shift in how oracle data is delivered on Solana, eliminating write locks and reducing costs by 90%. With the new **Ed25519 signature verification**, bundles now require only **485 compute units** for single feed verification, making them the most cost-efficient oracle solution on Solana.
 
+> **Terminology Note**: "Bundles" refer to the data delivery method, while "Oracle Quotes" refer to the on-chain verification mechanism. When oracle data is delivered via bundles, your program uses `QuoteVerifier` to validate and extract the Oracle Quotes.
+
 ### 🚀 No Data Feed Accounts Required
 
 Unlike traditional oracle solutions, bundles require **ZERO setup**:
@@ -80,14 +82,17 @@ const tx = await asV0Tx({
 The Ed25519 verification process uses advanced optimizations for minimal compute cost:
 
 ```rust
+use switchboard_on_demand::{
+    QuoteVerifier, QueueAccountData, SlotHashes, Instructions
+};
+
 // Ed25519 verification with zero-copy parsing and batch validation
-let verified_bundle = BundleVerifierBuilder::from(&bundle)
-    .queue(&queue)
+let quote = QuoteVerifier::new()
     .slothash_sysvar(&slothashes)
     .ix_sysvar(&instructions)  // Ed25519 instruction parsing
-    .clock(&Clock::get()?)
-    .max_age(50) // Maximum age in slots
-    .verify()    // Single memcmp validates all signatures
+    .clock(parse_clock(&clock))
+    .queue(&queue)
+    .verify_account(&oracle)   // Single memcmp validates all signatures
     .unwrap();
 
 // Extract verified price (zero allocation)
@@ -164,18 +169,17 @@ bun run scripts/runBundle.ts --feedHash YOUR_FEED_HASH
 ### DeFi Lending Protocol
 
 ```rust
-pub fn liquidate_position(ctx: Context<Liquidate>, bundle: Vec<u8>) -> Result<()> {
-    // Verify the bundle
-    let verified_bundle = BundleVerifierBuilder::from(&bundle)
+pub fn liquidate_position(ctx: Context<Liquidate>) -> Result<()> {
+    // Verify the oracle quote
+    let quote = QuoteVerifier::new()
+        .slothash_sysvar(&ctx.accounts.sysvars.slothashes)
+        .ix_sysvar(&ctx.accounts.sysvars.instructions)
+        .clock(parse_clock(&ctx.accounts.sysvars.clock))
         .queue(&ctx.accounts.queue)
-        .slothash_sysvar(&ctx.accounts.slothashes)
-        .ix_sysvar(&ctx.accounts.instructions)
-        .clock(&Clock::get()?)
-        .max_age(50)
-        .verify()?;
+        .verify_account(&ctx.accounts.oracle)?;
 
-    // Extract BTC price
-    let btc_feed = verified_bundle.feed(BTC_FEED_ID)?;
+    // Extract BTC price from the verified quote
+    let btc_feed = quote.feeds().next().unwrap(); // Assuming first feed is BTC
     let btc_price = btc_feed.value();
 
     // Check if position is underwater
