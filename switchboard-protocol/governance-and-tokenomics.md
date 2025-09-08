@@ -78,7 +78,7 @@ Switchboard leverages Jito's Node Consensus Network for:
 
 * **Restaking Security**: Additional economic guarantees beyond native staking
 * **Validator Coordination**: Synchronized oracle operations across the network
-* **Slashing Mechanisms**: Automated punishment for oracle misbehavior
+* **Oracle Incentives**: NCN rewards are distributed based on oracle performance in the network
 
 ### Incentive Structure
 
