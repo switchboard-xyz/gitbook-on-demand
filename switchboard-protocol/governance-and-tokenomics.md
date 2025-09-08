@@ -92,7 +92,7 @@ Switchboard leverages Jito's Node Consensus Network for:
 
 * **Yield Generation**: Share of oracle fees and network rewards
 * **Governance Participation**: Influence over network parameters and direction
-* **Protocol Usage: Higher tier of acces and throughput to the Switchboard network**
+* **Protocol Usage:** Higher tier of acces and throughput to the Switchboard network
 
 ## Governance Process
 
