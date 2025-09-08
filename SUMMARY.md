@@ -109,10 +109,10 @@
 
 ## Governance & Tokenomics
 
-* [Governance & Tokenomics](switchboard-protocol/governance-and-tokenomics.md)
 * [SWTCH Token Overview](switchboard-protocol/swtch-token-overview.md)
+* [Governance & Tokenomics](switchboard-protocol/governance-and-tokenomics.md)
 
-## Frequently Asked Questions and Glossary
+## Copy of Frequently Asked Questions and Glossary
 
-* [FAQ](frequently-asked-questions-and-glossary/faq.md)
-* [Glossary](frequently-asked-questions-and-glossary/glossary.md)
+* [FAQ](copy-of-frequently-asked-questions-and-glossary/faq.md)
+* [Glossary](copy-of-frequently-asked-questions-and-glossary/glossary.md)
