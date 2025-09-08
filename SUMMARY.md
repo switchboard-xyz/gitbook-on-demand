@@ -81,8 +81,6 @@
 
 ## Switchboard Protocol
 
-* [Governance & Tokenomics](switchboard-protocol/governance-and-tokenomics.md)
-* [SWTCH Token Overview](switchboard-protocol/swtch-token-overview.md)
 * [(Re)staking](switchboard-protocol/re-staking/README.md)
   * [What is (re)staking?](switchboard-protocol/re-staking/what-is-re-staking.md)
   * [What are Node Consensus Networks (NCNs)?](switchboard-protocol/re-staking/what-are-node-consensus-networks-ncns.md)
@@ -108,6 +106,11 @@
     * [Bare Metal with Kubernetes (K3s) + AMD SEV SNP](switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md)
 * [Enable Staking to your Oracle](switchboard-protocol/enable-staking-to-your-oracle.md)
 * [Providing stake to Switchboard](switchboard-protocol/providing-stake-to-switchboard.md)
+
+## Governance & Tokenomics
+
+* [Governance & Tokenomics](switchboard-protocol/governance-and-tokenomics.md)
+* [SWTCH Token Overview](switchboard-protocol/swtch-token-overview.md)
 
 ## Frequently Asked Questions and Glossary
 
