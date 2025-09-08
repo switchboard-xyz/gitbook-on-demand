@@ -34,7 +34,7 @@ Oracle → Oracle Quote → Your Program (direct use)
 | **Write Locks**      | None                    | Required          |
 | **Setup Time**       | Instant                 | 5-10 minutes      |
 | **Parallel Access**  | Unlimited               | Limited           |
-| **Compute Units**    | \~70 CU                 | 3,000+ CU         |
+| **Compute Units**    | \~70 CU                 | 50,000+ CU        |
 
 ## How Oracle Quotes Work
 
