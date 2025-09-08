@@ -2,19 +2,20 @@
 description: How to stake and earn SWTCH rewards through Switchboard's Jito NCN integration
 ---
 
-# Providing Stake to Switchboard
+# Providing stake to Switchboard
 
 Providing stake to Switchboard is simple and rewarding! By staking supported assets, you help secure the oracle network while earning SWTCH governance tokens.
 
 ## Overview
 
-Switchboard uses [Jito's Node Consensus Network (NCN)](https://www.jito.network/) for its restaking infrastructure. This allows you to stake various LSTs (Liquid Staking Tokens) to secure the Switchboard oracle network and earn SWTCH rewards in return.
+Switchboard uses [Jito's Node Consensus Network (NCN)](https://www.jito.network/restaking/ncns/) for its restaking infrastructure. This allows you to stake various LSTs (Liquid Staking Tokens) to secure the Switchboard oracle network and earn SWTCH rewards in return.
 
 **Key Benefits:**
-- 🏆 **Earn SWTCH**: Receive governance tokens for network participation
-- 🔒 **Network Security**: Help secure over $5B in DeFi value
-- 🌐 **Multi-Asset Support**: Stake SOL or various LSTs
-- ⚡ **Regular Rewards**: Distributed every Solana epoch (3 days)
+
+* 🏆 **Earn SWTCH**: Receive governance tokens for network participation
+* 🔒 **Network Security**: Help secure over $5B in DeFi value
+* 🌐 **Multi-Asset Support**: Stake SOL or various LSTs
+* ⚡ **Regular Rewards**: Distributed every Solana epoch (3 days)
 
 To start securing the Switchboard network, you may contribute to the Fragmetric vault for stake to be distributed to oracle operators.
 
@@ -54,12 +55,13 @@ These awards will be distributed every Solana epoch (3 days) and will be viewabl
 
 ## How Much SWTCH Do I Earn?
 
-The amount to distribute is governed by the Switchboard DAO through [svSWTCH governance](governance-and-tokenomics.md), with the initial year set to distribute 8% of supply to stakers. 
+The amount to distribute is governed by the Switchboard DAO through [svSWTCH governance](governance-and-tokenomics.md), with the initial year set to distribute 8% of supply to stakers.
 
 **Reward Calculation:**
-- Based on your proportional share of total staked assets
-- Distributed from protocol fees and SWTCH subsidies  
-- Higher oracle performance = higher rewards for delegators
+
+* Based on your proportional share of total staked assets
+* Distributed from protocol fees and SWTCH subsidies
+* Higher oracle performance = higher rewards for delegators
 
 For complete details on tokenomics and reward distribution, see the [SWTCH Token Overview](swtch-token-overview.md) and [Governance & Tokenomics](governance-and-tokenomics.md) guides.
 
