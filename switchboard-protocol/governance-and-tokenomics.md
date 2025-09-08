@@ -13,8 +13,6 @@ Switchboard operates on a decentralized governance model powered by the SWTCH to
 
 ## SWTCH Token
 
-
-
 ### Purpose & Network Security
 
 * **Governance Participation**: Direct voting power through staked SWTCH (svSWTCH)
@@ -96,14 +94,6 @@ Switchboard leverages Jito's Node Consensus Network for:
 * **Governance Participation**: Influence over network parameters and direction
 * **MEV Protection**: Jito NCN provides MEV mitigation for stakers
 
-### Slashing Conditions
-
-Economic security is maintained through slashing for:
-
-* **Data Manipulation**: Providing false or manipulated oracle data
-* **Downtime**: Extended periods of oracle unavailability
-* **Protocol Violations**: Breaking consensus rules or network standards
-
 ## Governance Process
 
 ### Proposal Lifecycle
@@ -126,28 +116,13 @@ Economic security is maintained through slashing for:
 Switchboard's governance extends across supported blockchains through:
 
 * **Unified Token**: Single SWTCH token across all chains
-* **Cross-Chain Messaging**: Synchronized governance decisions
-* **Chain-Specific Parameters**: Local optimizations while maintaining global coherence
+* **Access Control:** Protocol governance controls access levels to the network related to fees and request limits
 
 ### Interoperability Benefits
 
 * **Consistent Policies**: Uniform oracle standards across all networks
 * **Shared Security**: Collective economic guarantees for all chains
-* **Efficient Capital**: Single staking pool securing multiple networks
-
-## Future Governance Evolution
-
-### Planned Improvements
-
-* **Quadratic Voting**: More representative decision-making mechanisms
-* **Liquid Democracy**: Flexible delegation and representation systems
-* **Automated Governance**: AI-assisted parameter optimization
-
-### Community Growth
-
-* **Education Programs**: Governance participation tutorials and resources
-* **Incentivized Participation**: Rewards for active governance engagement
-* **Decentralization Roadmap**: Progressive transition to full community control
+* **Efficient Capital**: Staking pool secures multiple networks
 
 ## Token Claim & Getting Started
 

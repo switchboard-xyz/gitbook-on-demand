@@ -83,7 +83,7 @@ SWTCH is the governance and utility token that powers the Switchboard oracle net
 ### 🔗 For Oracle Operators
 
 1. [Set up your oracle node](running-a-switchboard-oracle/)
-2. [Enable staking](enable-staking-to-your-oracle.md) to attract delegation
+2. Add a Jito NCN operator to your node to receive stake
 3. Maintain high performance to earn more rewards
 
 ### 🏗️ For Developers
