@@ -40,14 +40,14 @@ Total Latency: <100ms
 
 * **Subscription-based pricing** - pay for what you use
 * **No gas fees** for receiving updates
-* **Reduced on-chain costs** when converting to bundles
+* **Reduced on-chain costs** when converting to Oracle Quotes
 * **Enterprise pricing** available for high-volume users
 
 ### 🔗 Seamless Integration
 
 * **Simple SDK** with TypeScript/JavaScript support
 * **WebSocket API** for any programming language
-* **Bundle conversion** for on-chain use when needed
+* **Oracle Quote conversion** for on-chain use when needed
 * **Crossbar gateway** for frontend integration
 
 ### 🛡️ Enterprise-Grade Reliability
@@ -131,11 +131,11 @@ class OracleAMM {
     // Calculate output using oracle price
     const amountOut = amountIn * latestPrice * (1 - this.swapFee);
     
-    // Convert to bundle for on-chain execution
-    const [sigVerifyIx, bundle] = this.latestUpdate.toBundleIx();
+    // Convert to Oracle Quote for on-chain execution
+    const [sigVerifyIx, oracleQuote] = this.latestUpdate.toBundleIx();
     
     return await this.program.methods
-      .swap(amountIn, amountOut, bundle)
+      .swap(amountIn, amountOut, oracleQuote)
       .accounts({
         amm: this.ammPda,
         queue: this.queuePubkey,
@@ -178,8 +178,8 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
     const ltv = calculateLTV(position, response.data.price);
     if (ltv > LIQUIDATION_THRESHOLD) {
       // Execute liquidation with fresh oracle price
-      const [ix, bundle] = response.toBundleIx();
-      await liquidatePosition(position, ix, bundle);
+      const [ix, oracleQuote] = response.toBundleIx();
+      await liquidatePosition(position, ix, oracleQuote);
     }
   }
 });
@@ -234,12 +234,12 @@ surge.on('update', (response: sb.SurgeUpdate) => {
 ### Current Pricing (Launch Phase)
 
 * **Surge API**: FREE during launch phase
-* **Bundles**: FREE during launch phase
+* **Oracle Quotes**: FREE during launch phase
 
 ### Rate Limits
 
 * **Surge**: 5 concurrent WebSocket connections per API key
-* **Bundles**: 30 requests per minute
+* **Oracle Quotes**: 30 requests per minute
 * **Auto-reconnect**: Built-in automatic reconnection on disconnect
 
 ### Future Pricing
@@ -309,7 +309,7 @@ Surge streams data directly to your application via WebSocket, bypassing the blo
 
 ### Can I use Surge data on-chain?
 
-Yes! Surge updates can be converted to bundle format for on-chain use with a simple SDK call: `response.toBundleIx()`
+Yes! Surge updates can be converted to Oracle Quote format for on-chain use with a simple SDK call: `response.toBundleIx()`
 
 ### What's the reliability?
 

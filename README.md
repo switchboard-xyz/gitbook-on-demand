@@ -15,7 +15,7 @@ Switchboard Surge represents the future of oracle technology, delivering real-ti
 * **⚡ Ultra-Low Latency**: <100ms from price source to your application
 * **🔄 Real-Time Streaming**: WebSocket connections deliver prices as they change
 * **💰 Currently FREE**: No cost during launch phase (5 concurrent connections)
-* **🔗 Seamless Integration**: Convert streams to on-chain bundles instantly
+* **🔗 Seamless Integration**: Convert streams to on-chain Oracle Quotes instantly
 * **🌐 Auto-Reconnect**: Built-in connection recovery
 * **📊 Enterprise-Ready**: 99.9% uptime with global infrastructure
 
@@ -44,21 +44,21 @@ await surge.connectAndSubscribe([
 surge.on('update', async (response: sb.SurgeUpdate) => {
   console.log(`${response.data.symbol}: $${response.data.price}`);
   
-  // Use for trading, dashboards, or convert to on-chain bundle
+  // Use for trading, dashboards, or convert to on-chain Oracle Quote
   if (shouldExecuteTrade(response)) {
-    const [ix, bundle] = response.toBundleIx();
-    await executeTrade(ix, bundle);
+    const [ix, oracleQuote] = response.toBundleIx();
+    await executeTrade(ix, oracleQuote);
   }
 });
 ```
 
-[Get Started with Surge →](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-switchboard-surge-ultra-low-latency-streaming) | [Request API Access](https://tinyurl.com/yqubsr8e)
+[Get Started with Surge →](product-documentation/data-feeds/solana-svm/surge.md) | [Request API Access](https://tinyurl.com/yqubsr8e)
 
 ***
 
-## 📦 Switchboard Bundles: The New Standard
+## 📦 Switchboard Oracle Quotes: The New Standard
 
-For on-chain integrations, Switchboard's revolutionary bundle method eliminates write locks and reduces costs:
+For on-chain integrations, Switchboard's revolutionary Oracle Quotes method eliminates write locks and reduces costs:
 
 * **No Data Feed Accounts**: Zero setup - no accounts to create or fund
 * **No Write Locks**: Unlimited parallelization
@@ -66,7 +66,7 @@ For on-chain integrations, Switchboard's revolutionary bundle method eliminates 
 * **Instant Setup**: Start using prices immediately
 * **Zero Maintenance**: No cranks or upkeep required
 
-[Learn About Bundles →](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-bundle-method-the-new-standard)
+[Learn About Oracle Quotes →](product-documentation/data-feeds/solana-svm/oracle-quotes.md)
 
 ***
 
@@ -83,7 +83,7 @@ For on-chain integrations, Switchboard's revolutionary bundle method eliminates 
 
 ### For Smart Contracts
 
-**Use Bundles** for efficient on-chain integration:
+**Use Oracle Quotes** for efficient on-chain integration:
 
 * DeFi protocols
 * Lending platforms
@@ -102,8 +102,8 @@ For on-chain integrations, Switchboard's revolutionary bundle method eliminates 
 
 ## 🛠️ Quick Links
 
-* [**Surge Documentation**](product-documentation/data-feeds/solana-svm/bundles-and-surge.md#-switchboard-surge-ultra-low-latency-streaming) - Ultra-low latency WebSocket streaming
-* [**Bundle Builder**](https://beta.ondemand.switchboard.xyz/bundle-builder) - Create custom price feeds
+* [**Surge Documentation**](product-documentation/data-feeds/solana-svm/surge.md) - Ultra-low latency WebSocket streaming
+* [**Oracle Quote Builder**](https://beta.ondemand.switchboard.xyz/bundle-builder) - Create custom price feeds
 * [**GitHub Examples**](https://github.com/switchboard-xyz/sb-on-demand-examples) - Code samples and templates
 * [**Discord Community**](https://discord.gg/switchboard) - Get support and connect
 
@@ -119,7 +119,7 @@ For on-chain integrations, Switchboard's revolutionary bundle method eliminates 
 
 ### Product Documentation
 
-* [Surge & Bundles Guide](product-documentation/data-feeds/solana-svm/bundles-and-surge.md)
+* [Surge & Oracle Quotes Guide](product-documentation/data-feeds/solana-svm/)
 * [Data Feeds](product-documentation/data-feeds/)
 * [Randomness](product-documentation/randomness/)
 * [Tutorials](product-documentation/tutorials.md)

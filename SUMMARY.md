@@ -55,11 +55,11 @@
     * [EVM](product-documentation/randomness/tutorials/evm.md)
 * [SAIL](product-documentation/sail.md)
 
-## 📦 Bundles: The New Standard
+## 📦 Oracle Quotes: The New Standard
 
-* [Bundle Method Overview](product-documentation/data-feeds/solana-svm/bundles.md)
-* [Bundle Quick Start](product-documentation/data-feeds/solana-svm/bundles.md#quick-start-with-bundles)
-* [Bundle Integration Examples](product-documentation/data-feeds/solana-svm/bundles.md#real-world-use-cases)
+* [Oracle Quotes Overview](product-documentation/data-feeds/solana-svm/oracle-quotes.md)
+* [Oracle Quotes Quick Start](product-documentation/data-feeds/solana-svm/oracle-quotes.md#getting-started)
+* [Oracle Quotes Integration Examples](product-documentation/data-feeds/solana-svm/oracle-quotes.md#real-world-examples)
 
 ## 🌊 Switchboard Surge
 

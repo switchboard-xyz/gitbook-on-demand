@@ -6,7 +6,7 @@ Switchboard Surge is the industry's fastest oracle data delivery system, providi
 
 ### 🚀 Zero Setup Required
 
-Just like bundles, Surge requires **NO data feed accounts**:
+Just like Oracle Quotes, Surge requires **NO data feed accounts**:
 
 * ❌ No need to create on-chain feed accounts
 * ❌ No need to deploy or manage contracts
@@ -31,7 +31,7 @@ Other pull oracles gather price information, write to a state layer, and come to
                                               │  Your Application   │
                                               │ • Event Listeners   │
                                               │ • Price Handlers    │
-                                              │ • Bundle Converter  │
+                                              │ • Oracle Quote Converter │
                                               └─────────────────────┘
 ```
 
@@ -40,7 +40,7 @@ Other pull oracles gather price information, write to a state layer, and come to
 * **Sub-100ms Latency**: Direct oracle-to-client streaming
 * **Event-Driven**: Receive updates as prices change
 * **No Polling**: Persistent WebSocket eliminates overhead
-* **Bundle Compatible**: Convert streams to on-chain bundles seamlessly
+* **Oracle Quote Compatible**: Convert streams to on-chain Oracle Quotes seamlessly
 * **Auto-Reconnect**: Built-in connection recovery
 
 ## Implementation
@@ -72,10 +72,10 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
   // Option 1: Use price directly
   await updatePriceDisplay(response.data);
   
-  // Option 2: Convert to on-chain bundle
+  // Option 2: Convert to on-chain Oracle Quote
   if (shouldExecuteTrade(response)) {
-    const [sigVerifyIx, bundle] = response.toBundleIx();
-    await executeTrade(sigVerifyIx, bundle);
+    const [sigVerifyIx, oracleQuote] = response.toBundleIx();
+    await executeTrade(sigVerifyIx, oracleQuote);
   }
 });
 ```
@@ -95,8 +95,8 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
   // Check liquidations with zero latency
   const underwaterPositions = await market.checkLiquidations(response.data.price);
   for (const position of underwaterPositions) {
-    const [ix, bundle] = response.toBundleIx();
-    await liquidatePosition(position, ix, bundle);
+    const [ix, oracleQuote] = response.toBundleIx();
+    await liquidatePosition(position, ix, oracleQuote);
   }
   
   // Calculate funding rates
@@ -121,9 +121,9 @@ class OracleAMM {
     const price = this.pairs[`${tokenA}/${tokenB}`].price;
     const output = amount * price * (1 - FEE);
     
-    // Use bundle for on-chain verification
-    const [ix, bundle] = this.latestUpdate.toBundleIx();
-    return await executeSwap(ix, bundle, output);
+    // Use Oracle Quote for on-chain verification
+    const [ix, oracleQuote] = this.latestUpdate.toBundleIx();
+    return await executeSwap(ix, oracleQuote, output);
   }
 }
 ```
@@ -135,8 +135,8 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
   const opportunity = checkArbitrage(response.data);
   if (opportunity?.profit > MIN_PROFIT) {
     // Execute within milliseconds
-    const [ix, bundle] = response.toBundleIx();
-    await executeArbitrageTrade(ix, bundle);
+    const [ix, oracleQuote] = response.toBundleIx();
+    await executeArbitrageTrade(ix, oracleQuote);
   }
 });
 ```
@@ -235,9 +235,9 @@ export function PriceFeed({ symbol }: { symbol: string }) {
 
 ## FAQ
 
-### How is Surge different from bundles?
+### How is Surge different from Oracle Quotes?
 
-Surge streams data directly to your application via WebSocket for real-time use. Bundles are for on-chain smart contract integration. You can convert Surge updates to bundles when needed.
+Surge streams data directly to your application via WebSocket for real-time use. Oracle Quotes are for on-chain smart contract integration. You can convert Surge updates to Oracle Quotes when needed.
 
 ### What happens on disconnect?
 
