@@ -45,7 +45,7 @@ Variables in oracle jobs use the template syntax `${VARIABLE_NAME}` and are repl
 // In your oracle job definition
 {
   httpTask: {
-    url: "https://api.example.com/v1/price?key=${API_KEY}&symbol=${SYMBOL}",
+    url: "https://api.example.com/v1/btc-price?key=${API_KEY}",  // ✅ Hardcoded symbol
     method: "GET"
   }
 }
@@ -71,8 +71,7 @@ const res = await queue.fetchSignaturesConsensus({
   numSignatures: 1,
   useEd25519: true,
   variableOverrides: {
-    "API_KEY": process.env.API_KEY!,
-    "SYMBOL": "BTC"
+    "API_KEY": process.env.API_KEY!  // ✅ Only authentication
   },
 });
 ```
@@ -89,7 +88,7 @@ function getPolygonStockJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          url: "https://api.polygon.io/v2/last/trade/${SYMBOL}?apiKey=${POLYGON_API_KEY}",
+          url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",  // ✅ Hardcoded symbol
           method: "GET",
         }
       },
@@ -107,8 +106,7 @@ function getPolygonStockJob(): OracleJob {
 const res = await queue.fetchSignaturesConsensus({
   // ... other config
   variableOverrides: {
-    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!,
-    "SYMBOL": "AAPL"
+    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!  // ✅ Only API key
   },
 });
 ```
@@ -254,7 +252,7 @@ variableOverrides: {
         value: "application/json"
       }
     ],
-    // ✅ Only API key as variable, everything else hardcoded
+    // ✅ Only API key as variable, symbol hardcoded and verifiable
     body: '{"symbol": "BTCUSD", "apiKey": "${API_KEY}"}'
   }
 }
@@ -285,18 +283,42 @@ Create a testing script similar to the example:
 import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
 import * as sb from "@switchboard-xyz/on-demand";
 
-function getCustomJob(): OracleJob {
+// ❌ DANGEROUS EXAMPLE - DO NOT USE IN PRODUCTION
+// This example violates security warnings and is for educational purposes only
+function getDangerousJob(): OracleJob {
+  // WARNING: This pattern is NOT RECOMMENDED
+  // Variables for URLs and paths make feeds unverifiable
   const job = OracleJob.fromObject({
     tasks: [
       {
         httpTask: {
-          url: "${BASE_URL}/api/data?key=${API_KEY}&symbol=${SYMBOL}",
+          url: "${BASE_URL}/api/data?key=${API_KEY}&symbol=${SYMBOL}",  // ❌ Unverifiable
           method: "GET",
         }
       },
       {
         jsonParseTask: {
-          path: "${JSON_PATH}",
+          path: "${JSON_PATH}",  // ❌ Unverifiable data extraction
+        }
+      }
+    ]
+  });
+  return job;
+}
+
+// ✅ RECOMMENDED SECURE VERSION
+function getSecureJob(): OracleJob {
+  const job = OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&key=${API_KEY}",  // ✅ Hardcoded
+          method: "GET",
+        }
+      },
+      {
+        jsonParseTask: {
+          path: "$.data.rates.USD",  // ✅ Hardcoded path
         }
       }
     ]
@@ -310,20 +332,36 @@ function getCustomJob(): OracleJob {
   const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
   const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
   
-  const res = await queue.fetchSignaturesConsensus({
+  // ❌ DANGEROUS - Uses unverifiable job
+  const dangerousRes = await queue.fetchSignaturesConsensus({
     gateway,
     feedConfigs: [{
       feed: {
-        jobs: [getCustomJob()],
+        jobs: [getDangerousJob()],  // ❌ Not recommended
       },
     }],
     numSignatures: 1,
     useEd25519: true,
     variableOverrides: {
-      "BASE_URL": process.env.BASE_URL!,
-      "API_KEY": process.env.API_KEY!,
-      "SYMBOL": process.env.SYMBOL || "BTC",
-      "JSON_PATH": process.env.JSON_PATH || "$.price"
+      "BASE_URL": process.env.BASE_URL!,      // ❌ Unverifiable
+      "API_KEY": process.env.API_KEY!,        // ✅ OK for auth
+      "SYMBOL": process.env.SYMBOL || "BTC",  // ❌ Data selection
+      "JSON_PATH": process.env.JSON_PATH || "$.price"  // ❌ Data extraction
+    },
+  });
+  
+  // ✅ RECOMMENDED - Uses secure job
+  const secureRes = await queue.fetchSignaturesConsensus({
+    gateway,
+    feedConfigs: [{
+      feed: {
+        jobs: [getSecureJob()],  // ✅ Secure and verifiable
+      },
+    }],
+    numSignatures: 1,
+    useEd25519: true,
+    variableOverrides: {
+      "API_KEY": process.env.API_KEY!  // ✅ Only authentication
     },
   });
   
@@ -334,22 +372,28 @@ function getCustomJob(): OracleJob {
 ### 2. Running Tests
 
 ```bash
-# Set environment variables and run
-BASE_URL=https://api.example.com \
-API_KEY=your_api_key_here \
-SYMBOL=BTC \
-JSON_PATH=$.result.price \
-bun run scripts/test-job.ts
+# ❌ DANGEROUS - Testing with unverifiable variables
+# BASE_URL=https://api.example.com \
+# API_KEY=your_api_key_here \
+# SYMBOL=BTC \
+# JSON_PATH=$.result.price \
+# bun run scripts/test-job.ts
+
+# ✅ RECOMMENDED - Testing with only auth variables
+API_KEY=your_api_key_here bun run scripts/test-job.ts
 ```
 
 ### 3. Environment File Approach
 
 ```bash
-# Create .env file
-echo "BASE_URL=https://api.example.com" >> .env
+# ❌ DANGEROUS .env setup
+# echo "BASE_URL=https://api.example.com" >> .env  # Unverifiable
+# echo "SYMBOL=BTC" >> .env                        # Data selection
+# echo "JSON_PATH=$.result.price" >> .env         # Data extraction
+
+# ✅ RECOMMENDED .env setup - only authentication
 echo "API_KEY=your_api_key_here" >> .env
-echo "SYMBOL=BTC" >> .env
-echo "JSON_PATH=$.result.price" >> .env
+echo "AUTH_TOKEN=your_auth_token" >> .env
 
 # Load automatically with dotenv
 bun run scripts/test-job.ts
