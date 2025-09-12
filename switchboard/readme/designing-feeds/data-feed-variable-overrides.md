@@ -662,21 +662,20 @@ TWITTER_BEARER_TOKEN=your_token bun run scripts/job-testing/runJob.ts
 
 ## Integration with Production Systems
 
-### Bundle Method Integration
+### Oracle Quotes Integration
 
-When using variable overrides with the bundle method:
+When using variable overrides with Oracle Quotes:
 
 ```typescript
-// Client-side: fetch bundle with variable overrides
-const [sigVerifyIx, bundle] = await queue.fetchUpdateBundleIx(
+// Client-side: fetch Oracle Quote with variable overrides
+const [sigVerifyIx, oracleQuote] = await queue.fetchUpdateQuoteIx(
   gateway,
   crossbar,
   feedHashes,
   {
     variableOverrides: {
       "API_KEY": process.env.API_KEY!,
-      "SYMBOL": tradingPair,
-      "MULTIPLIER": priceAdjustment.toString()
+      "AUTH_TOKEN": process.env.AUTH_TOKEN!
     }
   }
 );
