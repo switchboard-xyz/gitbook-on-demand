@@ -53,8 +53,16 @@ Variables in oracle jobs use the template syntax `${VARIABLE_NAME}` and are repl
 
 ```typescript
 // When fetching signatures, provide the overrides
+import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
+import * as sb from "@switchboard-xyz/on-demand";
+
+const { program } = await sb.AnchorUtils.loadEnv();
+const queue = await sb.Queue.loadDefault(program!);
+const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
+const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
+
 const res = await queue.fetchSignaturesConsensus({
-  gateway: "http://localhost:8082",
+  gateway,
   feedConfigs: [{
     feed: {
       jobs: [yourJob],
@@ -300,9 +308,10 @@ function getCustomJob(): OracleJob {
   const { program } = await sb.AnchorUtils.loadEnv();
   const queue = await sb.Queue.loadDefault(program!);
   const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
+  const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
   
   const res = await queue.fetchSignaturesConsensus({
-    gateway: "http://localhost:8082",
+    gateway,
     feedConfigs: [{
       feed: {
         jobs: [getCustomJob()],
@@ -468,6 +477,187 @@ curl "https://api.example.com/v1/data?key=YOUR_KEY"
 ```bash
 # Test JSON path extraction
 curl "your_api_endpoint" | jq "$.path.you.want"
+```
+
+## Real-World Examples
+
+### Example 1: Polygon.io Stock Prices
+
+Get stock prices from Polygon.io API with secure API key management:
+
+```typescript
+import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
+import * as sb from "@switchboard-xyz/on-demand";
+
+function getPolygonStockJob(): OracleJob {
+  const job = OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          // ✅ Hardcoded endpoint and symbol - verifiable data source
+          url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",
+          method: "GET",
+        }
+      },
+      {
+        jsonParseTask: {
+          // ✅ Hardcoded path - verifiable data extraction
+          path: "$.results.p",
+        }
+      }
+    ]
+  });
+  return job;
+}
+
+// Usage with secure API key management
+const { program } = await sb.AnchorUtils.loadEnv();
+const queue = await sb.Queue.loadDefault(program!);
+const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
+const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
+
+const res = await queue.fetchSignaturesConsensus({
+  gateway,
+  feedConfigs: [{
+    feed: {
+      jobs: [getPolygonStockJob()],
+    },
+  }],
+  numSignatures: 1,
+  useEd25519: true,
+  variableOverrides: {
+    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!,  // ✅ Only API key
+  },
+});
+```
+
+### Example 2: ESPN Sports Scores
+
+Get NFL final scores from ESPN API:
+
+```typescript
+import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
+import * as sb from "@switchboard-xyz/on-demand";
+
+function getESPNFootballScoreJob(): OracleJob {
+  const job = OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          // ✅ Hardcoded specific game endpoint
+          url: "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard/401547439?apikey=${ESPN_API_KEY}",
+          method: "GET",
+        }
+      },
+      {
+        jsonParseTask: {
+          // ✅ Hardcoded path to home team final score
+          path: "$.events[0].competitions[0].competitors[0].score",
+        }
+      }
+    ]
+  });
+  return job;
+}
+
+// Usage
+const { program } = await sb.AnchorUtils.loadEnv();
+const queue = await sb.Queue.loadDefault(program!);
+const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
+const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
+
+const res = await queue.fetchSignaturesConsensus({
+  gateway,
+  feedConfigs: [{
+    feed: {
+      jobs: [getESPNFootballScoreJob()],
+    },
+  }],
+  numSignatures: 1,
+  useEd25519: true,
+  variableOverrides: {
+    "ESPN_API_KEY": process.env.ESPN_API_KEY!,  // ✅ Only API key
+  },
+});
+```
+
+### Example 3: Twitter Follower Count
+
+Get follower count for a specific Twitter account:
+
+```typescript
+import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
+import * as sb from "@switchboard-xyz/on-demand";
+
+function getTwitterFollowersJob(): OracleJob {
+  const job = OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          // ✅ Hardcoded user ID - verifiable target account
+          url: "https://api.twitter.com/2/users/783214",  // Twitter's official account
+          method: "GET",
+          headers: [
+            {
+              key: "Authorization",
+              value: "Bearer ${TWITTER_BEARER_TOKEN}"  // ✅ Only auth token
+            }
+          ]
+        }
+      },
+      {
+        jsonParseTask: {
+          // ✅ Hardcoded path to follower count
+          path: "$.data.public_metrics.followers_count",
+        }
+      }
+    ]
+  });
+  return job;
+}
+
+// Usage
+const { program } = await sb.AnchorUtils.loadEnv();
+const queue = await sb.Queue.loadDefault(program!);
+const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
+const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
+
+const res = await queue.fetchSignaturesConsensus({
+  gateway,
+  feedConfigs: [{
+    feed: {
+      jobs: [getTwitterFollowersJob()],
+    },
+  }],
+  numSignatures: 1,
+  useEd25519: true,
+  variableOverrides: {
+    "TWITTER_BEARER_TOKEN": process.env.TWITTER_BEARER_TOKEN!,  // ✅ Only auth token
+  },
+});
+```
+
+### Key Principles in These Examples
+
+1. **Hardcoded Data Sources**: URLs specify exact endpoints and parameters
+2. **Hardcoded Data Paths**: JSON paths are fixed, ensuring consistent data extraction
+3. **Authentication Only Variables**: Only API keys and tokens use variable substitution
+4. **Verifiable Logic**: Feed consumers can verify exactly what data is being fetched and how
+
+### Environment Setup for Examples
+
+```bash
+# Create .env file with your API keys
+echo "POLYGON_API_KEY=your_polygon_key_here" >> .env
+echo "ESPN_API_KEY=your_espn_key_here" >> .env
+echo "TWITTER_BEARER_TOKEN=your_twitter_token_here" >> .env
+```
+
+```bash
+# Run examples
+POLYGON_API_KEY=your_key bun run scripts/job-testing/runJob.ts
+ESPN_API_KEY=your_key bun run scripts/job-testing/runJob.ts
+TWITTER_BEARER_TOKEN=your_token bun run scripts/job-testing/runJob.ts
 ```
 
 ## Integration with Production Systems
