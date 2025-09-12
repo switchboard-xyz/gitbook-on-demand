@@ -8,12 +8,34 @@ Variable overrides provide a powerful mechanism for dynamically configuring orac
 
 ## What are Variable Overrides?
 
-Variable overrides allow you to inject values into oracle job definitions at runtime using the `${VARIABLE_NAME}` syntax. This enables:
+Variable overrides allow you to inject values into oracle job definitions at runtime using the `${VARIABLE_NAME}` syntax.
+
+## ⚠️ Security Warning: Variables Are Not Verifiable
+
+**IMPORTANT**: Variable overrides are **not part of the cryptographic verification process**. The oracle signatures only verify the job structure, not the variable values injected at runtime. This means:
+
+- **Variables can be manipulated** by whoever controls the execution environment
+- **Feed consumers cannot verify** what variable values were used
+- **Use variables ONLY for authentication** - API keys and authentication tokens
+- **Never use variables for anything else** - URLs, paths, parameters, calculations, or data selection logic
+
+### Safe Uses ✅
+- API keys: `${API_KEY}`
+- Authentication tokens: `${AUTH_TOKEN}`
+
+### Dangerous Uses ❌
+- Base URLs: `${BASE_URL}` (changes data source)
+- API versions: `${API_VERSION}` (could return different data formats)
+- Price multipliers: `${MULTIPLIER}` (affects calculations)
+- JSON paths: `${JSON_PATH}` (changes what data is extracted)
+- Any parameter that affects data traversal, extraction, or calculation
+
+## Primary Use Case: Secure Credential Management
+
+The main purpose of variable overrides is to keep sensitive credentials out of job definitions while maintaining feed verifiability:
 
 - **Secure API Key Management**: Keep sensitive credentials out of job definitions
-- **Dynamic Configuration**: Change parameters without modifying job structures
-- **Environment-Specific Settings**: Use different values for testing vs production
-- **Flexible Data Sources**: Switch between APIs or endpoints easily
+- **Environment-Specific Authentication**: Use different tokens for testing vs production
 
 ## Basic Syntax
 
@@ -83,27 +105,25 @@ const res = await queue.fetchSignaturesConsensus({
 });
 ```
 
-### 2. Dynamic Price Multipliers
+### 2. Recommended: API Key Only Usage
 
-Adjust calculations without changing job definitions:
+The safest and recommended approach - only use variables for API keys:
 
 ```typescript
-function getPriceWithMultiplierJob(): OracleJob {
+function getSecurePriceJob(): OracleJob {
   const job = OracleJob.fromObject({
     tasks: [
       {
         httpTask: {
-          url: "https://api.coinbase.com/v2/exchange-rates?currency=${BASE_CURRENCY}",
+          // ✅ Everything hardcoded except API key
+          url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&apikey=${API_KEY}",
+          method: "GET"
         }
       },
       {
         jsonParseTask: {
-          path: "$.data.rates.${QUOTE_CURRENCY}",
-        }
-      },
-      {
-        multiplyTask: {
-          scalar: "${PRICE_MULTIPLIER}"
+          // ✅ Hardcoded path - verifiable data extraction
+          path: "$.data.rates.USD",
         }
       }
     ]
@@ -111,41 +131,41 @@ function getPriceWithMultiplierJob(): OracleJob {
   return job;
 }
 
-// Usage
+// Usage - ONLY API key as variable
 variableOverrides: {
-  "BASE_CURRENCY": "BTC",
-  "QUOTE_CURRENCY": "USD", 
-  "PRICE_MULTIPLIER": "1.05" // Add 5% markup
+  "API_KEY": process.env.COINBASE_API_KEY!  // ✅ Only credential management
 }
 ```
 
-### 3. Environment-Specific Endpoints
+### 3. Multiple API Authentication Headers
 
-Switch between testing and production APIs:
+When you need multiple authentication parameters:
 
 ```typescript
-function getFlexibleApiJob(): OracleJob {
+function getMultiAuthJob(): OracleJob {
   const job = OracleJob.fromObject({
     tasks: [
       {
         httpTask: {
-          url: "${BASE_URL}/api/${API_VERSION}/data",
+          // ✅ Hardcoded endpoint and path - verifiable
+          url: "https://api.example.com/v1/btc-price",
           method: "GET",
           headers: [
             {
               key: "Authorization",
-              value: "Bearer ${AUTH_TOKEN}"
+              value: "Bearer ${AUTH_TOKEN}"  // ✅ Auth only
             },
             {
-              key: "X-API-Version", 
-              value: "${API_VERSION}"
+              key: "X-API-Key", 
+              value: "${API_KEY}"           // ✅ Auth only
             }
           ]
         }
       },
       {
         jsonParseTask: {
-          path: "${JSON_PATH}",
+          // ✅ Hardcoded path - verifiable data extraction
+          path: "$.price",
         }
       }
     ]
@@ -153,20 +173,10 @@ function getFlexibleApiJob(): OracleJob {
   return job;
 }
 
-// Development environment
+// Usage - only authentication credentials as variables
 variableOverrides: {
-  "BASE_URL": "https://api-dev.example.com",
-  "API_VERSION": "v1",
-  "AUTH_TOKEN": process.env.DEV_AUTH_TOKEN!,
-  "JSON_PATH": "$.result.price"
-}
-
-// Production environment
-variableOverrides: {
-  "BASE_URL": "https://api.example.com",
-  "API_VERSION": "v2", 
-  "AUTH_TOKEN": process.env.PROD_AUTH_TOKEN!,
-  "JSON_PATH": "$.data.currentPrice"
+  "AUTH_TOKEN": process.env.BEARER_TOKEN!,
+  "API_KEY": process.env.API_KEY!
 }
 ```
 
@@ -196,37 +206,39 @@ variableOverrides: {
 
 ## Variable Override Patterns
 
-### HTTP Headers with Authentication
+> **⚠️ CRITICAL**: Only use variables for API keys and authentication tokens. Everything else should be hardcoded to ensure feed verifiability.
+
+### HTTP Headers with Authentication (Recommended Pattern)
 
 ```typescript
 {
   httpTask: {
-    url: "${API_ENDPOINT}",
+    url: "https://api.specificprovider.com/v1/btc-usd",  // ✅ Hardcoded endpoint
     method: "GET",
     headers: [
       {
         key: "Authorization",
-        value: "Bearer ${ACCESS_TOKEN}"
+        value: "Bearer ${ACCESS_TOKEN}"  // ✅ Only auth token variable
       },
       {
         key: "X-API-Key",
-        value: "${API_KEY}"
+        value: "${API_KEY}"             // ✅ Only API key variable
       },
       {
         key: "User-Agent",
-        value: "${USER_AGENT}"
+        value: "Switchboard-Oracle/1.0"  // ✅ Hardcoded
       }
     ]
   }
 }
 ```
 
-### POST Request Bodies
+### POST Request Bodies (Auth Only)
 
 ```typescript
 {
   httpTask: {
-    url: "${API_ENDPOINT}",
+    url: "https://api.specificprovider.com/v1/query",  // ✅ Hardcoded
     method: "POST",
     headers: [
       {
@@ -234,28 +246,24 @@ variableOverrides: {
         value: "application/json"
       }
     ],
-    body: '{"query": "${QUERY}", "limit": ${LIMIT}, "apiKey": "${API_KEY}"}'
+    // ✅ Only API key as variable, everything else hardcoded
+    body: '{"symbol": "BTCUSD", "apiKey": "${API_KEY}"}'
   }
 }
 ```
 
-### Complex JSON Paths
+### JSON Paths (No Variables Recommended)
 
 ```typescript
 {
   jsonParseTask: {
-    path: "$.${ROOT_KEY}.${DATA_KEY}[${INDEX}].${VALUE_FIELD}",
+    // ✅ Completely hardcoded path - fully verifiable
+    path: "$.data.price_usd"
   }
 }
 
-// Example overrides
-variableOverrides: {
-  "ROOT_KEY": "results",
-  "DATA_KEY": "prices", 
-  "INDEX": "0",
-  "VALUE_FIELD": "current_price"
-}
-// Results in: "$.results.prices[0].current_price"
+// ❌ Don't do this - affects data extraction:
+// path: "$.${ROOT_KEY}.${DATA_KEY}[${INDEX}].${FIELD}"
 ```
 
 ## Testing and Development Workflow
