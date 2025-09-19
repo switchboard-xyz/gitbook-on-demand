@@ -4,5 +4,5 @@ Explore the powerful optional features that can further enhance your Switchboard
 \
 
 
-* [Switchboard Secrets](switchboard-secrets.md)
+* [Variable Overrides](../../../switchboard/readme/designing-feeds/data-feed-variable-overrides.md)
 

@@ -19,7 +19,7 @@ The `LlmTask` requires the following configurations:
 * **Model**: Define the AI model (e.g., `gpt-4o-mini`, `llama3-8b-8192`, `grok-beta`).
 * **Prompt**: Provide the user prompt to guide the AI model.
 * **Temperature**: Adjust the randomness of responses (e.g., `0.0` for deterministic outputs, up to `2.0`).
-* **Secret API Key**: This is the **name of secret that you have uploaded before** you create the task. This is very important to understand. See [here](../../secrets/) to learn how to upload secrets!
+* **Secret API Key**: This is the **name of the variable** that contains your API key. You can provide this via variable overrides when fetching signatures. See [Data Feed Variable Overrides](data-feed-variable-overrides.md) to learn how to use variable overrides for secure API key management!
 
 ## Limitations
 
@@ -64,5 +64,5 @@ While LlmTask is a powerful tool, it operates with the following limitations to 
 
 For an example of how to build an feed that makes use of LLM - see [here!](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secret/sb-on-demand-secrets-llm)
 
-### NB - REMEMBER TO UPLOAD YOUR API KEY AS A SECRET BEFORE CREATING THE TASK :)&#x20;
+### NB - REMEMBER TO PROVIDE YOUR API KEY VIA VARIABLE OVERRIDES WHEN FETCHING SIGNATURES :)&#x20;
 

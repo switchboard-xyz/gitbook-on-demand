@@ -42,7 +42,6 @@
   * [Movement](product-documentation/data-feeds/movement.md)
   * [Starknet](product-documentation/data-feeds/starknet.md)
   * [Optional Features](product-documentation/data-feeds/optional-features/README.md)
-    * [Switchboard Secrets](product-documentation/data-feeds/optional-features/switchboard-secrets.md)
   * [Task Types](product-documentation/data-feeds/task-types.md)
   * [Advanced Feed Configuration](switchboard/readme/designing-feeds/README.md)
     * [Data Feed Variable Overrides](switchboard/readme/designing-feeds/data-feed-variable-overrides.md)
