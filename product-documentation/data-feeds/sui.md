@@ -227,4 +227,123 @@ public entry fun use_switchboard_value(aggregator: &Aggregator) {
 }
 ```
 
-This implementation allows you to read and utilize Switchboard data feeds within Move. If you have any questions or need further assistance, please contact the Switchboard team.
+This implementation allows you to read and utilize Switchboard data feeds within Move. If you have any questions or need further assistance, please contact the Switchboard team.\
+
+
+### Quotes (New - October 2025 Switchboard Upgrade)
+
+Switchboard Oracle Quotes provide a more flexible way to consume oracle data by allowing you to create a quote verifier in your program and then fetch quotes on-demand. This approach gives you more control over when and how oracle data is consumed.\
+\
+Alternatively, you can just keep track of timestamps manually in a state object.&#x20;
+
+#### Overview
+
+The Quote flow works in two main steps:
+
+1. **Create a Quote Verifier**: Set up a verifier in your Move program that can validate oracle quotes
+2. **Fetch Quotes**: Use the SDK to fetch oracle consensus data and create quotes that can be used in subsequent transactions
+
+#### Step 1: Creating a Quote Verifier
+
+First, create a quote verifier in your Move program:
+
+```typescript
+import { Quote, SwitchboardClient } from "@switchboard-xyz/sui-sdk";
+import { Transaction } from "@mysten/sui/transactions";
+
+const client = new SwitchboardClient(suiClient);
+const tx = new Transaction();
+
+// Create a new quote verifier
+const verifier = await Quote.createVerifierTx(client, tx, {
+  queue: queueId, // The oracle queue ID
+});
+
+// Execute the transaction to create the verifier
+const result = await suiClient.signAndExecuteTransaction({
+  transaction: tx,
+  signer: keypair,
+});
+```
+
+#### Step 2: Fetching Quotes
+
+Once you have a verifier, you can fetch quotes using the SDK:
+
+```typescript
+import { fetchQuoteUpdate } from "@switchboard-xyz/sui-sdk";
+
+const tx = new Transaction();
+
+// Fetch quote updates for specific feed hashes
+const quotes = await fetchQuoteUpdate(
+  client,
+  ['0x7418dc6408f5e0eb4724dabd81922ee7b0814a43abc2b30ea7a08222cd1e23ee'], // Feed hashes
+  tx,
+  {
+    numOracles: 3, // Optional: specify number of oracles
+  }
+);
+
+// The quotes object can now be used in subsequent move calls
+tx.moveCall({
+  target: 'YOUR_PACKAGE::your_module::use_quotes',
+  arguments: [
+    quotes, // The quotes object from fetchQuoteUpdate
+    // ... other arguments
+  ],
+});
+
+// Execute the transaction
+const result = await suiClient.signAndExecuteTransaction({
+  transaction: tx,
+  signer: keypair,
+});
+```
+
+#### Move Integration for Quotes
+
+In your Move code, you can work with quotes using the quote verifier.
+
+```rust
+module example::quote_consumer;
+
+use switchboard::quote::{Self, QuoteVerifier, Quotes};
+use switchboard::decimal::Decimal;
+
+public struct State has key {
+    id: UID,
+    quote_verifier: QuoteVerifier,
+}
+
+// Initialize your program with a quote verifier
+public fun init_with_verifier(ctx: &mut TxContext, queue: ID) {
+    let verifier = switchboard::quote::new_verifier(ctx, queue);
+    
+    transfer::share_object(State {
+        id: object::new(ctx),
+        quote_verifier: verifier,
+    });
+}
+
+// Use quotes in your program logic
+public entry fun consume_quotes(
+    program: &mut State,
+    quotes: Quotes,
+    ctx: &mut TxContext
+) {
+    // Verify and extract quote data
+    let quote_data = program.quote_verifier.verify_quotes(&quotes);
+    
+    // Access individual quotes by feed hash
+    let feed_hash = b"7418dc6408f5e0eb4724dabd81922ee7b0814a43abc2b30ea7a08222cd1e23ee";
+    if (quote_data.contains(feed_hash)) {
+        let quote = quote_data.get(feed_hash);
+        let result: Decimal = quote.result();
+        let value_u128 = result.value();
+        let timestamp: u64 = quote.timestamp_ms();
+        
+        // Use the quote data in your program logic...
+    };
+}
+```
