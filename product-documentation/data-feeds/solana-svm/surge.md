@@ -215,6 +215,50 @@ export function PriceFeed({ symbol }: { symbol: string }) {
 }
 ```
 
+## Using Surge on Sui
+
+On Sui, Switchboard Surge updates can be used to get low-latency, low-cost feeds running. Watch price streams with sub-300ms latency, and trigger updates when necessary.
+
+Convert streaming prices directly into on-chain oracle **Quotes** for smart contract integration:
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
+
+const surge = new sb.Surge({
+  apiKey: process.env.SURGE_API_KEY!,
+});
+
+// Subscribe to price feeds
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+]);
+
+// Handle real-time updates and convert to Sui quotes
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  console.log(`${response.data.symbol}: $${response.data.price}`);
+  console.log(`Latency: ${Date.now() - response.data.source_ts_ms}ms`);
+  
+  // Option 1: Use price directly in your application
+  await updatePriceDisplay(response.data);
+  
+  // Option 2: Convert to on-chain Oracle Quote for Sui contracts
+  const ptb = new Transaction();
+  const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+
+  // Add your Sui contract call with the quote data
+  ptb.moveCall({
+    target: `${PACKAGE_ID}::your_module::your_function`,
+    arguments: [quoteData],
+  });
+  
+
+});
+```
+
+Find the source and examples for integrating Sui in the [Switchboard Github](https://github.com/switchboard-xyz/sui?tab=readme-ov-file#oracle-quote-integration-new---october-2025-switchboard-upgrade).&#x20;
+
 ## Current Limits & Pricing
 
 * **Cost**: FREE during launch phase
