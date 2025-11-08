@@ -50,7 +50,7 @@ Now, it's time to configure your feed according to your specific needs.
    * **Authority:** This is the Solana address that has the power (“authority”) to modify this feed's settings in the future. By default, the feed's creator is the authority, however to improve composability one can change their authority for their organisation or project's governance address. This is useful for data feeds controlled by DAOs.
    * **Max Variance:** This sets the maximum percentage difference allowed between individual job results for an update to be considered valid and accepted on-chain. Variance is often referred to as deviation, and we do not advise we update the feed for a deviation that exceeds `Max Variance`.
    * **Min Responses:** This specifies the minimum number of successful Oracle Job responses required for an update to be accepted. If fewer than this number of jobs succeed (e.g., due to a node outage), the feed will not update its value on-chain.
-   * **Sample Size:** This determines the number of historical data points (samples) that will be considered when reading a feed.
+   * **Sample Size:** This determines the number of oracles (samples) that the price will be collected from when reading a feed.
    * **Max Staleness:** This defines the maximum age (staleness) allowed for a data sample when the feed is read on-chain. Data older than this will be considered invalid.
 
 <figure><img src="../../.gitbook/assets/image(3).jpg" alt=""><figcaption></figcaption></figure>
