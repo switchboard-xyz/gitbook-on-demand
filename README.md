@@ -52,7 +52,7 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 });
 ```
 
-[Get Started with Surge →](product-documentation/data-feeds/solana-svm/surge.md) | [Request API Access](https://tinyurl.com/yqubsr8e)
+[Get Started with Surge →](switchboard-surge/surge.md) | [Request API Access](https://tinyurl.com/yqubsr8e)
 
 ***
 
@@ -66,7 +66,7 @@ For on-chain integrations, Switchboard's revolutionary Oracle Quotes method elim
 * **Instant Setup**: Start using prices immediately
 * **Zero Maintenance**: No cranks or upkeep required
 
-[Learn About Oracle Quotes →](product-documentation/data-feeds/solana-svm/oracle-quotes.md)
+[Learn About Oracle Quotes →](oracle-quotes-the-new-standard/oracle-quotes.md)
 
 ***
 
@@ -102,7 +102,7 @@ For on-chain integrations, Switchboard's revolutionary Oracle Quotes method elim
 
 ## 🛠️ Quick Links
 
-* [**Surge Documentation**](product-documentation/data-feeds/solana-svm/surge.md) - Ultra-low latency WebSocket streaming
+* [**Surge Documentation**](switchboard-surge/surge.md) - Ultra-low latency WebSocket streaming
 * [**Oracle Quote Builder**](https://beta.ondemand.switchboard.xyz/bundle-builder) - Create custom price feeds
 * [**GitHub Examples**](https://github.com/switchboard-xyz/sb-on-demand-examples) - Code samples and templates
 * [**Discord Community**](https://discord.gg/switchboard) - Get support and connect
@@ -135,7 +135,7 @@ For on-chain integrations, Switchboard's revolutionary Oracle Quotes method elim
 
 * [Running an Oracle](switchboard-protocol/running-a-switchboard-oracle/)
 * [(Re)staking](switchboard-protocol/re-staking/)
-* [Tokenomics](broken-reference)
+* [Tokenomics](broken-reference/)
 
 ***
 

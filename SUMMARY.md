@@ -66,16 +66,16 @@
 
 ## 📦 Oracle Quotes: The New Standard
 
-* [Oracle Quotes Overview](product-documentation/data-feeds/solana-svm/oracle-quotes.md)
-* [Oracle Quotes Quick Start](product-documentation/data-feeds/solana-svm/oracle-quotes.md#getting-started)
-* [Oracle Quotes Integration Examples](product-documentation/data-feeds/solana-svm/oracle-quotes.md#real-world-examples)
+* [Oracle Quotes Overview](oracle-quotes-the-new-standard/oracle-quotes.md)
+* [Oracle Quotes Quick Start](oracle-quotes-the-new-standard/oracle-quotes.md#getting-started)
+* [Oracle Quotes Integration Examples](oracle-quotes-the-new-standard/oracle-quotes.md#real-world-examples)
 
 ## 🌊 Switchboard Surge
 
 * [🌊 Surge Overview](surge-overview.md)
-* [Getting Started with Surge](product-documentation/data-feeds/solana-svm/surge.md)
-* [Surge Implementation Guide](product-documentation/data-feeds/solana-svm/surge.md#implementation)
-* [Using Crossbar for Surge](product-documentation/data-feeds/solana-svm/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
+* [Getting Started with Surge](switchboard-surge/surge.md)
+* [Surge Implementation Guide](switchboard-surge/surge.md#implementation)
+* [Using Crossbar for Surge](switchboard-surge/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
 
 ## Tooling and Resources
 
