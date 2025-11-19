@@ -68,7 +68,7 @@ const serializedJobs = jobs.map((oracleJob) => {
 });
 
 // Call the simulation server.
-const response = await fetch("https://api.switchboard.xyz/api/simulate", {
+const response = await fetch("https://crossbar.switchboard.xyz/api/simulate", {
   method: "POST",
   headers: [["Content-Type", "application/json"]],
   body: JSON.stringify({ cluster: "Mainnet", jobs: serializedJobs }),
