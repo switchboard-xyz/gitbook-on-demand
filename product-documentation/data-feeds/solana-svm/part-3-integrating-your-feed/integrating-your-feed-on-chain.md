@@ -24,6 +24,7 @@ This section guides you through the process of incorporating Switchboard data fe
     Include the pull feed account in an instruction within your program. The following example demonstrates how to access and utilise Switchboard data in your Solana program using Rust:
 
     ```rust
+    use anchor_lang::prelude::*;
     // Switchboard import
     use switchboard_on_demand::on_demand::accounts::pull_feed::PullFeedAccountData;
 
@@ -42,6 +43,8 @@ This section guides you through the process of incorporating Switchboard data fe
             // Feed account data
             let feed_account = ctx.accounts.feed.data.borrow();
 
+            let clock = Clock::get()?;
+
             // Verify that this account is the intended one by comparing public keys
             // if ctx.accounts.feed.key != &specific_pubkey {
             //     throwSomeError
@@ -50,7 +53,7 @@ This section guides you through the process of incorporating Switchboard data fe
             // Docs at: https://switchboard-on-demand-rust-docs.web.app/on_demand/accounts/pull_feed/struct.PullFeedAccountData.html
             let feed = PullFeedAccountData::parse(feed_account).unwrap();
             // Log the value
-            msg!("price: {:?}", feed.value());
+            msg!("price: {:?}", feed.value(&clock));
             Ok(())
         }
     }
