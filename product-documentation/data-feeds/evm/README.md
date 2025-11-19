@@ -43,6 +43,8 @@ That's it! You're now fetching and verifying real-time oracle prices on EVM. �
 |---------|----------|---------------------|
 | **Monad Mainnet** | 143 | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
 | **Monad Testnet** | 10143 | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| **Hyperliquid Mainnet** | 999 | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
+| **Hyperliquid Testnet** | 998 | TBD |
 
 > **Note**: For other EVM chains (Arbitrum, Core, etc.), see the legacy examples which use the previous Switchboard implementation.
 
@@ -395,6 +397,251 @@ const tx = await priceConsumer.updatePrices([response.encoded], { value: fee });
 const receipt = await tx.wait();
 
 console.log(`Price updated on Monad! Block: ${receipt.blockNumber}`);
+```
+
+## 🔷 HyperEVM (Hyperliquid) Integration
+
+Hyperliquid is a high-performance Layer 1 blockchain with native perpetual futures and spot trading. Switchboard On-Demand provides native oracle support for HyperEVM with the same security guarantees and ease of use as other EVM chains.
+
+### Network Information
+
+| Network | Chain ID | RPC URL | Switchboard Contract |
+|---------|----------|---------|---------------------|
+| **Hyperliquid Mainnet** | 999 | `https://rpc.hyperliquid.xyz/evm` | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
+| **Hyperliquid Testnet** | 998 | `https://rpc.hyperliquid-testnet.xyz/evm` | TBD |
+
+### Quick Start on Hyperliquid
+
+#### 1. Setup Environment
+
+```bash
+# Hyperliquid Mainnet
+export RPC_URL=https://rpc.hyperliquid.xyz/evm
+export PRIVATE_KEY=0xyour_private_key_here
+export NETWORK=hyperliquid-mainnet
+
+# Hyperliquid Testnet
+export RPC_URL=https://rpc.hyperliquid-testnet.xyz/evm
+export PRIVATE_KEY=0xyour_private_key_here  
+export NETWORK=hyperliquid-testnet
+```
+
+#### 2. Deploy Contract
+
+```bash
+# Hyperliquid Mainnet deployment
+forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url https://rpc.hyperliquid.xyz/evm \
+  --private-key $PRIVATE_KEY \
+  --broadcast \
+  -vvvv
+
+# Hyperliquid Testnet deployment  
+forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url https://rpc.hyperliquid-testnet.xyz/evm \
+  --private-key $PRIVATE_KEY \
+  --broadcast \
+  -vvvv
+```
+
+#### 3. Run Oracle Integration
+
+```bash
+# Complete example on Hyperliquid Mainnet
+RPC_URL=https://rpc.hyperliquid.xyz/evm \
+PRIVATE_KEY=$PRIVATE_KEY \
+CONTRACT_ADDRESS=$CONTRACT_ADDRESS \
+NETWORK=hyperliquid-mainnet \
+bun scripts/run.ts
+
+# Complete example on Hyperliquid Testnet
+RPC_URL=https://rpc.hyperliquid-testnet.xyz/evm \
+PRIVATE_KEY=$PRIVATE_KEY \
+CONTRACT_ADDRESS=$CONTRACT_ADDRESS \
+NETWORK=hyperliquid-testnet \
+bun scripts/run.ts
+```
+
+### Hyperliquid-Specific Considerations
+
+- **Native Token**: ETH (for gas fees)
+- **High Performance**: Hyperliquid's optimized execution enables ultra-fast oracle updates
+- **Low Fees**: Efficient gas usage for frequent price updates
+- **EVM Compatibility**: All existing Ethereum tooling works seamlessly
+- **DeFi Native**: Built-in perpetual futures and spot trading
+
+### Querying Active Feeds on Hyperliquid
+
+You can query all active feeds on your Hyperliquid deployment:
+
+```bash
+# List all feed IDs
+bun scripts/queryFeeds.ts hyperliquid-mainnet
+
+# Show detailed feed information with values
+bun scripts/queryFeeds.ts hyperliquid-mainnet --details
+
+# Export feed details to JSON
+bun scripts/queryFeeds.ts hyperliquid-mainnet --details --export feeds.json
+```
+
+Example output:
+```
+🔍 Querying Active Feeds
+═══════════════════════════════════════
+Network: hyperliquid-mainnet
+RPC: https://rpc.hyperliquid.xyz/evm
+Switchboard: 0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347
+
+📊 Total Active Feeds: 1
+
+Feed 1/1: 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+  Value:      105906073380000000000000
+  Timestamp:  2025-11-10T18:46:05.000Z
+  Slot:       379217525
+  Age:        3m 3s
+```
+
+### Example: Perpetual Futures Integration on Hyperliquid
+
+```typescript
+import { ethers } from 'ethers';
+import { CrossbarClient } from '@switchboard-xyz/common';
+
+// Hyperliquid-specific setup
+const provider = new ethers.JsonRpcProvider('https://rpc.hyperliquid.xyz/evm');
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+
+// Switchboard contract on Hyperliquid Mainnet
+const switchboardAddress = '0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347';
+const switchboard = new ethers.Contract(switchboardAddress, SWITCHBOARD_ABI, signer);
+
+// Your deployed price consumer contract
+const priceConsumer = new ethers.Contract(contractAddress, PRICE_CONSUMER_ABI, signer);
+
+// Fetch and update prices for perpetual futures
+const crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
+const btcFeedHash = '0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812'; // BTC/USD
+
+const response = await crossbar.fetchOracleQuote([btcFeedHash], 'mainnet');
+const fee = await switchboard.getFee([response.encoded]);
+
+// Submit update with Hyperliquid's fast finality
+const tx = await priceConsumer.updatePrices([response.encoded], { value: fee });
+const receipt = await tx.wait();
+
+console.log(`Price updated on Hyperliquid! Block: ${receipt.blockNumber}`);
+
+// Query the updated price
+const [value, timestamp, slotNumber] = await priceConsumer.getPrice(btcFeedHash);
+console.log(`BTC/USD Price: $${ethers.formatUnits(value, 18)}`);
+```
+
+### Setting Oracle Keys on Hyperliquid
+
+After deploying the Switchboard contracts, you need to set the oracle signing keys:
+
+```bash
+# Set oracle keys on Hyperliquid Mainnet
+export PRIVATE_KEY=0xyour_private_key_here
+bun scripts/setOracleKeys.ts hyperliquid-mainnet mainnet
+
+# Set oracle keys on Hyperliquid Testnet
+bun scripts/setOracleKeys.ts hyperliquid-testnet mainnet
+```
+
+This script will:
+1. Fetch oracle keys from Switchboard's Crossbar API
+2. Convert secp256k1 public keys to Ethereum addresses
+3. Set them on your deployed Queue contract
+4. Verify the keys were set correctly
+
+### Fetching and Submitting Updates
+
+To fetch oracle data and submit it to your Hyperliquid deployment:
+
+```bash
+# Fetch update data for a feed
+bun scripts/fetchUpdate.ts 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812 update.json
+
+# Fetch and submit to Hyperliquid Mainnet
+export PRIVATE_KEY=0xyour_private_key_here
+bun scripts/fetchUpdate.ts 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812 update.json hyperliquid-mainnet
+```
+
+The script will:
+- Fetch the latest oracle data from Crossbar
+- Encode it efficiently (saving ~75% gas vs ABI encoding)
+- Submit it to your Switchboard contract on Hyperliquid
+- Verify the feed was updated successfully
+
+### Popular Feeds for Hyperliquid
+
+| Asset | Feed Hash |
+|-------|-----------|
+| BTC/USD | `0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812` |
+| ETH/USD | `0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea` |
+| SOL/USD | `0x822512ee9add93518eca1c105a38422841a76c590db079eebb283deb2c14caa9` |
+| SUI/USD | `0x7ceef94f404e660925ea4b33353ff303effaf901f224bdee50df3a714c1299e9` |
+
+### Getting Started with Hyperliquid
+
+**Documentation:**
+- [Hyperliquid Docs](https://hyperliquid.gitbook.io/hyperliquid-docs)
+- [HyperEVM Documentation](https://hyperliquid.gitbook.io/hyperliquid-docs/hyperevm)
+
+**Testnet:**
+- Use the Hyperliquid testnet to test your integration
+- Request testnet tokens through the official faucet
+
+**Mainnet:**
+- Bridge ETH to Hyperliquid using the official bridge
+- Start with small amounts to test your integration
+
+### Example: DeFi Protocol on Hyperliquid
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./SwitchboardPriceConsumer.sol";
+
+contract HyperliquidDeFi {
+    SwitchboardPriceConsumer public priceConsumer;
+    
+    // BTC/USD feed on Hyperliquid
+    bytes32 public constant BTC_USD_FEED = 
+        0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812;
+    
+    constructor(address _priceConsumer) {
+        priceConsumer = SwitchboardPriceConsumer(_priceConsumer);
+    }
+    
+    function openPosition(
+        uint256 collateralAmount,
+        uint256 leverage
+    ) external {
+        // Get current BTC price
+        (int128 btcPrice,,) = priceConsumer.getPrice(BTC_USD_FEED);
+        require(priceConsumer.isPriceFresh(BTC_USD_FEED), "Stale price");
+        
+        // Calculate position size
+        uint256 positionSize = collateralAmount * leverage;
+        uint256 positionValue = (positionSize * uint128(btcPrice)) / 1e18;
+        
+        // Open position logic...
+    }
+    
+    function checkLiquidation(address trader) external view returns (bool) {
+        // Get current BTC price
+        (int128 btcPrice,,) = priceConsumer.getPrice(BTC_USD_FEED);
+        
+        // Calculate if position should be liquidated
+        // ... liquidation logic ...
+        
+        return false; // or true if should liquidate
+    }
+}
 ```
 
 ## 🐛 Troubleshooting
