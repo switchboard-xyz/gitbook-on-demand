@@ -74,28 +74,28 @@ SWTCH is the governance and utility token that powers the Switchboard oracle net
 ### 🎯 For Token Holders
 
 1. [Claim your SWTCH tokens](https://switchboard.xyz/claim) (starting Sept 9, 2025)
-2. [Stake through Jito NCN](../how-it-works/switchboard-protocol/providing-stake-to-switchboard.md) to get svSWTCH
+2. [Stake through Jito NCN](providing-stake-to-switchboard.md) to get svSWTCH
 3. Participate in [governance discussions](governance-and-tokenomics.md#governance-process)
 
 ### 🔗 For Oracle Operators
 
-1. [Set up your oracle node](../how-it-works/switchboard-protocol/running-a-switchboard-oracle/)
+1. [Set up your oracle node](running-a-switchboard-oracle/)
 2. Add a Jito NCN operator to your node to receive stake
 3. Maintain high performance to earn more rewards
 
 ### 🏗️ For Developers
 
-1. Review [staking benefits](../how-it-works/switchboard-protocol/re-staking/) for your application
-2. Integrate [enhanced rate limits](/broken/pages/cdUqmdXCuvd6ZHaLJHSN) with svSWTCH
-3. Explore [Switchboard Surge](/broken/pages/cdUqmdXCuvd6ZHaLJHSN) to take advantage of higher rate limits
+1. Review [staking benefits](re-staking/) for your application
+2. Integrate [enhanced rate limits](../product-documentation/data-feeds/) with svSWTCH
+3. Explore [Switchboard Surge](../product-documentation/data-feeds/) to take advantage of higher rate limits
 
 ## Related Documentation
 
 * [**Full Governance Guide**](governance-and-tokenomics.md) - Complete tokenomics and governance details
-* [**Providing Stake**](../how-it-works/switchboard-protocol/providing-stake-to-switchboard.md) - How to stake SWTCH tokens
-* [**Oracle Staking Setup**](../how-it-works/switchboard-protocol/enable-staking-to-your-oracle.md) - For oracle operators
-* [**Re-staking Benefits**](../how-it-works/switchboard-protocol/re-staking/) - Advanced staking strategies
-* [**Running Oracles**](../how-it-works/switchboard-protocol/running-a-switchboard-oracle/) - Oracle operator guides
+* [**Providing Stake**](providing-stake-to-switchboard.md) - How to stake SWTCH tokens
+* [**Oracle Staking Setup**](enable-staking-to-your-oracle.md) - For oracle operators
+* [**Re-staking Benefits**](re-staking/) - Advanced staking strategies
+* [**Running Oracles**](running-a-switchboard-oracle/) - Oracle operator guides
 
 ## Community & Support
 
