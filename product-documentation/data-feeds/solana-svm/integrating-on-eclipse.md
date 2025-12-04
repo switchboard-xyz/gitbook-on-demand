@@ -8,7 +8,7 @@ On Eclipse Devnet and Mainnet networks, the Switchboard Program ID is as follows
 
 #### Getting Started
 
-Begin with the process outlined in “[Integrating your Feed](part-3-integrating-your-feed/)”. When calling `fetchUpdateIx`, include the `network` and `chain` settings as parameters. This will route the requests to the appropriate Switchboard oracles and map the data back to the target chain (Eclipse).
+Begin with the process outlined in “[Integrating your Feed](../../../docs-by-chain/solana-svm/data-feeds/part-3-integrating-your-feed/)”. When calling `fetchUpdateIx`, include the `network` and `chain` settings as parameters. This will route the requests to the appropriate Switchboard oracles and map the data back to the target chain (Eclipse).
 
 ```tsx
 const provider = ...
