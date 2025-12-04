@@ -298,4 +298,4 @@ Feed B3ZwcSoNo75VNbABMd8bdjrEaLj87EMQ3TkDWnVrFkcX initialized: 4FEmSq146aV1oyuvn
 
 ```
 
-Once your feed has been successfully created, take note of your feed's public key and move on to [part 3.](../../../docs-by-chain/solana-svm/data-feeds/part-3-integrating-your-feed/)
+Once your feed has been successfully created, take note of your feed's public key and move on to [part 3.](part-3-integrating-your-feed/)

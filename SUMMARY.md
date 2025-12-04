@@ -1,8 +1,6 @@
 # Table of contents
 
 * [Switchboard On Demand](README.md)
-* [Why Switchboard?](why-switchboard.md)
-* [Quick Start](quick-start.md)
 
 ## Understanding Switchboard
 
@@ -17,11 +15,6 @@
 
 ## Product Documentation
 
-* [Solana / SVM](product-documentation/solana-svm/README.md)
-  * [Data Feeds](product-documentation/solana-svm/data-feeds.md)
-  * [Oracle Aggregator](product-documentation/solana-svm/oracle-aggregator/README.md)
-    * [How to use the Switchboard Oracle Aggregator](product-documentation/solana-svm/oracle-aggregator/how-to-use-the-switchboard-oracle-aggregator.md)
-  * [Randomness](product-documentation/solana-svm/randomness.md)
 * [Data Feeds](product-documentation/data-feeds/README.md)
   * [Getting Started with Switchboard Data Feeds](product-documentation/data-feeds/getting-started-with-switchboard-data-feeds.md)
   * [Solana / SVM](product-documentation/data-feeds/solana-svm/README.md)
@@ -29,7 +22,7 @@
       * [Option 1: Drag-and-Drop Feed Builder](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-1-drag-and-drop-feed-builder.md)
       * [Option 2: Designing a Feed in Typescript](product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-2-designing-a-feed-in-typescript.md)
     * [Part 2: Deploying your Feed On-Chain](product-documentation/data-feeds/solana-svm/part-2-deploying-your-feed-on-chain.md)
-    * [Part 3: Integrating your Feed](docs-by-chain/solana-svm/data-feeds/part-3-integrating-your-feed/README.md)
+    * [Part 3: Integrating your Feed](product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/README.md)
       * [Integrating your Feed On-Chain](product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/integrating-your-feed-on-chain.md)
       * [Integrating into Frontends](product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/integrating-into-frontends.md)
     * [Costs](product-documentation/data-feeds/solana-svm/costs.md)
@@ -71,17 +64,6 @@
     * [EVM](product-documentation/randomness/tutorials/evm.md)
 * [SAIL](product-documentation/sail.md)
 
-## Tooling and Resources
-
-* [Crossbar](tooling-and-resources/crossbar/README.md)
-  * [Run Crossbar with Docker Compose](tooling-and-resources/crossbar/run-crossbar-with-docker-compose.md)
-* [Switchboard Command Line Interface](tooling-and-resources/switchboard-command-line-interface.md)
-* [Technical Resources and Documentation](tooling-and-resources/technical-resources-and-documentation/README.md)
-  * [SDKs and Documentation](tooling-and-resources/technical-resources-and-documentation/sdks-and-documentation.md)
-  * [Solana Accounts](tooling-and-resources/technical-resources-and-documentation/solana-accounts.md)
-  * [EVM Identifiers](tooling-and-resources/technical-resources-and-documentation/evm-identifiers.md)
-  * [Code Examples (Github)](https://github.com/switchboard-xyz/sb-on-demand-examples)
-
 ## 📦 Oracle Quotes: The New Standard
 
 * [Oracle Quotes Overview](oracle-quotes-the-new-standard/oracle-quotes.md)
@@ -94,6 +76,17 @@
 * [Getting Started with Surge](switchboard-surge/surge.md)
 * [Surge Implementation Guide](switchboard-surge/surge.md#implementation)
 * [Using Crossbar for Surge](switchboard-surge/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
+
+## Tooling and Resources
+
+* [Crossbar](tooling-and-resources/crossbar/README.md)
+  * [Run Crossbar with Docker Compose](tooling-and-resources/crossbar/run-crossbar-with-docker-compose.md)
+* [Switchboard Command Line Interface](tooling-and-resources/switchboard-command-line-interface.md)
+* [Technical Resources and Documentation](tooling-and-resources/technical-resources-and-documentation/README.md)
+  * [SDKs and Documentation](tooling-and-resources/technical-resources-and-documentation/sdks-and-documentation.md)
+  * [Solana Accounts](tooling-and-resources/technical-resources-and-documentation/solana-accounts.md)
+  * [EVM Identifiers](tooling-and-resources/technical-resources-and-documentation/evm-identifiers.md)
+  * [Code Examples (Github)](https://github.com/switchboard-xyz/sb-on-demand-examples)
 
 ## Switchboard Protocol
 
