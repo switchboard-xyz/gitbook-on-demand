@@ -1,0 +1,1842 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Trusted Execution Environments (TEEs) · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.0">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="oracle-queues.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../../">
+            
+                <a href="../../../">
+            
+                    
+                    Switchboard On Demand
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../../../why-switchboard.html">
+            
+                <a href="../../../why-switchboard.html">
+            
+                    
+                    Why Switchboard?
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../../../quick-start.html">
+            
+                <a href="../../../quick-start.html">
+            
+                    
+                    Quick Start
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Understanding Switchboard</li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1.1" data-path="../why-switchboard-oracles.html">
+            
+                <a href="../why-switchboard-oracles.html">
+            
+                    
+                    Why Switchboard Oracles?
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.2" data-path="../vision-and-mission.html">
+            
+                <a href="../vision-and-mission.html">
+            
+                    
+                    Vision & mission
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.3" data-path="../brief-history-and-key-achievements-to-date.html">
+            
+                <a href="../brief-history-and-key-achievements-to-date.html">
+            
+                    
+                    Brief History and Key Achievements to Date
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Switchboard’s Architecture, Tech Stack and Security
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="2.1.4.1" data-path="trusted-execution-environments-tees.html">
+            
+                <a href="trusted-execution-environments-tees.html">
+            
+                    
+                    Trusted Execution Environments (TEEs)
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4.2" data-path="oracle-queues.html">
+            
+                <a href="oracle-queues.html">
+            
+                    
+                    Oracle Queues
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4.3" data-path="node-architecture.html">
+            
+                <a href="node-architecture.html">
+            
+                    
+                    Node Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Product Documentation</li>
+        
+        
+    
+        <li class="chapter " data-level="3.1" data-path="../../../product-documentation/solana-svm/">
+            
+                <a href="../../../product-documentation/solana-svm/">
+            
+                    
+                    Solana / SVM
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1.1" data-path="../../../product-documentation/solana-svm/data-feeds.html">
+            
+                <a href="../../../product-documentation/solana-svm/data-feeds.html">
+            
+                    
+                    Data Feeds
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.2" data-path="../../../product-documentation/solana-svm/oracle-aggregator/">
+            
+                <a href="../../../product-documentation/solana-svm/oracle-aggregator/">
+            
+                    
+                    Oracle Aggregator
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1.2.1" data-path="../../../product-documentation/solana-svm/oracle-aggregator/how-to-use-the-switchboard-oracle-aggregator.html">
+            
+                <a href="../../../product-documentation/solana-svm/oracle-aggregator/how-to-use-the-switchboard-oracle-aggregator.html">
+            
+                    
+                    How to use the Switchboard Oracle Aggregator
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.1.3" data-path="../../../product-documentation/solana-svm/randomness.html">
+            
+                <a href="../../../product-documentation/solana-svm/randomness.html">
+            
+                    
+                    Randomness
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="../../../product-documentation/data-feeds/">
+            
+                <a href="../../../product-documentation/data-feeds/">
+            
+                    
+                    Data Feeds
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.1" data-path="../../../product-documentation/data-feeds/getting-started-with-switchboard-data-feeds.html">
+            
+                <a href="../../../product-documentation/data-feeds/getting-started-with-switchboard-data-feeds.html">
+            
+                    
+                    Getting Started with Switchboard Data Feeds
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2" data-path="../../../product-documentation/data-feeds/solana-svm/">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/">
+            
+                    
+                    Solana / SVM
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.2.1" data-path="../../../product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/">
+            
+                    
+                    Part 1: Designing and Simulating Your Feed
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.2.1.1" data-path="../../../product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-1-drag-and-drop-feed-builder.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-1-drag-and-drop-feed-builder.html">
+            
+                    
+                    Option 1: Drag-and-Drop Feed Builder
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2.1.2" data-path="../../../product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-2-designing-a-feed-in-typescript.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/part-1-designing-and-simulating-your-feed/option-2-designing-a-feed-in-typescript.html">
+            
+                    
+                    Option 2: Designing a Feed in Typescript
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2.2" data-path="../../../product-documentation/data-feeds/solana-svm/part-2-deploying-your-feed-on-chain.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/part-2-deploying-your-feed-on-chain.html">
+            
+                    
+                    Part 2: Deploying your Feed On-Chain
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2.3" data-path="../../../docs-by-chain/solana-svm/data-feeds/part-3-integrating-your-feed/">
+            
+                <a href="../../../docs-by-chain/solana-svm/data-feeds/part-3-integrating-your-feed/">
+            
+                    
+                    Part 3: Integrating your Feed
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.2.3.1" data-path="../../../product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/integrating-your-feed-on-chain.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/integrating-your-feed-on-chain.html">
+            
+                    
+                    Integrating your Feed On-Chain
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2.3.2" data-path="../../../product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/integrating-into-frontends.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/part-3-integrating-your-feed/integrating-into-frontends.html">
+            
+                    
+                    Integrating into Frontends
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2.4" data-path="../../../product-documentation/data-feeds/solana-svm/costs.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/costs.html">
+            
+                    
+                    Costs
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.2.5" data-path="../../../product-documentation/data-feeds/solana-svm/integrating-on-eclipse.html">
+            
+                <a href="../../../product-documentation/data-feeds/solana-svm/integrating-on-eclipse.html">
+            
+                    
+                    Integrating on Eclipse
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3" data-path="../../../product-documentation/data-feeds/evm/">
+            
+                <a href="../../../product-documentation/data-feeds/evm/">
+            
+                    
+                    EVM
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.3.1" data-path="../../../product-documentation/data-feeds/evm/part-1-prerequisites-and-quick-start-guide.html">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-1-prerequisites-and-quick-start-guide.html">
+            
+                    
+                    Part 1: Prerequisites and Quick Start Guide
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3.2" data-path="../../../product-documentation/data-feeds/evm/part-2-designing-and-creating-your-feed/">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-2-designing-and-creating-your-feed/">
+            
+                    
+                    Part 2: Designing and Creating Your Feed
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.3.2.1" data-path="../../../product-documentation/data-feeds/evm/part-2-designing-and-creating-your-feed/option-1-drag-and-drop-feed-builder.html">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-2-designing-and-creating-your-feed/option-1-drag-and-drop-feed-builder.html">
+            
+                    
+                    Option 1: Drag-and-Drop Feed Builder
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3.2.2" data-path="../../../product-documentation/data-feeds/evm/part-2-designing-and-creating-your-feed/option-2-designing-a-feed-in-typescript.html">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-2-designing-and-creating-your-feed/option-2-designing-a-feed-in-typescript.html">
+            
+                    
+                    Option 2: Designing a Feed in Typescript
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3.3" data-path="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/">
+            
+                    
+                    Part 3: Integrating your Feed
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.3.3.1" data-path="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-your-feed-on-chain.html">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-your-feed-on-chain.html">
+            
+                    
+                    Integrating your Feed On-Chain
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3.3.2" data-path="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-your-feed-with-typescript.html">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-your-feed-with-typescript.html">
+            
+                    
+                    Integrating your Feed with Typescript
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.3.3.3" data-path="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-into-frontends-evm.html">
+            
+                <a href="../../../product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-into-frontends-evm.html">
+            
+                    
+                    Integrating into Frontends (EVM)
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.4" data-path="../../../product-documentation/data-feeds/aptos.html">
+            
+                <a href="../../../product-documentation/data-feeds/aptos.html">
+            
+                    
+                    Aptos
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.5" data-path="../../../product-documentation/data-feeds/sui.html">
+            
+                <a href="../../../product-documentation/data-feeds/sui.html">
+            
+                    
+                    Sui
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.6" data-path="../../../product-documentation/data-feeds/iota.html">
+            
+                <a href="../../../product-documentation/data-feeds/iota.html">
+            
+                    
+                    Iota
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.7" data-path="../../../product-documentation/data-feeds/movement.html">
+            
+                <a href="../../../product-documentation/data-feeds/movement.html">
+            
+                    
+                    Movement
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.8" data-path="../../../product-documentation/data-feeds/starknet.html">
+            
+                <a href="../../../product-documentation/data-feeds/starknet.html">
+            
+                    
+                    Starknet
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.9" data-path="../../../product-documentation/data-feeds/optional-features.html">
+            
+                <a href="../../../product-documentation/data-feeds/optional-features.html">
+            
+                    
+                    Optional Features
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.10" data-path="../../../product-documentation/data-feeds/task-types.html">
+            
+                <a href="../../../product-documentation/data-feeds/task-types.html">
+            
+                    
+                    Task Types
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11" data-path="../../../product-documentation/data-feeds/designing-feeds/">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/">
+            
+                    
+                    Advanced Feed Configuration
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.2.11.1" data-path="../../../product-documentation/data-feeds/designing-feeds/data-feed-variable-overrides.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/data-feed-variable-overrides.html">
+            
+                    
+                    Data Feed Variable Overrides
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.2" data-path="../../../product-documentation/data-feeds/designing-feeds/variables-with-cachetask.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/variables-with-cachetask.html">
+            
+                    
+                    Variables with CacheTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.3" data-path="../../../product-documentation/data-feeds/designing-feeds/rest-apis-with-httptask.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/rest-apis-with-httptask.html">
+            
+                    
+                    REST APIs with HttpTask
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.4" data-path="../../../product-documentation/data-feeds/designing-feeds/how-feeds-are-resolved.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/how-feeds-are-resolved.html">
+            
+                    
+                    How Feeds are Resolved
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.5" data-path="../../../product-documentation/data-feeds/designing-feeds/bounding-results.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/bounding-results.html">
+            
+                    
+                    Bounding Results
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.6" data-path="../../../product-documentation/data-feeds/designing-feeds/decentralized-exchanges.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/decentralized-exchanges.html">
+            
+                    
+                    Decentralized Exchanges
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.7" data-path="../../../product-documentation/data-feeds/designing-feeds/oracle-aggregator.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/oracle-aggregator.html">
+            
+                    
+                    Oracle Aggregator
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.8" data-path="../../../product-documentation/data-feeds/designing-feeds/llms-integration.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/llms-integration.html">
+            
+                    
+                    LLMs Integration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2.11.9" data-path="../../../product-documentation/data-feeds/designing-feeds/faq.html">
+            
+                <a href="../../../product-documentation/data-feeds/designing-feeds/faq.html">
+            
+                    
+                    FAQ
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="../../../product-documentation/tutorials.html">
+            
+                <a href="../../../product-documentation/tutorials.html">
+            
+                    
+                    Tutorials
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="../../../product-documentation/aggregator/">
+            
+                <a href="../../../product-documentation/aggregator/">
+            
+                    
+                    Aggregator
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.4.1" data-path="../../../product-documentation/aggregator/how-to-use-the-switchboard-oracle-aggregator.html">
+            
+                <a href="../../../product-documentation/aggregator/how-to-use-the-switchboard-oracle-aggregator.html">
+            
+                    
+                    How to use the Switchboard Oracle Aggregator
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5" data-path="../../../product-documentation/randomness/">
+            
+                <a href="../../../product-documentation/randomness/">
+            
+                    
+                    Randomness
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.5.1" data-path="../../../product-documentation/randomness/why-randomness-is-important.html">
+            
+                <a href="../../../product-documentation/randomness/why-randomness-is-important.html">
+            
+                    
+                    Why Randomness is important?
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5.2" data-path="../../../product-documentation/randomness/switchboards-approach-to-verifiable-randomness.html">
+            
+                <a href="../../../product-documentation/randomness/switchboards-approach-to-verifiable-randomness.html">
+            
+                    
+                    Switchboard's Approach to Verifiable Randomness
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5.3" data-path="../../../product-documentation/randomness/tutorials/">
+            
+                <a href="../../../product-documentation/randomness/tutorials/">
+            
+                    
+                    Tutorials
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.5.3.1" data-path="../../../product-documentation/randomness/tutorials/solana-svm.html">
+            
+                <a href="../../../product-documentation/randomness/tutorials/solana-svm.html">
+            
+                    
+                    Solana / SVM
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.5.3.2" data-path="../../../product-documentation/randomness/tutorials/evm.html">
+            
+                <a href="../../../product-documentation/randomness/tutorials/evm.html">
+            
+                    
+                    EVM
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3.6" data-path="../../../product-documentation/sail.html">
+            
+                <a href="../../../product-documentation/sail.html">
+            
+                    
+                    SAIL
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Tooling and Resources</li>
+        
+        
+    
+        <li class="chapter " data-level="4.1" data-path="../../../tooling-and-resources/crossbar/">
+            
+                <a href="../../../tooling-and-resources/crossbar/">
+            
+                    
+                    Crossbar
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.1.1" data-path="../../../tooling-and-resources/crossbar/run-crossbar-with-docker-compose.html">
+            
+                <a href="../../../tooling-and-resources/crossbar/run-crossbar-with-docker-compose.html">
+            
+                    
+                    Run Crossbar with Docker Compose
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="4.2" data-path="../../../tooling-and-resources/switchboard-command-line-interface.html">
+            
+                <a href="../../../tooling-and-resources/switchboard-command-line-interface.html">
+            
+                    
+                    Switchboard Command Line Interface
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3" data-path="../../../tooling-and-resources/technical-resources-and-documentation/">
+            
+                <a href="../../../tooling-and-resources/technical-resources-and-documentation/">
+            
+                    
+                    Technical Resources and Documentation
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="4.3.1" data-path="../../../tooling-and-resources/technical-resources-and-documentation/sdks-and-documentation.html">
+            
+                <a href="../../../tooling-and-resources/technical-resources-and-documentation/sdks-and-documentation.html">
+            
+                    
+                    SDKs and Documentation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3.2" data-path="../../../tooling-and-resources/technical-resources-and-documentation/solana-accounts.html">
+            
+                <a href="../../../tooling-and-resources/technical-resources-and-documentation/solana-accounts.html">
+            
+                    
+                    Solana Accounts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3.3" data-path="../../../tooling-and-resources/technical-resources-and-documentation/evm-identifiers.html">
+            
+                <a href="../../../tooling-and-resources/technical-resources-and-documentation/evm-identifiers.html">
+            
+                    
+                    EVM Identifiers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="4.3.4" >
+            
+                <a target="_blank" href="https://github.com/switchboard-xyz/sb-on-demand-examples">
+            
+                    
+                    Code Examples (Github)
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+        
+        <li class="header">📦 Oracle Quotes: The New Standard</li>
+        
+        
+    
+        <li class="chapter " data-level="5.1" data-path="../../../oracle-quotes-the-new-standard/oracle-quotes.html">
+            
+                <a href="../../../oracle-quotes-the-new-standard/oracle-quotes.html">
+            
+                    
+                    Oracle Quotes Overview
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="5.2" data-path="../../../oracle-quotes-the-new-standard/oracle-quotes.html">
+            
+                <a href="../../../oracle-quotes-the-new-standard/oracle-quotes.html#getting-started">
+            
+                    
+                    Oracle Quotes Quick Start
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="5.3" data-path="../../../oracle-quotes-the-new-standard/oracle-quotes.html">
+            
+                <a href="../../../oracle-quotes-the-new-standard/oracle-quotes.html#real-world-examples">
+            
+                    
+                    Oracle Quotes Integration Examples
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">🌊 Switchboard Surge</li>
+        
+        
+    
+        <li class="chapter " data-level="6.1" data-path="../../../switchboard-surge/surge-overview.html">
+            
+                <a href="../../../switchboard-surge/surge-overview.html">
+            
+                    
+                    🌊 Surge Overview
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="6.2" data-path="../../../switchboard-surge/surge.html">
+            
+                <a href="../../../switchboard-surge/surge.html">
+            
+                    
+                    Getting Started with Surge
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="6.3" data-path="../../../switchboard-surge/surge.html">
+            
+                <a href="../../../switchboard-surge/surge.html#implementation">
+            
+                    
+                    Surge Implementation Guide
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="6.4" data-path="../../../switchboard-surge/surge.html">
+            
+                <a href="../../../switchboard-surge/surge.html#using-crossbar-to-stream-surge-prices-to-your-ui">
+            
+                    
+                    Using Crossbar for Surge
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Switchboard Protocol</li>
+        
+        
+    
+        <li class="chapter " data-level="7.1" data-path="../../../switchboard-protocol/re-staking/">
+            
+                <a href="../../../switchboard-protocol/re-staking/">
+            
+                    
+                    (Re)staking
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.1.1" data-path="../../../switchboard-protocol/re-staking/what-is-re-staking.html">
+            
+                <a href="../../../switchboard-protocol/re-staking/what-is-re-staking.html">
+            
+                    
+                    What is (re)staking?
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.1.2" data-path="../../../switchboard-protocol/re-staking/what-are-node-consensus-networks-ncns.html">
+            
+                <a href="../../../switchboard-protocol/re-staking/what-are-node-consensus-networks-ncns.html">
+            
+                    
+                    What are Node Consensus Networks (NCNs)?
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.1.3" data-path="../../../switchboard-protocol/re-staking/what-are-vault-receipt-tokens-vrts.html">
+            
+                <a href="../../../switchboard-protocol/re-staking/what-are-vault-receipt-tokens-vrts.html">
+            
+                    
+                    What are Vault Receipt Tokens (VRTs)?
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.1.4" data-path="../../../switchboard-protocol/re-staking/the-node-partner-program.html">
+            
+                <a href="../../../switchboard-protocol/re-staking/the-node-partner-program.html">
+            
+                    
+                    The Node Partner Program
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.1.5" data-path="../../../switchboard-protocol/re-staking/the-switchboard-ncn.html">
+            
+                <a href="../../../switchboard-protocol/re-staking/the-switchboard-ncn.html">
+            
+                    
+                    The Switchboard NCN
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/">
+            
+                    
+                    Running a Switchboard Oracle
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/">
+            
+                    
+                    Prerequisites
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.1.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/knowledge-about-linux-containers-and-self-hosting.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/knowledge-about-linux-containers-and-self-hosting.html">
+            
+                    
+                    Knowledge about Linux, containers and Self-Hosting
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.1.2" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/hardware-requirements-and-amd-sev-snp.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/hardware-requirements-and-amd-sev-snp.html">
+            
+                    
+                    Hardware Requirements and AMD SEV SNP
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.1.3" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/software-requirements.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/software-requirements.html">
+            
+                    
+                    Software Requirements
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.1.4" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/network-requirements.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/prerequisites/network-requirements.html">
+            
+                    
+                    Network Requirements
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.2" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/">
+            
+                    
+                    Hardware: tested providers and setup
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.2.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/ovh.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/ovh.html">
+            
+                    
+                    OVH
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.3" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/">
+            
+                    
+                    Platform: Kubernetes + AMD SEV SNP
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.3.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/bare-metal-with-kubernetes-k3s.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/bare-metal-with-kubernetes-k3s.html">
+            
+                    
+                    Bare Metal with Kubernetes (K3s)
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.4" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/">
+            
+                    
+                    The Git Repo: Clone Our Code
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.4.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.html">
+            
+                    
+                    Repo Structure
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.5" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/">
+            
+                    
+                    Configuration: Tweaking Configurations
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.5.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.html">
+            
+                    
+                    cfg/00-common-vars.cfg
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.5.2" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.html">
+            
+                    
+                    cfg/00-devnet-vars.cfg and cfg/00-mainnet-vars.cfg
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.2.6" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/">
+            
+                    
+                    Installation: Setup Via Scripts
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="7.2.6.1" data-path="../../../switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.html">
+            
+                <a href="../../../switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.html">
+            
+                    
+                    Bare Metal with Kubernetes (K3s) + AMD SEV SNP
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="7.3" data-path="../../../switchboard-protocol/enable-staking-to-your-oracle.html">
+            
+                <a href="../../../switchboard-protocol/enable-staking-to-your-oracle.html">
+            
+                    
+                    Enable Staking to your Oracle
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="7.4" data-path="../../../switchboard-protocol/providing-stake-to-switchboard.html">
+            
+                <a href="../../../switchboard-protocol/providing-stake-to-switchboard.html">
+            
+                    
+                    Providing stake to Switchboard
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Governance & Tokenomics</li>
+        
+        
+    
+        <li class="chapter " data-level="8.1" data-path="../../../switchboard-protocol/swtch-token-overview.html">
+            
+                <a href="../../../switchboard-protocol/swtch-token-overview.html">
+            
+                    
+                    SWTCH Token Overview
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="8.2" data-path="../../../switchboard-protocol/governance-and-tokenomics.html">
+            
+                <a href="../../../switchboard-protocol/governance-and-tokenomics.html">
+            
+                    
+                    Governance & Tokenomics
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Copy of Frequently Asked Questions and Glossary</li>
+        
+        
+    
+        <li class="chapter " data-level="9.1" data-path="../../../copy-of-frequently-asked-questions-and-glossary/faq.html">
+            
+                <a href="../../../copy-of-frequently-asked-questions-and-glossary/faq.html">
+            
+                    
+                    FAQ
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="9.2" data-path="../../../copy-of-frequently-asked-questions-and-glossary/glossary.html">
+            
+                <a href="../../../copy-of-frequently-asked-questions-and-glossary/glossary.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../../.." >Trusted Execution Environments (TEEs)</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="trusted-execution-environments-tees">Trusted Execution Environments (TEEs)</h1><p>Switchboard enhances its security model with Trusted Execution Environments. Instead of relying solely on the assumption that the majority of oracles are honest (&#x201C;honest-majority&#x201D;), we use TEEs like AMD Secure Encrypted Virtualisation (AMD SEV) and Intel Software Guard Extensions (Intel SGX) for added protection.</p><p>Think of TEEs as secure enclaves where code can run in isolation, protected from the rest of the system. This means:</p><ul><li><strong>Code Verification:</strong> Switchboard can cryptographically verify that each oracle node acting as a publisher is running <em>only</em> the approved and verified code. No rogue modifications allowed.
+</li>
+<li><strong>Data Integrity:</strong> This verification process ensures the integrity of the data being provided, as the code responsible for fetching and signing data hasn&apos;t been tampered with.
+</li></ul>
+<p>In essence, TEEs provide a hardware-backed guarantee of code integrity, offering a robust defence against malicious actors and further bolstering the reliability of Switchboard&apos;s data feeds on-chain.</p><hr><h3 id="tee-applications-and-considerations"><strong>TEE Applications and Considerations</strong></h3><p>TEEs are generally overlooked, but they are used by many of the most popular applications that are synonymous with security and safety.</p><ul><li><a href="https://signal.org/blog/private-contact-discovery/" target="_blank">Signal app</a> uses TEEs to safeguard its users&apos; messages, guaranteeing they remain secure and private.
+</li>
+<li><a href="https://techcommunity.microsoft.com/t5/azure-confidential-computing/announcing-microsoft-moves-25-billion-in-credit-card/ba-p/3981180" target="_blank">Azure Cloud</a> (Microsoft) leverages TEEs, to ensure top-tier credit card data management and protection, so both Azure and its corporate clients can maintain optimum <a href="https://www.pcisecuritystandards.org/" target="_blank">PCI compliance</a>.
+</li>
+<li><a href="https://blog.1password.com/using-intels-sgx-to-keep-secrets-even-safer/" target="_blank">1Password</a> employs TEEs (across a host of its platforms), adding extra layers of security to a user&#x2019;s passwords.
+</li>
+<li><a href="https://writings.flashbots.net/block-building-inside-sgx" target="_blank">Flashbots</a> relies on TEEs as an integral tool in verifiable block operations, so trust and integrity will be maintained within blockchain operations.
+</li></ul>
+<p>Because TEEs are not perfect and can have undocumented security flaws, Switchboard needs to have a system in place to quickly shut down or upgrade any oracle. To stay on top of this, Switchboard makes all oracles prove they&#x2019;re still trustworthy by re-verifying their certificates and also uses economic incentives to help ensure integrity.</p>
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Switchboard’s Architecture, Tech Stack and Security">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="oracle-queues.html" class="navigation navigation-next " aria-label="Next page: Oracle Queues">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Trusted Execution Environments (TEEs)","level":"2.1.4.1","depth":3,"next":{"title":"Oracle Queues","level":"2.1.4.2","depth":3,"path":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/oracle-queues.md","ref":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/oracle-queues.md","articles":[]},"previous":{"title":"Switchboard’s Architecture, Tech Stack and Security","level":"2.1.4","depth":2,"path":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/README.md","ref":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/README.md","articles":[{"title":"Trusted Execution Environments (TEEs)","level":"2.1.4.1","depth":3,"path":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/trusted-execution-environments-tees.md","ref":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/trusted-execution-environments-tees.md","articles":[]},{"title":"Oracle Queues","level":"2.1.4.2","depth":3,"path":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/oracle-queues.md","ref":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/oracle-queues.md","articles":[]},{"title":"Node Architecture","level":"2.1.4.3","depth":3,"path":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/node-architecture.md","ref":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/node-architecture.md","articles":[]}]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/trusted-execution-environments-tees.md","mtime":"2025-12-04T22:13:55.997Z","type":"markdown"},"gitbook":{"version":"3.2.0","time":"2025-12-04T20:30:57.604Z"},"basePath":"../../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../../gitbook/gitbook.js"></script>
+    <script src="../../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
