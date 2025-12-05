@@ -10,10 +10,41 @@
   * [Why Switchboard Oracles?](understanding-switchboard/introduction/why-switchboard-oracles.md)
   * [Vision & mission](understanding-switchboard/introduction/vision-and-mission.md)
   * [Brief History and Key Achievements to Date](understanding-switchboard/introduction/brief-history-and-key-achievements-to-date.md)
-  * [Switchboard’s Architecture, Tech Stack and Security](understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/README.md)
-    * [Trusted Execution Environments (TEEs)](understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/trusted-execution-environments-tees.md)
-    * [Oracle Queues](understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/oracle-queues.md)
-    * [Node Architecture](understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/node-architecture.md)
+
+## How it Works
+
+* [Technical Architecture](how-it-works/technical-architecture/README.md)
+  * [Trusted Execution Environments (TEEs)](how-it-works/technical-architecture/trusted-execution-environments-tees.md)
+  * [Oracle Queues](how-it-works/technical-architecture/oracle-queues.md)
+  * [Node Architecture](how-it-works/technical-architecture/node-architecture.md)
+* Switchboard Protocol
+  * [(Re)staking](how-it-works/switchboard-protocol/re-staking/README.md)
+    * [What is (re)staking?](how-it-works/switchboard-protocol/re-staking/what-is-re-staking.md)
+    * [What are Node Consensus Networks (NCNs)?](how-it-works/switchboard-protocol/re-staking/what-are-node-consensus-networks-ncns.md)
+    * [What are Vault Receipt Tokens (VRTs)?](how-it-works/switchboard-protocol/re-staking/what-are-vault-receipt-tokens-vrts.md)
+    * [The Node Partner Program](how-it-works/switchboard-protocol/re-staking/the-node-partner-program.md)
+    * [The Switchboard NCN](how-it-works/switchboard-protocol/re-staking/the-switchboard-ncn.md)
+  * [Running a Switchboard Oracle](how-it-works/switchboard-protocol/running-a-switchboard-oracle/README.md)
+    * [Prerequisites](how-it-works/switchboard-protocol/running-a-switchboard-oracle/prerequisites/README.md)
+      * [Knowledge about Linux, containers and Self-Hosting](how-it-works/switchboard-protocol/running-a-switchboard-oracle/prerequisites/knowledge-about-linux-containers-and-self-hosting.md)
+      * [Hardware Requirements and AMD SEV SNP](how-it-works/switchboard-protocol/running-a-switchboard-oracle/prerequisites/hardware-requirements-and-amd-sev-snp.md)
+      * [Software Requirements](how-it-works/switchboard-protocol/running-a-switchboard-oracle/prerequisites/software-requirements.md)
+      * [Network Requirements](how-it-works/switchboard-protocol/running-a-switchboard-oracle/prerequisites/network-requirements.md)
+    * [Hardware: tested providers and setup](how-it-works/switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/README.md)
+      * [OVH](how-it-works/switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/ovh.md)
+    * [Platform: Kubernetes + AMD SEV SNP](how-it-works/switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/README.md)
+      * [Bare Metal with Kubernetes (K3s)](how-it-works/switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/bare-metal-with-kubernetes-k3s.md)
+    * [The Git Repo: Clone Our Code](how-it-works/switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/README.md)
+      * [Repo Structure](how-it-works/switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.md)
+    * [Configuration: Tweaking Configurations](how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/README.md)
+      * [cfg/00-common-vars.cfg](how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md)
+      * [cfg/00-devnet-vars.cfg and cfg/00-mainnet-vars.cfg](how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md)
+    * [Installation: Setup Via Scripts](how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/README.md)
+      * [Bare Metal with Kubernetes (K3s) + AMD SEV SNP](how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md)
+  * [Enable Staking to your Oracle](how-it-works/switchboard-protocol/enable-staking-to-your-oracle.md)
+  * [Providing stake to Switchboard](how-it-works/switchboard-protocol/providing-stake-to-switchboard.md)
+  * [SWTCH Token Overview](how-it-works/switchboard-protocol/swtch-token-overview.md)
+  * [Governance & Tokenomics](how-it-works/switchboard-protocol/governance-and-tokenomics.md)
 
 ## Product Documentation
 
@@ -97,39 +128,6 @@
 * [Getting Started with Surge](switchboard-surge/surge.md)
 * [Surge Implementation Guide](switchboard-surge/surge.md#implementation)
 * [Using Crossbar for Surge](switchboard-surge/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
-
-## Switchboard Protocol
-
-* [(Re)staking](switchboard-protocol/re-staking/README.md)
-  * [What is (re)staking?](switchboard-protocol/re-staking/what-is-re-staking.md)
-  * [What are Node Consensus Networks (NCNs)?](switchboard-protocol/re-staking/what-are-node-consensus-networks-ncns.md)
-  * [What are Vault Receipt Tokens (VRTs)?](switchboard-protocol/re-staking/what-are-vault-receipt-tokens-vrts.md)
-  * [The Node Partner Program](switchboard-protocol/re-staking/the-node-partner-program.md)
-  * [The Switchboard NCN](switchboard-protocol/re-staking/the-switchboard-ncn.md)
-* [Running a Switchboard Oracle](switchboard-protocol/running-a-switchboard-oracle/README.md)
-  * [Prerequisites](switchboard-protocol/running-a-switchboard-oracle/prerequisites/README.md)
-    * [Knowledge about Linux, containers and Self-Hosting](switchboard-protocol/running-a-switchboard-oracle/prerequisites/knowledge-about-linux-containers-and-self-hosting.md)
-    * [Hardware Requirements and AMD SEV SNP](switchboard-protocol/running-a-switchboard-oracle/prerequisites/hardware-requirements-and-amd-sev-snp.md)
-    * [Software Requirements](switchboard-protocol/running-a-switchboard-oracle/prerequisites/software-requirements.md)
-    * [Network Requirements](switchboard-protocol/running-a-switchboard-oracle/prerequisites/network-requirements.md)
-  * [Hardware: tested providers and setup](switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/README.md)
-    * [OVH](switchboard-protocol/running-a-switchboard-oracle/hardware-tested-providers-and-setup/ovh.md)
-  * [Platform: Kubernetes + AMD SEV SNP](switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/README.md)
-    * [Bare Metal with Kubernetes (K3s)](switchboard-protocol/running-a-switchboard-oracle/platform-kubernetes-+-amd-sev-snp/bare-metal-with-kubernetes-k3s.md)
-  * [The Git Repo: Clone Our Code](switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/README.md)
-    * [Repo Structure](switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.md)
-  * [Configuration: Tweaking Configurations](switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/README.md)
-    * [cfg/00-common-vars.cfg](switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md)
-    * [cfg/00-devnet-vars.cfg and cfg/00-mainnet-vars.cfg](switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md)
-  * [Installation: Setup Via Scripts](switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/README.md)
-    * [Bare Metal with Kubernetes (K3s) + AMD SEV SNP](switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md)
-* [Enable Staking to your Oracle](switchboard-protocol/enable-staking-to-your-oracle.md)
-* [Providing stake to Switchboard](switchboard-protocol/providing-stake-to-switchboard.md)
-
-## Governance & Tokenomics
-
-* [SWTCH Token Overview](switchboard-protocol/swtch-token-overview.md)
-* [Governance & Tokenomics](switchboard-protocol/governance-and-tokenomics.md)
 
 ## Copy of Frequently Asked Questions and Glossary
 
