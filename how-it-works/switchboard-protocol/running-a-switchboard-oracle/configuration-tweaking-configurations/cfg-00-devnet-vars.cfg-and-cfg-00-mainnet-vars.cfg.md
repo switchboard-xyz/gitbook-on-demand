@@ -47,7 +47,7 @@ WSS_URL="wss://api.${NETWORK}.solana.com"
 
 These variables are referring to SOLANA RPC URLs and once again we invite you to find one that is not rate limited from a trusted provider like [https://triton.one/](https://triton.one/) or [https://www.helius.dev/](https://www.helius.dev/) or other similar solutions.
 
-These two endpoints must be dedicatd to the network you're using, ie: devnet or mainnet.
+These two endpoints must be dedicated to the network you're using, ie: devnet or mainnet.
 
 ### Infisical settings
 
