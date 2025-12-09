@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nRemove Oracle Quotes, Surge sections and duplicate FAQ/Glossary\n\nCleaning up documentation structure by removing:\n- Oracle Quotes and Switchboard Surge nav entries from SUMMARY.md\n- Duplicate FAQ and Glossary files from copy-of-frequently-asked-questions-and-glossary/\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

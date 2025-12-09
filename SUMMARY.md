@@ -118,16 +118,6 @@
 
 ## 📦 Oracle Quotes: The New Standard
 
-* [Oracle Quotes Overview](oracle-quotes-the-new-standard/oracle-quotes.md)
-* [Oracle Quotes Quick Start](oracle-quotes-the-new-standard/oracle-quotes.md#getting-started)
-* [Oracle Quotes Integration Examples](oracle-quotes-the-new-standard/oracle-quotes.md#real-world-examples)
-
-## 🌊 Switchboard Surge
-
-* [🌊 Surge Overview](switchboard-surge/surge-overview.md)
-* [Getting Started with Surge](switchboard-surge/surge.md)
-* [Surge Implementation Guide](switchboard-surge/surge.md#implementation)
-* [Using Crossbar for Surge](switchboard-surge/surge.md#using-crossbar-to-stream-surge-prices-to-your-ui)
 
 ## Copy of Frequently Asked Questions and Glossary
 
