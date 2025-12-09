@@ -11,7 +11,15 @@ Monad is a high-performance EVM-compatible blockchain optimized for speed and ef
 
 ## Quick Start
 
-### 1. Setup Environment
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
+cd sb-on-demand-examples/evm
+bun install
+```
+
+### 2. Setup Environment
 
 ```bash
 # Testnet
@@ -25,7 +33,7 @@ export PRIVATE_KEY=0xyour_private_key_here
 export NETWORK=monad-mainnet
 ```
 
-### 2. Deploy Contract
+### 3. Deploy Contract
 
 ```bash
 # Testnet
@@ -41,7 +49,7 @@ forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceC
   --broadcast -vvvv
 ```
 
-### 3. Run Examples
+### 4. Run Examples
 
 ```bash
 # Price Feeds
