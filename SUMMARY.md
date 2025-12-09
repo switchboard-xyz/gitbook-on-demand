@@ -36,6 +36,8 @@
       * [Integrating your Feed On-Chain](product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-your-feed-on-chain.md)
       * [Integrating your Feed with Typescript](product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-your-feed-with-typescript.md)
       * [Integrating into Frontends (EVM)](product-documentation/data-feeds/evm/part-3-integrating-your-feed/integrating-into-frontends-evm.md)
+    * [Monad](product-documentation/data-feeds/evm/monad.md)
+    * [Hyperliquid](product-documentation/data-feeds/evm/hyperliquid.md)
   * [Aptos](product-documentation/data-feeds/aptos.md)
   * [Sui](product-documentation/data-feeds/sui.md)
   * [Iota](product-documentation/data-feeds/iota.md)
