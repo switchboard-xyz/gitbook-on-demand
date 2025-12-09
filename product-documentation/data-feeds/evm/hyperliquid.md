@@ -11,7 +11,15 @@ Hyperliquid is a high-performance Layer 1 blockchain with native perpetual futur
 
 ## Quick Start
 
-### 1. Setup Environment
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
+cd sb-on-demand-examples/evm
+bun install
+```
+
+### 2. Setup Environment
 
 ```bash
 # Mainnet
@@ -25,7 +33,7 @@ export PRIVATE_KEY=0xyour_private_key_here
 export NETWORK=hyperliquid-testnet
 ```
 
-### 2. Deploy Contract
+### 3. Deploy Contract
 
 ```bash
 # Mainnet
@@ -41,7 +49,7 @@ forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceC
   --broadcast -vvvv
 ```
 
-### 3. Run Examples
+### 4. Run Examples
 
 ```bash
 # Price Feeds
