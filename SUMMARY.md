@@ -13,16 +13,6 @@
     * [Randomness](docs-by-chain/solana-svm/tutorials/randomness.md)
   * [Surge](docs-by-chain/solana-svm/surge-overview/README.md)
     * [Getting Started with Surge](docs-by-chain/solana-svm/surge-overview/surge.md)
-  * [Custom Feeds](docs-by-chain/solana-svm/custom-feeds/README.md)
-    * [Data Feed Variable Overrides](docs-by-chain/solana-svm/custom-feeds/data-feed-variable-overrides.md)
-    * [Variables with CacheTask](docs-by-chain/solana-svm/custom-feeds/variables-with-cachetask.md)
-    * [REST APIs with HttpTask](docs-by-chain/solana-svm/custom-feeds/rest-apis-with-httptask.md)
-    * [How Feeds are Resolved](docs-by-chain/solana-svm/custom-feeds/how-feeds-are-resolved.md)
-    * [Bounding Results](docs-by-chain/solana-svm/custom-feeds/bounding-results.md)
-    * [Decentralized Exchanges](docs-by-chain/solana-svm/custom-feeds/decentralized-exchanges.md)
-    * [Oracle Aggregator](docs-by-chain/solana-svm/custom-feeds/oracle-aggregator.md)
-    * [LLMs Integration](docs-by-chain/solana-svm/custom-feeds/llms-integration.md)
-    * [FAQ](docs-by-chain/solana-svm/custom-feeds/faq.md)
 * [EVM](docs-by-chain/evm/README.md)
   * [Data Feeds](docs-by-chain/evm/data-feeds/README.md)
     * [Part 1: Prerequisites and Quick Start Guide](docs-by-chain/evm/data-feeds/part-1-prerequisites-and-quick-start-guide.md)
@@ -53,6 +43,19 @@
 * [Starknet](docs-by-chain/starknet/data-feeds.md)
 * [Tutorials](docs-by-chain/tutorials.md)
 * [SAIL](docs-by-chain/sail.md)
+
+## Custom Feeds
+
+* [Custom Feeds](custom-feeds/README.md)
+  * [Data Feed Variable Overrides](custom-feeds/data-feed-variable-overrides.md)
+  * [Variables with CacheTask](custom-feeds/variables-with-cachetask.md)
+  * [REST APIs with HttpTask](custom-feeds/rest-apis-with-httptask.md)
+  * [How Feeds are Resolved](custom-feeds/how-feeds-are-resolved.md)
+  * [Bounding Results](custom-feeds/bounding-results.md)
+  * [Decentralized Exchanges](custom-feeds/decentralized-exchanges.md)
+  * [Oracle Aggregator](custom-feeds/oracle-aggregator.md)
+  * [LLMs Integration](custom-feeds/llms-integration.md)
+  * [FAQ](custom-feeds/faq.md)
 
 ## How it Works
 
