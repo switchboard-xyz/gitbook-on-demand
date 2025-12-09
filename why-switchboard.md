@@ -1,6 +1,6 @@
 # Why Switchboard?
 
-None of the current blockchain oracle offerings can serve as a one-size-fits-all solution. Some prioritize pricing fidelity, others focus on risk management, and some emphasize flexibility. Switchboard has been deeply involved in the step-by-step evolution of each of these archetypes. By closely observing the market, we designed our technology to address many persistent pain points in blockchain oracles.
+We've deeply studied the blockchain oracle market and found that none of the current offerings can serve as a one-size-fits-all solution. Some prioritize pricing fidelity, others focus on risk management, and some emphasize flexibility. By closely observing the market, we designed our technology to address the persistent and important issues that oracle users face.
 
 Our protocol is designed around 4 main principles:
 
