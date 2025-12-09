@@ -42,7 +42,7 @@
     * [Part 3: Integrating your Feed](docs-by-chain/evm/data-feeds/part-3-integrating-your-feed/README.md)
       * [Integrating your Feed On-Chain](docs-by-chain/evm/data-feeds/part-3-integrating-your-feed/integrating-your-feed-on-chain.md)
       * [Integrating your Feed with Typescript](docs-by-chain/evm/data-feeds/part-3-integrating-your-feed/integrating-your-feed-with-typescript.md)
-      * [Integrating into Frontends](docs-by-chain/evm/data-feeds/part-3-integrating-your-feed/integrating-into-frontends-evm.md)
+      * [Integrating into Frontends](docs-by-chain/evm/data-feeds/part-3-integrating-your-feed/integrating-into-frontends.md)
     * [Advanced Feed Configuration](docs-by-chain/evm/data-feeds/designing-feeds/README.md)
       * [Data Feed Variable Overrides](docs-by-chain/evm/data-feeds/designing-feeds/data-feed-variable-overrides.md)
       * [Variables with CacheTask](docs-by-chain/evm/data-feeds/designing-feeds/variables-with-cachetask.md)
