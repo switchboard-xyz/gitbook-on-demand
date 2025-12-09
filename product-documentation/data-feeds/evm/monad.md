@@ -20,7 +20,7 @@ export PRIVATE_KEY=0xyour_private_key_here
 export NETWORK=monad-testnet
 
 # Mainnet
-export RPC_URL=https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY
+export RPC_URL=https://rpc.monad.xyz
 export PRIVATE_KEY=0xyour_private_key_here
 export NETWORK=monad-mainnet
 ```
