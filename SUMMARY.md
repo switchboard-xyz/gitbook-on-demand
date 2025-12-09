@@ -41,6 +41,8 @@
   * [Iota](product-documentation/data-feeds/iota.md)
   * [Movement](product-documentation/data-feeds/movement.md)
   * [Starknet](product-documentation/data-feeds/starknet.md)
+  * [Hyperliquid](product-documentation/data-feeds/hyperliquid.md)
+  * [Monad](product-documentation/data-feeds/monad.md)
   * [Optional Features](product-documentation/data-feeds/optional-features.md)
   * [Task Types](product-documentation/data-feeds/task-types.md)
   * [Advanced Feed Configuration](product-documentation/data-feeds/designing-feeds/README.md)
