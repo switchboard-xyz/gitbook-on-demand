@@ -40,7 +40,6 @@
 * [Sui](docs-by-chain/sui/data-feeds/README.md)
 * [Iota](docs-by-chain/iota/data-feeds.md)
 * [Movement](docs-by-chain/movement/data-feeds.md)
-* [Starknet](docs-by-chain/starknet/data-feeds.md)
 * [Tutorials](docs-by-chain/tutorials.md)
 * [SAIL](docs-by-chain/sail.md)
 
