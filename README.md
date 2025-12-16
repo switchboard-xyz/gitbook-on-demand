@@ -24,11 +24,12 @@ Switchboard Surge represents the future of oracle technology, delivering real-ti
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
 
-// Initialize Surge
-const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!
-  // No gatewayUrl needed - uses default
-});
+// Initialize Surge (two authentication modes supported)
+// Option 1: Keypair/connection (default, on-chain subscription)
+const surge = new sb.Surge({ connection, keypair, verbose: false });
+
+// Option 2: API key
+// const surge = new sb.Surge({ apiKey: process.env.SURGE_API_KEY!, verbose: false });
 
 // Discover available feeds
 const feeds = await surge.getSurgeFeeds();
@@ -41,13 +42,19 @@ await surge.connectAndSubscribe([
 ]);
 
 // Handle price updates
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  console.log(`${response.data.symbol}: $${response.data.price}`);
-  
-  // Use for trading, dashboards, or convert to on-chain Oracle Quote
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+  });
+
+  // Convert to on-chain Oracle Quote when needed
   if (shouldExecuteTrade(response)) {
-    const [ix, oracleQuote] = response.toBundleIx();
-    await executeTrade(ix, oracleQuote);
+    const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+    await executeTrade(crankIxs);
   }
 });
 ```
