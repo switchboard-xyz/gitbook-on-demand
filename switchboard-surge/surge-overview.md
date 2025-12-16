@@ -34,7 +34,7 @@ Total Latency: <100ms
 * **No data feed accounts** to create or manage
 * **No on-chain deployment** required
 * **No SOL funding** needed for accounts
-* **Instant access** with just an API key
+* **Instant access** with keypair/connection or API key
 
 ### 💰 Cost Efficiency
 
@@ -225,13 +225,16 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ## Getting Started
 
-### 1. Request API Access
+### 1. Choose Authentication Method
 
-Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
+**Option A: Keypair/Connection (Default - On-chain Subscription)**
+* Set up your Solana environment with keypair and connection
+* No API key required - uses on-chain subscription
 
-* **Approval time**: \~3 days
-* **Requirements**: None - open to all developers
-* **Waitlist**: Yes, processed on first-come basis
+**Option B: API Key Authentication**
+* Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
+* Approval time: \~3 days
+* Requirements: None - open to all developers
 
 ### 2. Install the SDK
 
@@ -339,7 +342,8 @@ This architecture eliminates multiple steps that add latency in traditional orac
 Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
-const surge = new sb.Surge({ apiKey: YOUR_API_KEY });
+// Use keypair/connection or API key authentication
+const surge = new sb.Surge({ connection, keypair, verbose: false });
 const feeds = await surge.getSurgeFeeds();
 
 // Example output format

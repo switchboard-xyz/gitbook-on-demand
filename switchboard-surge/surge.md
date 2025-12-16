@@ -11,7 +11,7 @@ Just like Oracle Quotes, Surge requires **NO data feed accounts**:
 * ❌ No need to create on-chain feed accounts
 * ❌ No need to deploy or manage contracts
 * ❌ No need to fund accounts with SOL
-* ✅ Just get an API key and start streaming prices instantly!
+* ✅ Start streaming with keypair/connection (on-chain subscription) or API key!
 
 ## How is Surge So Fast?
 
@@ -270,8 +270,11 @@ Convert streaming prices directly into on-chain oracle **Quotes** for smart cont
 import * as sb from "@switchboard-xyz/on-demand";
 import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
 
+// Initialize Surge (use keypair/connection or API key)
 const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!,
+  connection,
+  keypair,
+  verbose: false,
 });
 
 // Subscribe to price feeds
@@ -314,11 +317,20 @@ Find the source and examples for integrating Sui in the [Switchboard Github](htt
 
 ## Getting Started
 
+### Option 1: Keypair/Connection (Default - On-chain Subscription)
+
+1. Set up your Solana environment with keypair and connection
+2. Initialize Surge with `{ connection, keypair }` config
+3. Subscribe to desired price feeds
+4. Auto-reconnection is handled automatically
+
+### Option 2: API Key Authentication
+
 1. Request API access: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
    * Approval time: \~3 days
    * No requirements - open to all
    * Currently FREE with 5 concurrent connections
-2. Set up WebSocket connection with your API key
+2. Initialize Surge with `{ apiKey }` config
 3. Subscribe to desired price feeds
 4. Auto-reconnection is handled automatically
 
