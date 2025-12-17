@@ -11,7 +11,7 @@ Just like Oracle Quotes, Surge requires **NO data feed accounts**:
 * ❌ No need to create on-chain feed accounts
 * ❌ No need to deploy or manage contracts
 * ❌ No need to fund accounts with SOL
-* ✅ Just get an API key and start streaming prices instantly!
+* ✅ Start streaming with keypair/connection (on-chain subscription) or API key!
 
 ## How is Surge So Fast?
 
@@ -49,9 +49,19 @@ Other pull oracles gather price information, write to a state layer, and come to
 import * as sb from "@switchboard-xyz/on-demand";
 
 // Initialize Surge client
+// Two authentication modes are supported:
+
+// Option 1: Keypair/connection (default, on-chain subscription)
+const surge = new sb.Surge({
+  connection,
+  keypair,
+  verbose: false,
+});
+
+// Option 2: API key
 const surge = new sb.Surge({
   apiKey: process.env.SURGE_API_KEY!,
-  // gatewayUrl is optional - leave empty for automatic selection
+  verbose: false,
 });
 
 // Discover available feeds
@@ -66,16 +76,29 @@ await surge.connectAndSubscribe([
 
 // Handle real-time updates
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  console.log(`${response.data.symbol}: $${response.data.price}`);
-  console.log(`Latency: ${Date.now() - response.data.source_ts_ms}ms`);
-  
-  // Option 1: Use price directly
-  await updatePriceDisplay(response.data);
-  
-  // Option 2: Convert to on-chain Oracle Quote
+  const prices = response.getFormattedPrices();   // { "BTC/USD": "$89,868.62" }
+  const metrics = response.getLatencyMetrics();   // Detailed timing breakdown
+
+  // Check update type (heartbeat vs price change)
+  if (metrics.isHeartbeat) {
+    // No price change, just keeping connection alive
+    return;
+  }
+
+  // Log bundle-level metrics
+  console.log(`Emit Latency: ${metrics.emitLatencyMs}ms`);
+  console.log(`Oracle → Client: ${metrics.oracleBroadcastToClientMs}ms`);
+
+  // Per-feed metrics
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+    console.log(`  Source → Oracle: ${feed.sourceToOracleMs}ms`);
+  });
+
+  // Convert to on-chain Oracle Quote when needed
   if (shouldExecuteTrade(response)) {
-    const [sigVerifyIx, oracleQuote] = response.toBundleIx();
-    await executeTrade(sigVerifyIx, oracleQuote);
+    const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+    await executeTrade(crankIxs);
   }
 });
 ```
@@ -86,21 +109,25 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ```typescript
 // Real-time mark price updates for perpetuals
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  const market = perpetuals.get(response.data.symbol);
-  
-  // Update mark price instantly
-  market.markPrice = response.data.price;
-  
-  // Check liquidations with zero latency
-  const underwaterPositions = await market.checkLiquidations(response.data.price);
-  for (const position of underwaterPositions) {
-    const [ix, oracleQuote] = response.toBundleIx();
-    await liquidatePosition(position, ix, oracleQuote);
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const market = perpetuals.get(feed.symbol);
+
+    // Update mark price instantly
+    market.markPrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+
+    // Check liquidations with zero latency
+    const underwaterPositions = await market.checkLiquidations(market.markPrice);
+    for (const position of underwaterPositions) {
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await liquidatePosition(position, crankIxs);
+    }
   }
-  
-  // Calculate funding rates
-  await market.updateFundingRate(response.data);
 });
 ```
 
@@ -109,21 +136,31 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 ```typescript
 // Next-gen AMM using oracle prices (no impermanent loss)
 class OracleAMM {
+  private latestUpdate: sb.SurgeUpdate;
+
   async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    this.latestUpdate = response;
+    const prices = response.getFormattedPrices();
+
     // Update pricing curve with oracle data
-    this.pairs[response.data.symbol] = {
-      price: response.data.price,
-      timestamp: response.data.source_ts_ms
-    };
+    for (const feed of metrics.perFeedMetrics) {
+      this.pairs[feed.symbol] = {
+        price: parseFloat(prices[feed.feed_hash].replace(/[$,]/g, '')),
+        timestamp: Date.now()
+      };
+    }
   }
-  
+
   async swap(tokenA: string, tokenB: string, amount: number) {
     const price = this.pairs[`${tokenA}/${tokenB}`].price;
     const output = amount * price * (1 - FEE);
-    
+
     // Use Oracle Quote for on-chain verification
-    const [ix, oracleQuote] = this.latestUpdate.toBundleIx();
-    return await executeSwap(ix, oracleQuote, output);
+    const crankIxs = this.latestUpdate.toQuoteIx(queue.pubkey, keypair.publicKey);
+    return await executeSwap(crankIxs, output);
   }
 }
 ```
@@ -131,12 +168,20 @@ class OracleAMM {
 ### High-Frequency Trading
 
 ```typescript
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  const opportunity = checkArbitrage(response.data);
-  if (opportunity?.profit > MIN_PROFIT) {
-    // Execute within milliseconds
-    const [ix, oracleQuote] = response.toBundleIx();
-    await executeArbitrageTrade(ix, oracleQuote);
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const opportunity = checkArbitrage(feed.symbol, price);
+
+    if (opportunity?.profit > MIN_PROFIT) {
+      // Execute within milliseconds
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await executeArbitrageTrade(crankIxs);
+    }
   }
 });
 ```
@@ -225,8 +270,11 @@ Convert streaming prices directly into on-chain oracle **Quotes** for smart cont
 import * as sb from "@switchboard-xyz/on-demand";
 import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
 
+// Initialize Surge (use keypair/connection or API key)
 const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!,
+  connection,
+  keypair,
+  verbose: false,
 });
 
 // Subscribe to price feeds
@@ -237,13 +285,15 @@ await surge.connectAndSubscribe([
 
 // Handle real-time updates and convert to Sui quotes
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  console.log(`${response.data.symbol}: $${response.data.price}`);
-  console.log(`Latency: ${Date.now() - response.data.source_ts_ms}ms`);
-  
-  // Option 1: Use price directly in your application
-  await updatePriceDisplay(response.data);
-  
-  // Option 2: Convert to on-chain Oracle Quote for Sui contracts
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+  });
+
+  // Convert to on-chain Oracle Quote for Sui contracts
   const ptb = new Transaction();
   const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
 
@@ -252,8 +302,6 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
     target: `${PACKAGE_ID}::your_module::your_function`,
     arguments: [quoteData],
   });
-  
-
 });
 ```
 
@@ -269,11 +317,20 @@ Find the source and examples for integrating Sui in the [Switchboard Github](htt
 
 ## Getting Started
 
+### Option 1: Keypair/Connection (Default - On-chain Subscription)
+
+1. Set up your Solana environment with keypair and connection
+2. Initialize Surge with `{ connection, keypair }` config
+3. Subscribe to desired price feeds
+4. Auto-reconnection is handled automatically
+
+### Option 2: API Key Authentication
+
 1. Request API access: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
    * Approval time: \~3 days
    * No requirements - open to all
    * Currently FREE with 5 concurrent connections
-2. Set up WebSocket connection with your API key
+2. Initialize Surge with `{ apiKey }` config
 3. Subscribe to desired price feeds
 4. Auto-reconnection is handled automatically
 

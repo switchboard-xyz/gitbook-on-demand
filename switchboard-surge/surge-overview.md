@@ -34,7 +34,7 @@ Total Latency: <100ms
 * **No data feed accounts** to create or manage
 * **No on-chain deployment** required
 * **No SOL funding** needed for accounts
-* **Instant access** with just an API key
+* **Instant access** with keypair/connection or API key
 
 ### 💰 Cost Efficiency
 
@@ -65,39 +65,52 @@ Surge is the perfect oracle solution for perpetual trading platforms, providing 
 
 ```typescript
 // Real-time mark price updates for perpetuals
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  // Update mark price instantly
-  await updateMarkPrice(response.data.symbol, response.data.price);
-  
-  // Check for liquidations with latest price
-  const liquidations = await checkLiquidations(response.data);
-  if (liquidations.length > 0) {
-    await executeLiquidations(liquidations);
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+
+    // Update mark price instantly
+    await updateMarkPrice(feed.symbol, price);
+
+    // Check for liquidations with latest price
+    const liquidations = await checkLiquidations(feed.symbol, price);
+    if (liquidations.length > 0) {
+      await executeLiquidations(liquidations);
+    }
   }
-  
-  // Update funding rates
-  await calculateFundingRate(response.data);
 });
 
 // Example: Drift-style perpetual integration
 class PerpetualExchange {
-  async handlePriceUpdate(update: sb.SurgeUpdate) {
-    const market = this.markets.get(update.data.symbol);
-    
-    // Update oracle price
-    market.oraclePrice = update.data.price;
-    market.oracleSlot = update.data.slot;
-    
-    // Trigger liquidations if needed
-    const underwaterPositions = await this.findUnderwaterPositions(market);
-    for (const position of underwaterPositions) {
-      if (this.isLiquidatable(position, market.oraclePrice)) {
-        await this.liquidatePosition(position);
+  async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    const prices = response.getFormattedPrices();
+
+    for (const feed of metrics.perFeedMetrics) {
+      const market = this.markets.get(feed.symbol);
+      const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+
+      // Update oracle price
+      market.oraclePrice = price;
+
+      // Trigger liquidations if needed
+      const underwaterPositions = await this.findUnderwaterPositions(market);
+      for (const position of underwaterPositions) {
+        if (this.isLiquidatable(position, market.oraclePrice)) {
+          await this.liquidatePosition(position);
+        }
       }
+
+      // Update AMM curve based on new oracle price
+      await this.updateAmmCurve(market);
     }
-    
-    // Update AMM curve based on new oracle price
-    await this.updateAmmCurve(market);
   }
 }
 ```
@@ -109,39 +122,49 @@ Build the next generation of AMMs that use real-time oracle prices instead of li
 ```typescript
 // Oracle AMM with instant price discovery
 class OracleAMM {
+  private latestUpdate: sb.SurgeUpdate;
+
   constructor(private surge: sb.Surge) {
     // Subscribe to all trading pairs
-    surge.on('update', this.handlePriceUpdate.bind(this));
+    surge.on('signedPriceUpdate', this.handlePriceUpdate.bind(this));
   }
-  
+
   async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    this.latestUpdate = response;
+    const prices = response.getFormattedPrices();
+
     // Update AMM pricing curve with oracle data
-    const pair = this.pairs.get(response.data.symbol);
-    pair.oraclePrice = response.data.price;
-    pair.lastUpdate = response.data.source_ts_ms;
-    
-    // No impermanent loss - prices come from oracles
-    await this.updatePricingCurve(pair);
+    for (const feed of metrics.perFeedMetrics) {
+      const pair = this.pairs.get(feed.symbol);
+      pair.oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+      pair.lastUpdate = Date.now();
+
+      // No impermanent loss - prices come from oracles
+      await this.updatePricingCurve(pair);
+    }
   }
-  
+
   async executeSwap(tokenIn: string, tokenOut: string, amountIn: number) {
     const pair = `${tokenIn}/${tokenOut}`;
     const latestPrice = this.pairs.get(pair).oraclePrice;
-    
+
     // Calculate output using oracle price
     const amountOut = amountIn * latestPrice * (1 - this.swapFee);
-    
+
     // Convert to Oracle Quote for on-chain execution
-    const [sigVerifyIx, oracleQuote] = this.latestUpdate.toBundleIx();
-    
+    const crankIxs = this.latestUpdate.toQuoteIx(queue.pubkey, keypair.publicKey);
+
     return await this.program.methods
-      .swap(amountIn, amountOut, oracleQuote)
+      .swap(amountIn, amountOut)
       .accounts({
         amm: this.ammPda,
         queue: this.queuePubkey,
         // ... other accounts
       })
-      .preInstructions([sigVerifyIx])
+      .preInstructions(crankIxs)
       .rpc();
   }
 }
@@ -151,18 +174,25 @@ class OracleAMM {
 
 ```typescript
 // Capitalize on price discrepancies across venues
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  const dexPrice = await getDexPrice(response.data.symbol);
-  const oraclePrice = response.data.price;
-  
-  const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
-  if (spread > MIN_PROFIT_THRESHOLD) {
-    await executeArbitrage({
-      symbol: response.data.symbol,
-      dexPrice,
-      oraclePrice,
-      size: calculateOptimalSize(spread)
-    });
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      await executeArbitrage({
+        symbol: feed.symbol,
+        dexPrice,
+        oraclePrice,
+        size: calculateOptimalSize(spread)
+      });
+    }
   }
 });
 ```
@@ -171,15 +201,23 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 
 ```typescript
 // Instant liquidations for lending protocols
-surge.on('update', async (response: sb.SurgeUpdate) => {
-  const positions = await getPositionsByCollateral(response.data.symbol);
-  
-  for (const position of positions) {
-    const ltv = calculateLTV(position, response.data.price);
-    if (ltv > LIQUIDATION_THRESHOLD) {
-      // Execute liquidation with fresh oracle price
-      const [ix, oracleQuote] = response.toBundleIx();
-      await liquidatePosition(position, ix, oracleQuote);
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const positions = await getPositionsByCollateral(feed.symbol);
+
+    for (const position of positions) {
+      const ltv = calculateLTV(position, price);
+      if (ltv > LIQUIDATION_THRESHOLD) {
+        // Execute liquidation with fresh oracle price
+        const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+        await liquidatePosition(position, crankIxs);
+      }
     }
   }
 });
@@ -187,13 +225,16 @@ surge.on('update', async (response: sb.SurgeUpdate) => {
 
 ## Getting Started
 
-### 1. Request API Access
+### 1. Choose Authentication Method
 
-Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
+**Option A: Keypair/Connection (Default - On-chain Subscription)**
+* Set up your Solana environment with keypair and connection
+* No API key required - uses on-chain subscription
 
-* **Approval time**: \~3 days
-* **Requirements**: None - open to all developers
-* **Waitlist**: Yes, processed on first-come basis
+**Option B: API Key Authentication**
+* Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
+* Approval time: \~3 days
+* Requirements: None - open to all developers
 
 ### 2. Install the SDK
 
@@ -208,9 +249,19 @@ yarn add @switchboard-xyz/on-demand
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
 
+// Two authentication modes are supported:
+
+// Option 1: Keypair/connection (default, on-chain subscription)
+const surge = new sb.Surge({
+  connection,
+  keypair,
+  verbose: false,
+});
+
+// Option 2: API key
 const surge = new sb.Surge({
   apiKey: process.env.SURGE_API_KEY!,
-  // Leave gatewayUrl empty for automatic default selection
+  verbose: false,
 });
 
 // Get all available Surge feeds
@@ -224,8 +275,14 @@ await surge.connectAndSubscribe([
   { symbol: 'SOL/USD' }
 ]);
 
-surge.on('update', (response: sb.SurgeUpdate) => {
-  console.log(`${response.data.symbol}: $${response.data.price}`);
+surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+  });
 });
 ```
 
@@ -285,7 +342,8 @@ This architecture eliminates multiple steps that add latency in traditional orac
 Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
-const surge = new sb.Surge({ apiKey: YOUR_API_KEY });
+// Use keypair/connection or API key authentication
+const surge = new sb.Surge({ connection, keypair, verbose: false });
 const feeds = await surge.getSurgeFeeds();
 
 // Example output format
