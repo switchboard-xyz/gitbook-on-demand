@@ -90,7 +90,7 @@
 * [SWTCH Token Overview](how-it-works/switchboard-protocol/swtch-token-overview.md)
 * [Governance & Tokenomics](how-it-works/switchboard-protocol/governance-and-tokenomics.md)
 
-***
+## Misc
 
 * [FAQ](faq.md)
 * [Glossary](glossary.md)
