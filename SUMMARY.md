@@ -28,7 +28,6 @@
 * [Aptos](docs-by-chain/aptos/data-feeds.md)
 * [Iota](docs-by-chain/iota/data-feeds.md)
 * [Movement](docs-by-chain/movement/data-feeds.md)
-* [Tutorials](docs-by-chain/tutorials.md)
 * [SAIL](docs-by-chain/sail.md)
 
 ## Custom Feeds
