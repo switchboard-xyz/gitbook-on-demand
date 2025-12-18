@@ -18,6 +18,10 @@ Guardians play a crucial role in the Switchboard network by verifying that oracl
 
 Guardians are first and foremost onboarded into the network as the root validators of SGX attestations. This inaugural step is necessary to establish their pivotal role as the secure bridge between TEE attestation practices and the blockchain itself.
 
+Here is a visual representation of the entire process:
+
+<figure><img src="../../.gitbook/assets/image.png" alt="Guardian Onboarding Process"><figcaption></figcaption></figure>
+
 Following successful verification, a minimum of one-third of all guardians are required to attest to the SGX quotes of each oracle. This ensures robust validation and security across the Switchboard network.
 
 ## Oracle Onboarding
@@ -27,6 +31,8 @@ Before any attestation can occur, all oracle nodes must first successfully navig
 **Step 2: Guardian Attestation and Addition to Oracle Queue**
 
 The Guardian attests to the oracle's SGX quote and, upon successful verification, adds the oracle to the Oracle Queue.
+
+<figure><img src="../../.gitbook/assets/image2.png" alt="Guardian Attestation Process"><figcaption></figcaption></figure>
 
 **Important Keypair Verification Note:** Similar to oracles, guardians must also undergo a keypair verification process, ensuring that all secp256k1 keypairs are considered valid for a period of seven days, after which they must undergo a re-verification.
 
@@ -41,3 +47,5 @@ Once onboarded, users have the flexibility to define their custom data feeds and
 The user requests data from a specified feed through the gateway. In response, the user receives a signature-set. The user then posts this signature-set on-chain to update the data.
 
 Users can request up-to-date data from a specified feed through the gateway. Following a response, the user receives a signature set, which is then posted on-chain to update the data.
+
+<figure><img src="../../.gitbook/assets/image3.png" alt="Data Feed Request Flow"><figcaption></figcaption></figure>
