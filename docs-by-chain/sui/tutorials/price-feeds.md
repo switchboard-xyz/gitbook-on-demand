@@ -479,6 +479,48 @@ updateTx.moveCall({
 
 This calls your contract's `update_price` function with the fetched quotes. The Move contract will verify signatures and update the stored price.
 
+## Project Structure
+
+```
+sui/
+├── Move.toml              # Mainnet configuration
+├── Move.testnet.toml      # Testnet configuration
+├── sources/
+│   └── example.move       # Quote Consumer contract with verifier
+├── scripts/
+│   └── run.ts             # Complete TypeScript example
+├── examples/
+│   ├── quotes.ts                # Simple quote fetching example
+│   ├── mainnet_surge_stream.ts  # Mainnet streaming with Sui integration
+│   └── testnet_surge_stream.ts  # Testnet streaming with Sui integration
+└── package.json
+```
+
+## Available Scripts
+
+```bash
+# Build the Move contract
+npm run build
+
+# Build for testnet
+npm run build:testnet
+
+# Run Move tests
+npm run test
+
+# Deploy to mainnet
+npm run deploy
+
+# Deploy to testnet
+npm run deploy:testnet
+
+# Run the complete example with Move integration
+npm run example
+
+# Run simple quote fetching example
+npm run quotes
+```
+
 ## Running the Example
 
 ### 1. Clone the Examples Repository
