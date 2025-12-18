@@ -1,7 +1,6 @@
 # Table of contents
 
 * [Introduction](README.md)
-* [Why Switchboard?](why-switchboard.md)
 * [Quick Start](quick-start.md)
 
 ## Docs by Chain
@@ -20,6 +19,7 @@
   * [Hyperliquid](docs-by-chain/evm/hyperliquid.md)
   * [Tutorials](docs-by-chain/evm/tutorials/README.md)
     * [Price Feeds](docs-by-chain/evm/tutorials/price-feeds.md)
+    * [Surge](docs-by-chain/evm/tutorials/surge.md)
     * [Randomness](docs-by-chain/evm/tutorials/randomness.md)
 * [Sui](docs-by-chain/sui/data-feeds/README.md)
   * [Tutorials](docs-by-chain/sui/tutorials/README.md)
@@ -82,8 +82,6 @@
   * [Run Crossbar with Docker Compose](tooling/crossbar/run-crossbar-with-docker-compose.md)
 * [CLI (Command Line Interface)](tooling/switchboard-command-line-interface.md)
 * [SDKs and Documentation](tooling/technical-resources-and-documentation/sdks-and-documentation.md)
-* [Solana Accounts](tooling/technical-resources-and-documentation/solana-accounts.md)
-* [EVM Identifiers](tooling/technical-resources-and-documentation/evm-identifiers.md)
 
 ## Governance & Tokenomics
 
