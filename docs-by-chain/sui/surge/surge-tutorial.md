@@ -1,4 +1,4 @@
-# Surge Price Stream
+# Surge Tutorial
 
 This tutorial shows you how to stream real-time price data via WebSocket using Switchboard Surge and submit updates to the Sui blockchain. This approach is ideal for applications requiring sub-second price updates.
 

@@ -1,4 +1,4 @@
-# Randomness
+# Randomness Tutorial
 
 This tutorial demonstrates how to integrate **verifiable randomness** into your Solana program using Switchboard's commit-reveal pattern. You'll build a provably fair coin flip game.
 

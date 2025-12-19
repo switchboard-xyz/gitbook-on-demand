@@ -1,4 +1,4 @@
-# Randomness
+# Randomness Tutorial
 
 ## Switchboard Randomness for EVM applications
 

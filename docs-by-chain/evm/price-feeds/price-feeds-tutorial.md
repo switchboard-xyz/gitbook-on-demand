@@ -1,4 +1,4 @@
-# EVM Price Feeds
+# Price Feeds Tutorial
 
 This tutorial walks you through integrating Switchboard oracle price feeds into your EVM smart contracts. You'll learn how to fetch oracle data, submit updates to your contract, and read verified prices.
 
@@ -604,6 +604,6 @@ Popular feeds include:
 
 ## Next Steps
 
-- Explore [randomness integration](./randomness.md) for gaming and NFTs
-- Learn about [custom feeds](./data-feeds/README.md) for specialized data
+- Explore [randomness integration](../randomness.md) for gaming and NFTs
+- Learn about [custom feeds](../../../custom-feeds/README.md) for specialized data
 - Join the [Switchboard Discord](https://discord.gg/switchboardxyz) for support

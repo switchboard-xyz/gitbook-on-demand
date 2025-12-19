@@ -1,4 +1,4 @@
-# Prediction Market
+# Prediction Market Tutorial
 
 This tutorial demonstrates how to **verify oracle feed configurations on-chain** using Kalshi prediction market data. You'll learn a critical security pattern that prevents oracle substitution attacks.
 

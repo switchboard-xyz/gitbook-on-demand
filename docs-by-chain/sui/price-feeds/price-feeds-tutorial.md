@@ -1,4 +1,4 @@
-# Price Feeds
+# Price Feeds Tutorial
 
 This tutorial walks you through integrating Switchboard oracle price feeds into your Sui Move contracts using the Quote Verifier pattern. You'll learn how to securely fetch, verify, and use real-time price data.
 
