@@ -1,4 +1,4 @@
-# Surge Price Streaming
+# Surge Tutorial
 
 This tutorial walks you through converting Switchboard Surge real-time price updates into EVM-compatible format for use with your smart contracts.
 
@@ -12,27 +12,10 @@ A TypeScript script that:
 ## Prerequisites
 
 - **Bun** or Node.js 18+
-- Access to Switchboard Surge updates
+- Surge API key ([request access](https://tinyurl.com/yqubsr8e))
 - Basic understanding of hexadecimal encoding
 
-## Key Concepts
-
-### What is Surge?
-
-Surge is Switchboard's real-time price streaming service that delivers sub-second price updates via WebSocket. Unlike on-demand updates (where you fetch data when needed), Surge pushes updates to you continuously.
-
-This tutorial focuses on converting those Surge updates to a format that EVM smart contracts can consume.
-
-### Surge vs On-Demand
-
-| Feature | Surge | On-Demand |
-|---------|-------|-----------|
-| Delivery | Push (WebSocket) | Pull (HTTP request) |
-| Latency | Sub-second | Request-time |
-| Use Case | Real-time trading, live dashboards | Periodic updates, user-triggered |
-| Format | `SurgeRawGatewayResponse` | Pre-encoded for target chain |
-
-### The Conversion Flow
+## The Conversion Flow
 
 ```
 Surge WebSocket → SurgeRawGatewayResponse → EVMUtils.convertSurgeUpdateToEvmFormat() → bytes → Smart Contract
@@ -397,6 +380,6 @@ Parsing EVM Structure:
 
 ## Next Steps
 
-- Learn about [on-demand price feeds](./price-feeds.md) for pull-based updates
-- Explore [randomness integration](./randomness.md) for gaming and NFTs
+- Learn about [on-demand price feeds](../tutorials/price-feeds.md) for pull-based updates
+- Explore [randomness integration](../tutorials/randomness.md) for gaming and NFTs
 - Check out the [Sui Surge tutorial](../../sui/tutorials/surge-price-stream.md) for comparison

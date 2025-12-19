@@ -1,12 +1,6 @@
 # EVM
 
-Switchboard offers a suite of powerful tools for creating custom data feeds on Ethereum Virtual Machine (EVM) networks, enabling your DeFi applications to access real-world data.
-
-**Prerequisites**
-
-* Basic understanding of Ethereum and smart contract development.
-* Familiarity with Solidity, JavaScript/TypeScript.
-* Node.js and npm installed.
+Learn how to build and use programs that call Switchboard data feeds on EVM chains like [Ethereum](https://ethereum.org), [Monad](https://monad.xyz), and [Hyperliquid](https://hyperliquid.xyz).
 
 ## Deployments
 
