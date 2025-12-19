@@ -10,7 +10,7 @@
     * [Basic Price Feed Tutorial](docs-by-chain/solana-svm/tutorials/price-feeds/basic-price-feed.md)
     * [Advanced Price Feed Tutorial](docs-by-chain/solana-svm/tutorials/price-feeds/advanced-price-feed.md)
   * [Surge Price Feeds](docs-by-chain/solana-svm/surge-overview/README.md)
-    * [Getting Started with Surge](docs-by-chain/solana-svm/surge-overview/surge.md)
+    * [Surge Tutorial](docs-by-chain/solana-svm/surge-overview/surge.md)
   * [Prediction Market](docs-by-chain/solana-svm/tutorials/prediction-market.md)
   * [Randomness](docs-by-chain/solana-svm/tutorials/randomness.md)
   * [Eclipse](docs-by-chain/solana-svm/eclipse.md)

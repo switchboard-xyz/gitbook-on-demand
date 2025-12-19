@@ -20,6 +20,22 @@ Price Source → Oracle → Direct WebSocket → Your App
 Total Latency: <100ms
 ```
 
+## Architecture
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Price Sources  │────▶│  Oracle Network │────▶│  Surge Gateway  │
+│  (CEX, DEX)     │     │   (SAIL Verified)│     │   (WebSocket)   │
+└─────────────────┘     └─────────────────┘     └────────┬────────┘
+                                                         │
+                                              ┌──────────▼──────────┐
+                                              │  Your Application   │
+                                              │ • Event Listeners   │
+                                              │ • Price Handlers    │
+                                              │ • Oracle Quote Converter │
+                                              └─────────────────────┘
+```
+
 ## Key Features
 
 ### ⚡ Unmatched Performance
