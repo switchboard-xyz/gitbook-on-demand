@@ -22,7 +22,7 @@ Crossbar aims to streamline the Switchboard experience, offering the following c
 
 Crossbar provides tailored features for specific blockchains:
 
-**Solana, Aptos/Sui, and Eclipse:**
+**Solana and Aptos/Sui:**
 
 * **Fetch Encoded Update Instructions:** Retrieve update instructions from live oracles for Solana feeds (available on devnet and mainnet).
 * **Fetch Simulated Results for Feeds:** Fetch current prices for feeds. This is a useful feature for tracking custom price feeds off-chain, for triggering an action that the bots can use.

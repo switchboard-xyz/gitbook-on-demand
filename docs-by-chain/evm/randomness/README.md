@@ -1,161 +1,53 @@
-# Switchboard Verifiable Randomness (Overview)
+# Randomness Overview
 
-Switchboard aims to deliver **fast**, **permissionless**, **customizable** randomness that can be used for on-chain games, NFT mints, lotteries, and other applications that need fair random outcomes.
+Blockchain users want randomness for many applications like gaming, NFT mints, lotteries, and more. However, this poses a fundamental challenge to blockchains, which are deterministic computers replicated across many nodes across the globe. Each node needs to produce the exact same output when given the same sequence of inputs.
 
----
+Imagine if an on-chain lottery was deciding whether to mint an NFT to Alice or Bob. If blockchain nodes ran their own randomness and some decided that the NFT would go to Alice, and others to Bob, there would be a state mismatch.
 
-## Why randomness is hard on blockchains
+<figure><img src="../../../.gitbook/assets/randomness-01.png"><figcaption></figcaption></figure>
 
-### We want random events on-chain
-On-chain apps often need randomness for things like:
+This is where oracles come in. An oracle can run the randomness off-chain and then post a single result to the blockchain, ensuring that all nodes agree on the result of the randomness.
 
-- **Gaming:** loot drops, crit chances, shuffling
-- **NFT mints:** randomized traits / blind reveals
-- **Lotteries:** fair winner selection
+<figure><img src="../../../.gitbook/assets/randomness-02.png"><figcaption></figcaption></figure>
 
-### …but blockchains are deterministic
-A blockchain is a computer replicated across many nodes worldwide. For the network to stay in consensus:
+However, as a third-party source of randomness, it's critical to make sure that nefarious actors cannot control the oracle and bias the randomness in their favor.
 
-- Every node must produce the **exact same output**
-- Given the **exact same inputs**
+<figure><img src="../../../.gitbook/assets/randomness-03.png"><figcaption></figcaption></figure>
 
-If nodes disagree, the chain can’t agree on the next state.
 
-### A simple “Lottery()” problem
-If a smart contract tries to do something like “pick a random winner” *inside* the chain’s execution, different nodes could produce different “random” results:
-
-- Node A runs `Lottery()` → Alice wins
-- Node B runs `Lottery()` → Bob wins  
-➡️ **State mismatch** → consensus breaks
-
-That’s why “true randomness” can’t just be conjured inside deterministic on-chain execution.
-
----
-
-## The typical workaround: oracles
-
-### Oracles “bring off-chain data on-chain”
-A common pattern is:
-
-1. Generate randomness **off-chain**
-2. Publish it **on-chain**
-3. Every node reads the same posted value
-
-This is exactly the sort of thing oracles are used for: **bringing external data on-chain**.
-
-### Oracle risk (trust problem)
-If you trust a single oracle (or an oracle operator) to generate a random value:
-
-- They could **bias** the random outcome
-- They could **withhold** a result that’s unfavorable to them
-- They could experience **downtime** at critical moments
-
-So “oracle-provided randomness” solves determinism, but introduces a new question:
-**Who watches the oracle?**
-
----
 
 ## Switchboard’s approach
 
-### The core idea
-Switchboard’s randomness system is designed so that:
+Switchboard leverages Trusted Execution Environments (TEEs), which are protected areas inside of a computer's processing unit that cannot be altered or inspected. This means:
 
-- The oracle can generate randomness **off-chain**
-- The chain can **verify** that the randomness is legitimate
-- The oracle operator **can’t tamper with** the process to bias outcomes
+- No one, including the oracle operator, can alter the code that’s running on the TEEs
+- No one, including the oracle operator, can see what’s going on inside the chip, only inputs and outputs.
 
-A key building block is **Trusted Execution Environments (TEEs)**.
+This means that Switchboard oracles can generate safe and fair randomness that is free from malicious influence. As an extra layer of protection, Switchboard network incentives ensure that oracle oeprators that misbehave by experiencing downtime or withholding results can have their $SWTCH stake slashed.
 
----
 
-## What are Trusted Execution Environments (TEEs)?
+## How to Use Switchboard Randomness
 
-A **TEE** is a secure area inside a CPU that protects code and data running within it.
+To understand the flow, it's helpful to visualize the following 5 parties.
 
-From the deck:
+- **Alice**: blockchain user
+- **App**: on-chain application
+- **Switchboard Contract**: on-chain contract that handles anything Switchboard-related.
+- **Crossbar**: server that helps you talk to oracles.
+- **Oracle**: generates randomness.
 
-- The code/data inside the TEE **can’t be altered**
-- The code/data inside the TEE **can’t be inspected**
-- Only **inputs and outputs** are visible from the outside
+<figure><img src="../../../.gitbook/assets/randomness-03.png"><figcaption></figcaption></figure>
 
-### Trust model (as presented)
-Switchboard’s trust model relies on:
 
-- **No one (including the oracle operator)** can alter the code running in the TEE  
-- **No one (including the oracle operator)** can see what’s happening inside the chip (only inputs/outputs)
-- Oracles that misbehave (downtime / withholding) can be **slashed** by the Switchboard network
+- First, **Alice** talks to the **App** requesting some random event.
+- The **App** then generates a randomness request with a unique ID and sends it to the **Switchboard contract**.
+- The **Switchboard contract** responds to the **App** with an oracle assignment.
+- The **App** responds to **Alice** with the oracle assignment and randomness ID.
+- **Alice** sends the oracle assignment, randomness ID, and some other data to **Crossbar** to request the randomness.
+- **Crossbar** talks to the **Oracle** and requests randomness.
+- The **Oracle** creates a randomness object and sends it to **Crossbar** which passes it back to **Alice**.
+- **Alice** sends the randomness object to the **App**.
+- The **App** asks the **Switchboard contract** to verify that the randomness it received from Alice is correct.
+- If all is well, the **Switchboard contract** sends verification to the **App**, resolving the random event.
 
----
-
-## System components
-
-Switchboard randomness is shown as a flow across four components:
-
-- **App** (your game / mint / lottery frontend or backend)
-- **Switchboard Contract** (on-chain contract interface)
-- **Crossbar** (service that helps fetch the randomness reveal payload)
-- **Oracle** (the entity generating the randomness, running with TEE protections)
-
----
-
-## End-to-end flow: “How to Use Switchboard Randomness”
-
-Below is the same flow depicted across the step-by-step slides, in documentation form.
-
-### 1) The app requests randomness
-Your app decides “I want something random to happen” and initiates a request via the **Switchboard contract**.
-
-**Result:** a **Randomness Request** is created and a **RandomnessID** is produced.
-
-### 2) An oracle is assigned
-Switchboard assigns an **oracle** to handle the request.
-
-The RandomnessID (plus associated metadata) ties together:
-- the original request
-- the assigned oracle
-- the eventual reveal payload
-
-### 3) The app fetches the reveal payload from Crossbar
-Your app then asks Crossbar (off-chain):
-
-> “Get the randomness for me”
-
-It sends:
-- **RandomnessID + other data**
-
-Crossbar returns:
-- **encodedRandomness** (the payload your app will submit on-chain)
-
-### 4) The app settles the randomness on-chain
-Your app calls the Switchboard contract with:
-
-- `settleRandomness(encodedRandomness)` *(name shown in the deck)*
-
-### 5) The contract verifies it
-The on-chain contract verifies the randomness payload.
-
-Once verification succeeds:
-
-- ✅ **Randomness verified**
-- Your application can now safely use the resulting random value for game logic, mint traits, lottery winners, etc.
-
----
-
-## Sequence diagram (conceptual)
-
-```mermaid
-sequenceDiagram
-  participant App
-  participant SB as Switchboard Contract
-  participant X as Crossbar
-  participant O as Oracle (TEE)
-
-  App->>SB: "I want something random to happen"
-  SB-->>App: RandomnessID (request created)
-  SB->>O: Oracle assignment (network assigns)
-  App->>X: "Get the randomness for me"<br/>RandomnessID + metadata
-  X->>O: Fetch / coordinate reveal
-  O-->>X: encodedRandomness
-  X-->>App: encodedRandomness
-  App->>SB: settleRandomness(encodedRandomness)
-  SB-->>App: Randomness verified (usable on-chain)
+--

@@ -15,7 +15,6 @@
     * [Prediction Market Tutorial](docs-by-chain/solana-svm/prediction-market/prediction-market-tutorial.md)
   * [Randomness](docs-by-chain/solana-svm/randomness/README.md)
     * [Randomness Tutorial](docs-by-chain/solana-svm/randomness/randomness-tutorial.md)
-  * [Eclipse](docs-by-chain/solana-svm/eclipse.md)
 * [EVM](docs-by-chain/evm/README.md)
   * [Price Feeds](docs-by-chain/evm/price-feeds/README.md)
     * [Price Feeds Tutorial](docs-by-chain/evm/price-feeds/price-feeds-tutorial.md)
@@ -45,7 +44,6 @@
   * [Bounding Results](custom-feeds/bounding-results.md)
   * [Decentralized Exchanges](custom-feeds/decentralized-exchanges.md)
   * [Oracle Aggregator](custom-feeds/oracle-aggregator.md)
-  * [LLMs Integration](custom-feeds/llms-integration.md)
   * [FAQ](custom-feeds/faq.md)
 
 ## How it Works
