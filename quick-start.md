@@ -4,7 +4,7 @@
 
 * Explore Surge, the industry's fastest oracle data stream, on [Solana](docs-by-chain/solana-svm/surge/README.md), [EVM](docs-by-chain/evm/surge/README.md), or [Sui](docs-by-chain/sui/surge/README.md).
 
-* Generate verifiably fair random numbers for games, lotteries, and more on [Solana](docs-by-chain/solana-svm/randomness/randomness-tutorial.md) or [EVM](docs-by-chain/evm/randomness/randomness-tutorial.md).
+* Generate verifiably fair randomness for games, lotteries, and more on [Solana](docs-by-chain/solana-svm/randomness/randomness-tutorial.md) or [EVM](docs-by-chain/evm/randomness/randomness-tutorial.md).
 
 * Browse through thousands of existing data feeds on [our explorer site](https://explorer.switchboardlabs.xyz).
 
