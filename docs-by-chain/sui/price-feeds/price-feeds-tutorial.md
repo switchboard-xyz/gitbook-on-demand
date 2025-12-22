@@ -1,5 +1,7 @@
 # Price Feeds Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/sui/feeds/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sui/feeds/basic)
+
 This tutorial walks you through integrating Switchboard oracle price feeds into your Sui Move contracts using the Quote Verifier pattern. You'll learn how to securely fetch, verify, and use real-time price data.
 
 ## What You'll Build

@@ -1,5 +1,7 @@
 # Price Feeds Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/evm/price-feeds](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/evm/price-feeds)
+
 This tutorial walks you through integrating Switchboard oracle price feeds into your EVM smart contracts. You'll learn how to fetch oracle data, submit updates to your contract, and read verified prices.
 
 ## What You'll Build

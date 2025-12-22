@@ -1,5 +1,7 @@
 # Surge Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/surge](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/surge)
+
 This tutorial walks you through implementing Switchboard Surge for real-time price streaming on Solana.
 
 ## Prerequisites

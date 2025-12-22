@@ -1,5 +1,7 @@
 # Surge Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/sui/surge/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sui/surge/basic)
+
 This tutorial shows you how to stream real-time price data via WebSocket using Switchboard Surge and submit updates to the Sui blockchain. This approach is ideal for applications requiring sub-second price updates.
 
 ## What You'll Build

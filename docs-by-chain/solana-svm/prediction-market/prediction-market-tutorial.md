@@ -1,5 +1,7 @@
 # Prediction Market Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/prediction-market](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/prediction-market)
+
 This tutorial demonstrates how to **verify oracle feed configurations on-chain** using Kalshi prediction market data. You'll learn a critical security pattern that prevents oracle substitution attacks.
 
 ## The Problem: Oracle Substitution Attacks

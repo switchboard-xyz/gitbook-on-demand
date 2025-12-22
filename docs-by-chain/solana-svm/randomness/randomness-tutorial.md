@@ -1,5 +1,7 @@
 # Randomness Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/randomness/coin-flip](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/randomness/coin-flip)
+
 This tutorial demonstrates how to integrate **verifiable randomness** into your Solana program using Switchboard's commit-reveal pattern. You'll build a provably fair coin flip game.
 
 ## Why Verifiable Randomness?

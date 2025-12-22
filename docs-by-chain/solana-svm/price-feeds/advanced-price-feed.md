@@ -1,5 +1,7 @@
 # Advanced Price Feed
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/feeds/advanced](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/feeds/advanced)
+
 This tutorial demonstrates how to build an ultra-optimized Switchboard oracle integration using the Pinocchio framework, achieving **~90% reduction in compute units** compared to the basic Anchor implementation.
 
 ## Why Optimize Compute Units?

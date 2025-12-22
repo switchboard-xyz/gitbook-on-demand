@@ -1,5 +1,7 @@
 # Surge Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/evm/price-feeds](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/evm/price-feeds) (see `scripts/surgeToEvmConversion.ts`)
+
 This tutorial walks you through converting Switchboard Surge real-time price updates into EVM-compatible format for use with your smart contracts.
 
 ## What You'll Build

@@ -1,5 +1,7 @@
 # Randomness Tutorial
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/evm/randomness/coin-flip](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/evm/randomness/coin-flip)
+
 ## Switchboard Randomness for EVM applications
 
 #### Prerequisites

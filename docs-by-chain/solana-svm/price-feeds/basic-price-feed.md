@@ -1,5 +1,7 @@
 # Basic Price Feed
 
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/feeds/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/feeds/basic)
+
 This tutorial walks you through the simplest way to integrate Switchboard oracle price feeds into your Solana program. You'll learn how to read verified price data using Switchboard's managed update system.
 
 ## What You'll Build
