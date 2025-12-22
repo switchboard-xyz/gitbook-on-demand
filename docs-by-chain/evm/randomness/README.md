@@ -38,7 +38,9 @@ To understand the flow, it's helpful to visualize the following 5 parties.
 
 <figure><img src="../../../.gitbook/assets/randomness-03.png"><figcaption></figcaption></figure>
 
+There are two stages, requesting and resolving the randomness.
 
+### Request Randomness
 - First, **Alice** talks to the **App** requesting some random event.
 - The **App** then generates a randomness request with a unique ID and sends it to the **Switchboard contract**.
 - The **Switchboard contract** responds to the **App** with an oracle assignment.
@@ -46,6 +48,8 @@ To understand the flow, it's helpful to visualize the following 5 parties.
 - **Alice** sends the oracle assignment, randomness ID, and some other data to **Crossbar** to request the randomness.
 - **Crossbar** talks to the **Oracle** and requests randomness.
 - The **Oracle** creates a randomness object and sends it to **Crossbar** which passes it back to **Alice**.
+
+### Resolve Randomness
 - **Alice** sends the randomness object to the **App**.
 - The **App** asks the **Switchboard contract** to verify that the randomness it received from Alice is correct.
 - If all is well, the **Switchboard contract** sends verification to the **App**, resolving the random event.
