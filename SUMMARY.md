@@ -37,7 +37,7 @@
 
 ## Custom Feeds
 
-* [Custom Feeds](custom-feeds/README.md)
+* [Advanced Feed Configuration](custom-feeds/README.md)
   * [Data Feed Variable Overrides](custom-feeds/data-feed-variable-overrides.md)
   * [Variables with CacheTask](custom-feeds/variables-with-cachetask.md)
   * [REST APIs with HttpTask](custom-feeds/rest-apis-with-httptask.md)
