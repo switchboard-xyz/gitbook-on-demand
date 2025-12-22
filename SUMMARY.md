@@ -50,10 +50,6 @@
 
 ## How it Works
 
-* [Technical Architecture](how-it-works/technical-architecture/README.md)
-  * [Trusted Execution Environments (TEEs)](how-it-works/technical-architecture/trusted-execution-environments-tees.md)
-  * [Oracle Queues](how-it-works/technical-architecture/oracle-queues.md)
-  * [Node Architecture](how-it-works/technical-architecture/node-architecture.md)
 * [Switchboard Protocol](how-it-works/switchboard-protocol/README.md)
   * [(Re)staking](how-it-works/switchboard-protocol/re-staking/README.md)
     * [What is (re)staking?](how-it-works/switchboard-protocol/re-staking/what-is-re-staking.md)
@@ -80,6 +76,10 @@
       * [Bare Metal with Kubernetes (K3s) + AMD SEV SNP](how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md)
   * [Enable Staking to your Oracle](how-it-works/switchboard-protocol/enable-staking-to-your-oracle.md)
   * [Providing stake to Switchboard](how-it-works/switchboard-protocol/providing-stake-to-switchboard.md)
+* [Technical Architecture](how-it-works/technical-architecture/README.md)
+  * [Trusted Execution Environments (TEEs)](how-it-works/technical-architecture/trusted-execution-environments-tees.md)
+  * [Oracle Queues](how-it-works/technical-architecture/oracle-queues.md)
+  * [Node Architecture](how-it-works/technical-architecture/node-architecture.md)
 
 ## Tooling
 

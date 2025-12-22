@@ -1,10 +1,15 @@
 # Quick Start
 
-* Tutorial to create a feed on Solana (or EVM)
-* Explore Surge
-* [**Optional Features:**](https://docs.switchboard.xyz/product-documentation/data-feeds/optional-features) Unlock the full potential of your data feeds by exploring Switchboard's optional features. Learn how to securely embed sensitive information, such as API keys or private data, directly within your oracle feeds.
-* [**Technical Resources:**](https://docs.switchboard.xyz/tooling-and-resources/technical-resources-and-documentation) Browse all our technical resources. These are helpful for developers seeking deeper insights into the technical architecture. They are invaluable or those ready to start building custom solutions with Switchboard.
-* Learn about how Switchboard works
+* Learn how to use a Switchboard price feed in your on-chain application on [Solana](docs-by-chain/solana-svm/price-feeds/basic-price-feed.md), [EVM](docs-by-chain/evm/price-feeds/price-feeds-tutorial.md), or other chains.
+
+* Explore Surge, the industry's fastest oracle data stream, on [Solana](docs-by-chain/solana-svm/surge/README.md), [EVM](docs-by-chain/evm/surge/README.md), or [Sui](docs-by-chain/sui/surge/README.md).
+
+* Generate verifiably fair random numbers for games, lotteries, and more on [Solana](docs-by-chain/solana-svm/randomness/randomness-tutorial.md) or [EVM](docs-by-chain/evm/randomness/randomness-tutorial.md).
+
+* Browse through thousands of existing data feeds on [our explorer site](https://explorer.switchboardlabs.xyz).
+
+* Can't find an existing feed that does what you need? Learn how to make and use a [custom data feed](custom-feeds/README.md) with infinite customization possibilities.
 
 
+* Dive into how the [Switchboard protocol](how-it-works/switchboard-protocol/README.md) works.
 
