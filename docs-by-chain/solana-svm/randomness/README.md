@@ -12,7 +12,7 @@ This is where oracles come in. An oracle can run the randomness off-chain and th
 
 However, as a third-party source of randomness, it's critical to make sure that nefarious actors cannot control the oracle and bias the randomness in their favor.
 
-<figure><img src="../../../.gitbook/assets/randomness-04.png"><figcaption></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/randomness-03.png"><figcaption></figcaption></figure>
 
 
 
@@ -36,7 +36,7 @@ To understand the flow, it's helpful to visualize the following 5 parties.
 - **Crossbar**: server that helps you talk to oracles
 - **Oracle**: generates randomness
 
-<figure><img src="../../../.gitbook/assets/randomness-03.png"><figcaption></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/randomness-04.png"><figcaption></figcaption></figure>
 
 There are two stages, requesting and resolving the randomness.
 
