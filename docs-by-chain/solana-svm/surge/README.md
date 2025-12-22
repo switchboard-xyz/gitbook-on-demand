@@ -38,35 +38,35 @@ Total Latency: <100ms
 
 ## Key Features
 
-### ⚡ Unmatched Performance
+### Unmatched Performance
 
 * **Sub-100ms latency** from price source to your application
 * **Direct streaming** eliminates blockchain bottlenecks
 * **Event-driven updates** deliver prices as they change
 * **No polling overhead** with persistent WebSocket connections
 
-### 🎯 Zero Setup
+### Zero Setup
 
 * **No data feed accounts** to create or manage
 * **No on-chain deployment** required
 * **No SOL funding** needed for accounts
 * **Instant access** with just an API key
 
-### 💰 Cost Efficiency
+### Cost Efficiency
 
 * **Subscription-based pricing** - pay for what you use
 * **No gas fees** for receiving updates
 * **Reduced on-chain costs** when converting to Oracle Quotes
 * **Enterprise pricing** available for high-volume users
 
-### 🔗 Seamless Integration
+### Seamless Integration
 
 * **Simple SDK** with TypeScript/JavaScript support
 * **WebSocket API** for any programming language
 * **Oracle Quote conversion** for on-chain use when needed
 * **Crossbar gateway** for frontend integration
 
-### 🛡️ Enterprise-Grade Reliability
+### Enterprise-Grade Reliability
 
 * **99.9% uptime SLA** for production applications
 * **Global infrastructure** with multiple regions
@@ -75,7 +75,7 @@ Total Latency: <100ms
 
 ## Primary Use Cases
 
-### 📈 Perpetual Exchanges
+### Perpetual Exchanges
 
 Surge is the perfect oracle solution for perpetual trading platforms, providing the ultra-low latency needed for:
 
@@ -118,7 +118,7 @@ class PerpetualExchange {
 }
 ```
 
-### 🔄 Oracle-Based AMMs
+### Oracle-Based AMMs
 
 Build the next generation of AMMs that use real-time oracle prices instead of liquidity pools:
 
@@ -337,6 +337,8 @@ The SDK includes automatic reconnection logic with exponential backoff. Your app
 
 ## Next Steps
 
+* [Surge Tutorial](surge.md) - Step-by-step implementation guide
+* [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
 * [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
 * [Join our Discord](https://discord.gg/switchboard)
 * [Request API access](https://tinyurl.com/yqubsr8e)
