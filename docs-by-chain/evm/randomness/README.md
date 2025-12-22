@@ -45,11 +45,12 @@ There are two stages, requesting and resolving the randomness.
 - The **App** then generates a randomness request with a unique ID and sends it to the **Switchboard contract**.
 - The **Switchboard contract** responds to the **App** with an oracle assignment.
 - The **App** responds to **Alice** with the oracle assignment and randomness ID.
-- **Alice** sends the oracle assignment, randomness ID, and some other data to **Crossbar** to request the randomness.
-- **Crossbar** talks to the **Oracle** and requests randomness.
-- The **Oracle** creates a randomness object and sends it to **Crossbar** which passes it back to **Alice**.
 
 ### Resolve Randomness
+
+- **Alice** sends the oracle assignment, randomness ID, and some other data to **Crossbar** to get the randomness.
+- **Crossbar** asks the **Oracle** to generate randomness.
+- The **Oracle** creates a randomness object and sends it to **Crossbar** which passes it back to **Alice**.
 - **Alice** sends the randomness object to the **App**.
 - The **App** asks the **Switchboard contract** to verify that the randomness it received from Alice is correct.
 - If all is well, the **Switchboard contract** sends verification to the **App**, resolving the random event.
