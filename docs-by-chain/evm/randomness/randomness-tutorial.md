@@ -4,17 +4,11 @@
 
 ## Try It Out
 
-Play Pancake Stacker directly in your browser! Connect your wallet (MetaMask or Phantom), enter the contract address below, and start flipping pancakes.
+Play Pancake Stacker directly in your browser! Connect your wallet (MetaMask or Phantom), enter the contract address, and start flipping pancakes.
+
+**[Play Pancake Stacker](https://switchboard-xyz.github.io/sb-on-demand-examples/evm/randomness/pancake-stacker/ui/index.html)**
 
 **Contract Address (Monad):** `0x8A48241ba47298BBCb417834C6A95860D4273B6B`
-
-<iframe
-  src="https://switchboard-xyz.github.io/sb-on-demand-examples/evm/randomness/pancake-stacker/ui/index.html"
-  width="100%"
-  height="700"
-  style="border: none; border-radius: 8px;"
-  allow="clipboard-write"
-></iframe>
 
 ---
 
