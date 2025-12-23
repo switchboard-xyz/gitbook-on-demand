@@ -2,6 +2,22 @@
 
 > **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/evm/randomness/pancake-stacker](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/evm/randomness/pancake-stacker)
 
+## Try It Out
+
+Play Pancake Stacker directly in your browser! Connect your wallet (MetaMask or Phantom), enter the contract address below, and start flipping pancakes.
+
+**Contract Address (Monad):** `0x8A48241ba47298BBCb417834C6A95860D4273B6B`
+
+<iframe
+  src="https://switchboard-xyz.github.io/sb-on-demand-examples/evm/randomness/pancake-stacker/ui/index.html"
+  width="100%"
+  height="700"
+  style="border: none; border-radius: 8px;"
+  allow="clipboard-write"
+></iframe>
+
+---
+
 This tutorial walks you through building **Pancake Stacker**, a simple on-chain game that demonstrates Switchboard's randomness system. You'll learn how to request, resolve, and use verifiable randomness in your EVM smart contracts.
 
 ## What You'll Build
