@@ -4,9 +4,9 @@
 
 Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for the next generation of DeFi applications, trading systems, and real-time dashboards.
 
-## Why Surge Changes Everything
+## Surge's Key Innovation
 
-Traditional oracles require multiple steps—gathering prices, writing to a blockchain state layer, reaching consensus, and then making data available—resulting in 2-10 seconds of latency. Surge eliminates these bottlenecks by streaming price data directly from sources to your application via WebSocket, achieving sub-100ms latency without any blockchain writes for reads.
+Traditional oracles require multiple steps—gathering prices, writing to a blockchain state layer, reaching consensus, and then making data available—resulting in 2-10 seconds of latency. Surge eliminates these bottlenecks using Switchboard's SAIL framework, which verifies a hardware proof when oracles join the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket—no middleware layer, no consensus delays—achieving sub-100ms latency.
 
 ## Architecture
 
@@ -26,39 +26,15 @@ Traditional oracles require multiple steps—gathering prices, writing to a bloc
 
 ## Key Features
 
-### Unmatched Performance
+**Unmatched Performance** — Sub-100ms latency with direct WebSocket streaming and event-driven updates. No polling required.
 
-* **Sub-100ms latency** from price source to your application
-* **Direct streaming** eliminates blockchain bottlenecks
-* **Event-driven updates** deliver prices as they change
-* **No polling overhead** with persistent WebSocket connections
+**Zero Setup** — No data feed accounts or on-chain deployment needed. Just grab an API key and start streaming.
 
-### Zero Setup
+**Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when submitting to contracts.
 
-* **No data feed accounts** to create or manage
-* **No on-chain deployment** required
-* **Instant access** with just an API key
+**Seamless Integration** — TypeScript/JavaScript SDK, WebSocket API for any language, and EVM format conversion for on-chain use.
 
-### Cost Efficiency
-
-* **Subscription-based pricing** - pay for what you use
-* **No gas fees** for receiving updates
-* **Reduced on-chain costs** when submitting to contracts
-* **Enterprise pricing** available for high-volume users
-
-### Seamless Integration
-
-* **Simple SDK** with TypeScript/JavaScript support
-* **WebSocket API** for any programming language
-* **EVM format conversion** for on-chain use when needed
-* **Crossbar gateway** for frontend integration
-
-### Enterprise-Grade Reliability
-
-* **99.9% uptime SLA** for production applications
-* **Global infrastructure** with multiple regions
-* **Automatic failover** and redundancy
-* **Professional support** available
+**Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
 
 ## Primary Use Cases
 
@@ -205,28 +181,6 @@ surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
 * Early adopters will receive special pricing
 
 Contact for enterprise needs: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
-
-## How is Surge So Fast?
-
-Surge capitalizes on Switchboard's SAIL framework to verify a hardware proof of the oracle upon joining the network, proving the oracle signing prices is only running verified Switchboard code. This oracle then streams directly from price discovery sources without needing to report state to any middleware layer.
-
-### Traditional Pull Oracles vs Surge
-
-**Traditional Pull Oracles:**
-
-1. Gather price information
-2. Write to a state layer
-3. Come to consensus
-4. Then make data available
-
-**Surge:**
-
-1. Verifies a hardware proof on bootup to prove its legitimacy and unalterability
-2. Streams directly to users from price sources
-3. No middleware layer needed
-4. No consensus delays
-
-This architecture eliminates multiple steps that add latency in traditional oracle systems, enabling true sub-100ms performance.
 
 ## Technical Specifications
 
