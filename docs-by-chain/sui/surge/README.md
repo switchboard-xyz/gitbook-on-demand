@@ -6,19 +6,7 @@ Switchboard Surge is the industry's fastest oracle data delivery system, providi
 
 ## Why Surge Changes Everything
 
-### Traditional Oracle Flow (Slow)
-
-```
-Price Source → Oracle → Blockchain Write → Your App Reads
-Total Latency: 2-10 seconds
-```
-
-### Surge Flow (Lightning Fast)
-
-```
-Price Source → Oracle → Direct WebSocket → Your App
-Total Latency: <100ms
-```
+Traditional oracles require multiple steps—gathering prices, writing to a blockchain state layer, reaching consensus, and then making data available—resulting in 2-10 seconds of latency. Surge eliminates these bottlenecks by streaming price data directly from sources to your application via WebSocket, achieving sub-100ms latency without any blockchain writes for reads.
 
 ## Architecture
 
