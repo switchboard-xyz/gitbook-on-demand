@@ -30,7 +30,7 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 
 **Unmatched Performance** — Sub-100ms latency with direct WebSocket streaming and event-driven updates. No polling required.
 
-**Zero Setup** — No data feed accounts or on-chain deployment needed. Just grab an API key and start streaming.
+**Zero Setup** — No data feed accounts or on-chain deployment needed. Just use your keypair and connection to start streaming.
 
 **Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when submitting to contracts.
 
@@ -46,15 +46,23 @@ Surge is the perfect oracle solution for perpetual trading platforms:
 
 ```typescript
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  // Update mark price instantly
-  await updateMarkPrice(response.data.symbol, response.data.price);
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
 
-  // Check for liquidations with latest price
-  const liquidations = await checkLiquidations(response.data);
-  if (liquidations.length > 0) {
-    // Convert to EVM format and submit
-    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
-    await executeLiquidations(liquidations, evmEncoded);
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+
+    // Update mark price instantly
+    await updateMarkPrice(feed.symbol, price);
+
+    // Check for liquidations with latest price
+    const liquidations = await checkLiquidations(feed.symbol, price);
+    if (liquidations.length > 0) {
+      const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+      await executeLiquidations(liquidations, evmEncoded);
+    }
   }
 });
 ```
@@ -65,25 +73,28 @@ Build the next generation of AMMs that use real-time oracle prices:
 
 ```typescript
 class OracleAMM {
-  async handlePriceUpdate(response: sb.SurgeUpdate) {
-    // Update AMM pricing curve with oracle data
-    const pair = this.pairs.get(response.data.symbol);
-    pair.oraclePrice = response.data.price;
-    pair.lastUpdate = response.data.source_ts_ms;
+  private latestUpdate: sb.SurgeUpdate;
 
-    // No impermanent loss - prices come from oracles
-    await this.updatePricingCurve(pair);
+  async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    this.latestUpdate = response;
+    const prices = response.getFormattedPrices();
+
+    for (const feed of metrics.perFeedMetrics) {
+      const pair = this.pairs.get(feed.symbol);
+      pair.oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+      pair.lastUpdate = Date.now();
+    }
   }
 
   async executeSwap(tokenIn: string, tokenOut: string, amountIn: number) {
     const pair = `${tokenIn}/${tokenOut}`;
     const latestPrice = this.pairs.get(pair).oraclePrice;
-
-    // Calculate output using oracle price
     const amountOut = amountIn * latestPrice * (1 - this.swapFee);
 
-    // Convert to EVM format for on-chain execution
-    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(this.latestUpdate);
+    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(this.latestUpdate.getRawResponse());
     return await this.contract.swap(amountIn, amountOut, evmEncoded);
   }
 }
@@ -93,13 +104,20 @@ class OracleAMM {
 
 ```typescript
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  const dexPrice = await getDexPrice(response.data.symbol);
-  const oraclePrice = response.data.price;
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
 
-  const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
-  if (spread > MIN_PROFIT_THRESHOLD) {
-    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
-    await executeArbitrage(evmEncoded, calculateOptimalSize(spread));
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+      await executeArbitrage(evmEncoded, calculateOptimalSize(spread));
+    }
   }
 });
 ```
@@ -108,13 +126,21 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ```typescript
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  const positions = await getPositionsByCollateral(response.data.symbol);
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
 
-  for (const position of positions) {
-    const ltv = calculateLTV(position, response.data.price);
-    if (ltv > LIQUIDATION_THRESHOLD) {
-      const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
-      await liquidatePosition(position, evmEncoded);
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const positions = await getPositionsByCollateral(feed.symbol);
+
+    for (const position of positions) {
+      const ltv = calculateLTV(position, price);
+      if (ltv > LIQUIDATION_THRESHOLD) {
+        const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+        await liquidatePosition(position, evmEncoded);
+      }
     }
   }
 });
@@ -122,9 +148,9 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ## Getting Started
 
-### 1. Sign Up
+### 1. Subscribe
 
-Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions) to get your Surge API key.
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
 
 ### 2. Install the SDK
 
@@ -140,13 +166,12 @@ yarn add @switchboard-xyz/on-demand @switchboard-xyz/common
 import * as sb from "@switchboard-xyz/on-demand";
 import { EVMUtils } from "@switchboard-xyz/common";
 
-const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!,
-});
+// Initialize with keypair and connection (uses on-chain subscription)
+const surge = new sb.Surge({ connection, keypair });
 
-// Get all available Surge feeds
+// Discover available feeds
 const availableFeeds = await surge.getSurgeFeeds();
-console.log('Available feeds:', availableFeeds);
+console.log(`${availableFeeds.length} feeds available`);
 
 // Subscribe to specific feeds
 await surge.connectAndSubscribe([
@@ -154,11 +179,18 @@ await surge.connectAndSubscribe([
   { symbol: 'ETH/USD' },
 ]);
 
+// Handle price updates
 surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
-  console.log(`${response.data.symbol}: $${response.data.price}`);
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
 
-  // Convert to EVM format when needed
-  const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+
+    // Convert to EVM format when needed for on-chain use
+    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+  });
 });
 ```
 
@@ -182,7 +214,7 @@ For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:s
 Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
-const surge = new sb.Surge({ apiKey: YOUR_API_KEY });
+const surge = new sb.Surge({ connection, keypair });
 const feeds = await surge.getSurgeFeeds();
 
 feeds.forEach(feed => {
@@ -223,4 +255,3 @@ The SDK includes automatic reconnection logic with exponential backoff. Your app
 * [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
 * [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
 * [Join our Discord](https://discord.gg/switchboard)
-* [Request API access](https://tinyurl.com/yqubsr8e)
