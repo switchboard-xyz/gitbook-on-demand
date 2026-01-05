@@ -1,4 +1,4 @@
-# Surge Price Feeds
+# Surge
 
 ## The Future of Oracle Technology
 
@@ -6,7 +6,9 @@ Switchboard Surge is the industry's fastest oracle data delivery system, providi
 
 ## Surge's Key Innovation
 
-Traditional oracles require multiple steps—gathering prices, writing to a blockchain state layer, reaching consensus, and then making data available—resulting in 2-10 seconds of latency. Surge eliminates these bottlenecks using Switchboard's SAIL framework, which verifies a hardware proof when oracles join the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket—no middleware layer, no consensus delays—achieving sub-100ms latency.
+Traditional oracles require multiple steps—gathering prices, writing to blockchain state, reaching consensus, and then making data available—resulting in 2-10 seconds of latency.
+
+Switchboard oracles must pass a hardware proof when joining the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket, achieving sub-100ms latency.
 
 ## Architecture
 
@@ -134,13 +136,9 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ## Getting Started
 
-### 1. Request API Access
+### 1. Sign Up
 
-Get your Surge API key: [https://tinyurl.com/yqubsr8e](https://tinyurl.com/yqubsr8e)
-
-* **Approval time**: ~3 days
-* **Requirements**: None - open to all developers
-* **Waitlist**: Yes, processed on first-come basis
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions) to get your Surge API key.
 
 ### 2. Install the SDK
 
@@ -192,21 +190,13 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ## Pricing & Limits
 
-### Current Pricing (Launch Phase)
+| Plan | Price | Quote Interval | Max Feeds | Max Connections |
+|------|-------|----------------|-----------|-----------------|
+| **Plug** | Free | 10s | 2 | 1 |
+| **Pro** | ~$3,000/mo | 450ms | 100 | 10 |
+| **Enterprise** | ~$7,500/mo | 0ms | 300 | 15 |
 
-* **Surge API**: FREE during launch phase
-
-### Rate Limits
-
-* **Surge**: 5 concurrent WebSocket connections per API key
-* **Auto-reconnect**: Built-in automatic reconnection on disconnect
-
-### Future Pricing
-
-* Developer, Professional, and Enterprise tiers coming soon
-* Early adopters will receive special pricing
-
-Contact for enterprise needs: [sales@switchboard.xyz](mailto:sales@switchboard.xyz)
+Subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
 
 ## Technical Specifications
 
