@@ -11,17 +11,17 @@ Traditional oracles require multiple steps—gathering prices, writing to a bloc
 ## Architecture
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  Price Sources  │────▶│  Oracle Network │────▶│  Surge Gateway  │
-│  (CEX, DEX)     │     │   (SAIL Verified)│     │   (WebSocket)   │
-└─────────────────┘     └─────────────────┘     └────────┬────────┘
-                                                         │
-                                              ┌──────────▼──────────┐
-                                              │  Your Application   │
-                                              │ • Event Listeners   │
-                                              │ • Price Handlers    │
-                                              │ • EVM Converter     │
-                                              └─────────────────────┘
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  Price Sources   │────▶│  Oracle Network  │────▶│  Surge Gateway   │
+│   (CEX, DEX)     │     │ (SAIL Verified)  │     │   (WebSocket)    │
+└──────────────────┘     └──────────────────┘     └────────┬─────────┘
+                                                           │
+                                                ┌──────────▼──────────┐
+                                                │   Your Application  │
+                                                │  • Event Listeners  │
+                                                │  • Price Handlers   │
+                                                │  • EVM Converter    │
+                                                └─────────────────────┘
 ```
 
 ## Key Features
