@@ -291,7 +291,7 @@ Here's a complete client that fetches oracle data and submits it to your contrac
 
 ```typescript
 import * as ethers from "ethers";
-import { CrossbarClient } from "@switchboard-xyz/common";
+import { CrossbarClient, SWITCHBOARD_ABI } from "@switchboard-xyz/common";
 
 async function main() {
   // Setup
@@ -301,14 +301,7 @@ async function main() {
   const provider = new ethers.JsonRpcProvider("https://rpc.hyperliquid.xyz/evm");
   const signer = new ethers.Wallet(privateKey, provider);
 
-  // Contract ABI (minimal)
-  const abi = [
-    "function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable",
-    "function getPrice(bytes32 feedId) external view returns (int128 value, uint256 timestamp, uint64 slotNumber)",
-    "event PriceUpdated(bytes32 indexed feedId, int128 oldPrice, int128 newPrice, uint256 timestamp, uint64 slotNumber)",
-  ];
-
-  const contract = new ethers.Contract(contractAddress, abi, signer);
+  const contract = new ethers.Contract(contractAddress, SWITCHBOARD_ABI, signer);
   const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
 
   // The feed ID you want to update (e.g., BTC/USD)
@@ -331,7 +324,7 @@ async function main() {
   console.log("Confirmed in block:", receipt.blockNumber);
 
   // Step 4: Parse events
-  const iface = new ethers.Interface(abi);
+  const iface = new ethers.Interface(SWITCHBOARD_ABI);
   for (const log of receipt.logs) {
     try {
       const parsed = iface.parseLog({ topics: log.topics, data: log.data });

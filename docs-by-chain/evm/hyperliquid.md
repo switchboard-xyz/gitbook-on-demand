@@ -64,7 +64,7 @@ PRIVATE_KEY=$PRIVATE_KEY NETWORK=hyperliquid-mainnet bun run randomness
 
 ```typescript
 import { ethers } from 'ethers';
-import { CrossbarClient } from '@switchboard-xyz/common';
+import { CrossbarClient, SWITCHBOARD_ABI } from '@switchboard-xyz/common';
 
 const provider = new ethers.JsonRpcProvider('https://rpc.hyperliquid.xyz/evm');
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);

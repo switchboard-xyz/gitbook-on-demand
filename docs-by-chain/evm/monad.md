@@ -64,7 +64,7 @@ PRIVATE_KEY=$PRIVATE_KEY NETWORK=monad-testnet bun run randomness
 
 ```typescript
 import { ethers } from 'ethers';
-import { CrossbarClient } from '@switchboard-xyz/common';
+import { CrossbarClient, SWITCHBOARD_ABI } from '@switchboard-xyz/common';
 
 const provider = new ethers.JsonRpcProvider('https://testnet-rpc.monad.xyz');
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
