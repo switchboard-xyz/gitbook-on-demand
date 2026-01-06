@@ -36,19 +36,18 @@
 
 ## Custom Feeds
 
-* [Custom Feeds](custom-feeds/README.md)
-  * [Feed Builder UI](custom-feeds/feed-builder-ui.md)
-  * [Building Feeds with TypeScript](custom-feeds/custom-feeds-typescript.md)
-  * [Deploying Custom Feeds](custom-feeds/deploying-custom-feeds.md)
-  * [Advanced Feed Configuration](custom-feeds/advanced-feed-configuration/README.md)
-    * [Data Feed Variable Overrides](custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md)
-    * [Variables with CacheTask](custom-feeds/advanced-feed-configuration/variables-with-cachetask.md)
-    * [REST APIs with HttpTask](custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md)
-    * [How Feeds are Resolved](custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md)
-    * [Bounding Results](custom-feeds/advanced-feed-configuration/bounding-results.md)
-    * [Decentralized Exchanges](custom-feeds/advanced-feed-configuration/decentralized-exchanges.md)
-    * [Oracle Aggregator](custom-feeds/advanced-feed-configuration/oracle-aggregator.md)
-    * [FAQ](custom-feeds/advanced-feed-configuration/faq.md)
+* [Feed Builder UI](custom-feeds/feed-builder-ui.md)
+* [Building Feeds with TypeScript](custom-feeds/custom-feeds-typescript.md)
+* [Deploying Custom Feeds](custom-feeds/deploying-custom-feeds.md)
+* [Advanced Feed Configuration](custom-feeds/advanced-feed-configuration/README.md)
+  * [Data Feed Variable Overrides](custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md)
+  * [Variables with CacheTask](custom-feeds/advanced-feed-configuration/variables-with-cachetask.md)
+  * [REST APIs with HttpTask](custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md)
+  * [How Feeds are Resolved](custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md)
+  * [Bounding Results](custom-feeds/advanced-feed-configuration/bounding-results.md)
+  * [Decentralized Exchanges](custom-feeds/advanced-feed-configuration/decentralized-exchanges.md)
+  * [Oracle Aggregator](custom-feeds/advanced-feed-configuration/oracle-aggregator.md)
+  * [FAQ](custom-feeds/advanced-feed-configuration/faq.md)
 
 ## How it Works
 
