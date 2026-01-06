@@ -4,26 +4,24 @@
 
 Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for the next generation of DeFi applications, trading systems, and real-time dashboards.
 
-## Surge's Key Innovation
+## Key Innovation
 
 Traditional oracles require multiple steps—gathering prices, writing to blockchain state, reaching consensus, and then making data available—resulting in 2-10 seconds of latency.
 
 Switchboard oracles must pass a hardware proof when joining the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket, achieving sub-100ms latency.
-
-## Architecture
 
 ```
 ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
 │  Price Sources   │────▶│  Oracle Network  │────▶│  Surge Gateway   │
 │   (CEX, DEX)     │     │ (SAIL Verified)  │     │   (WebSocket)    │
 └──────────────────┘     └──────────────────┘     └────────┬─────────┘
-                                                           │
-                                                ┌──────────▼──────────┐
-                                                │   Your Application  │
-                                                │  • Event Listeners  │
-                                                │  • Price Handlers   │
-                                                │  • EVM Converter    │
-                                                └─────────────────────┘
+                                                          │
+                                               ┌──────────▼──────────┐
+                                               │   Your Application  │
+                                               │  • Event Listeners  │
+                                               │  • Price Handlers   │
+                                               │  • EVM Converter    │
+                                               └─────────────────────┘
 ```
 
 ## Key Features
@@ -37,6 +35,60 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 **Seamless Integration** — TypeScript/JavaScript SDK, WebSocket API for any language, and EVM format conversion for on-chain use.
 
 **Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
+
+## Getting Started
+
+### 1. Subscribe
+
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+
+### 2. Install the SDK
+
+```bash
+npm install @switchboard-xyz/on-demand @switchboard-xyz/common
+# or
+yarn add @switchboard-xyz/on-demand @switchboard-xyz/common
+```
+
+### 3. Connect and Stream
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { EVMUtils } from "@switchboard-xyz/common";
+
+// Initialize with keypair and connection (uses on-chain subscription)
+const surge = new sb.Surge({ connection, keypair });
+
+// Discover available feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log(`${availableFeeds.length} feeds available`);
+
+// Subscribe to specific feeds
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+]);
+
+// Handle price updates
+surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+
+    // Convert to EVM format when needed for on-chain use
+    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+  });
+});
+```
+
+## Pricing
+
+Surge costs $500/epoch (~$7,500/mo), paid in SWTCH tokens. This includes real-time streaming with 0ms quote intervals, up to 300 feeds, and 15 concurrent connections.
+
+For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
 
 ## Primary Use Cases
 
@@ -145,60 +197,6 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
   }
 });
 ```
-
-## Getting Started
-
-### 1. Subscribe
-
-Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
-
-### 2. Install the SDK
-
-```bash
-npm install @switchboard-xyz/on-demand @switchboard-xyz/common
-# or
-yarn add @switchboard-xyz/on-demand @switchboard-xyz/common
-```
-
-### 3. Connect and Stream
-
-```typescript
-import * as sb from "@switchboard-xyz/on-demand";
-import { EVMUtils } from "@switchboard-xyz/common";
-
-// Initialize with keypair and connection (uses on-chain subscription)
-const surge = new sb.Surge({ connection, keypair });
-
-// Discover available feeds
-const availableFeeds = await surge.getSurgeFeeds();
-console.log(`${availableFeeds.length} feeds available`);
-
-// Subscribe to specific feeds
-await surge.connectAndSubscribe([
-  { symbol: 'BTC/USD' },
-  { symbol: 'ETH/USD' },
-]);
-
-// Handle price updates
-surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
-  const metrics = response.getLatencyMetrics();
-  if (metrics.isHeartbeat) return;
-
-  const prices = response.getFormattedPrices();
-  metrics.perFeedMetrics.forEach((feed) => {
-    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
-
-    // Convert to EVM format when needed for on-chain use
-    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
-  });
-});
-```
-
-## Pricing
-
-Surge costs $500/epoch (~$7,500/mo), paid in SWTCH tokens. This includes real-time streaming with 0ms quote intervals, up to 300 feeds, and 15 concurrent connections.
-
-For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
 
 ## Technical Specifications
 

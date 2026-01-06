@@ -19,18 +19,25 @@ cd sb-on-demand-examples/evm
 bun install
 ```
 
-### 2. Setup Environment
+### 2. Configure Your Wallet
+
+> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
+
+Import your private key into Foundry's encrypted keystore:
 
 ```bash
-# Testnet
-export RPC_URL=https://testnet-rpc.monad.xyz
-export PRIVATE_KEY=0xyour_private_key_here
-export NETWORK=monad-testnet
+cast wallet import mykey --interactive
+# Enter your private key when prompted (hidden from terminal)
+# Set a password to encrypt the keystore
+```
 
-# Mainnet
-export RPC_URL=https://rpc.monad.xyz
-export PRIVATE_KEY=0xyour_private_key_here
-export NETWORK=monad-mainnet
+Create a `.env` file for scripts (add to `.gitignore`):
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+RPC_URL=https://testnet-rpc.monad.xyz
+NETWORK=monad-testnet
+CONTRACT_ADDRESS=0xyour_contract_address
 ```
 
 ### 3. Deploy Contract
@@ -39,25 +46,24 @@ export NETWORK=monad-mainnet
 # Testnet
 forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://testnet-rpc.monad.xyz \
-  --private-key $PRIVATE_KEY \
+  --account mykey \
   --broadcast -vvvv
 
 # Mainnet
 forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY \
-  --private-key $PRIVATE_KEY \
+  --account mykey \
   --broadcast -vvvv
 ```
 
 ### 4. Run Examples
 
 ```bash
-# Price Feeds
-RPC_URL=$RPC_URL PRIVATE_KEY=$PRIVATE_KEY CONTRACT_ADDRESS=$CONTRACT_ADDRESS \
-  NETWORK=monad-testnet bun scripts/run.ts
+# Price Feeds (reads from .env)
+bun scripts/run.ts
 
-# Randomness
-PRIVATE_KEY=$PRIVATE_KEY NETWORK=monad-testnet bun run randomness
+# Randomness (reads from .env)
+bun run randomness
 ```
 
 ## Integration Example

@@ -449,11 +449,15 @@ bun install
 forge install
 ```
 
-### 3. Set Environment Variables
+### 3. Configure Environment
+
+> **Security:** Never use `export PRIVATE_KEY=...`—it appears in shell history. Use a `.env` file instead.
+
+Create a `.env` file (add to `.gitignore`):
 
 ```bash
-export PRIVATE_KEY=0x...
-export EXAMPLE_ADDRESS=0x...  # Your deployed contract
+PRIVATE_KEY=0x...
+EXAMPLE_ADDRESS=0x...  # Your deployed contract
 ```
 
 ### 4. Run the Example

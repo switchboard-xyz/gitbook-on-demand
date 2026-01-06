@@ -423,22 +423,33 @@ cd sb-on-demand-examples/evm/randomness/pancake-stacker
 bun install  # or npm install
 ```
 
-### 2. Deploy the Contract
+### 2. Configure Your Wallet
+
+> **Security:** Never use `export PRIVATE_KEY=...`—it appears in shell history. Use Foundry's encrypted keystore instead.
 
 ```bash
-# Set your private key
-export PRIVATE_KEY=your_private_key_here
-
-# Deploy (adjust for your target chain)
-forge script script/PancakeStacker.s.sol --rpc-url https://rpc.monad.xyz --broadcast
+cast wallet import mykey --interactive
+# Enter your private key when prompted (hidden from terminal)
 ```
 
-### 3. Run the Script
+### 3. Deploy the Contract
 
 ```bash
-export PANCAKE_STACKER_CONTRACT_ADDRESS=0x_your_deployed_address
-export RPC_URL=https://rpc.monad.xyz
+# Deploy (adjust for your target chain)
+forge script script/PancakeStacker.s.sol --rpc-url https://rpc.monad.xyz --account mykey --broadcast
+```
 
+### 4. Run the Script
+
+Create a `.env` file (add to `.gitignore`):
+
+```bash
+PRIVATE_KEY=0x...
+PANCAKE_STACKER_CONTRACT_ADDRESS=0x_your_deployed_address
+RPC_URL=https://rpc.monad.xyz
+```
+
+```bash
 bun scripts/stack-pancake.ts
 ```
 

@@ -2,7 +2,7 @@
 
 ### Learn to use Switchboard Data Feeds:
 
-* Learn how to use a Switchboard price feed in your on-chain application on [Solana](docs-by-chain/solana-svm/price-feeds/basic-price-feed.md), [EVM](docs-by-chain/evm/price-feeds/price-feeds-tutorial.md), or other chains.
+* Learn how to use a Switchboard price feed in your on-chain application on [Solana](docs-by-chain/solana-svm/price-feeds/basic-price-feed.md), [EVM](docs-by-chain/evm/price-feeds/price-feeds-tutorial.md), or many other chains.
 
 * Explore **Surge**, the industry's fastest oracle data stream, on [Solana](docs-by-chain/solana-svm/surge/README.md), [EVM](docs-by-chain/evm/surge/README.md), or [Sui](docs-by-chain/sui/surge/README.md).
 

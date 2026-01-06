@@ -19,18 +19,25 @@ cd sb-on-demand-examples/evm
 bun install
 ```
 
-### 2. Setup Environment
+### 2. Configure Your Wallet
+
+> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
+
+Import your private key into Foundry's encrypted keystore:
 
 ```bash
-# Mainnet
-export RPC_URL=https://rpc.hyperliquid.xyz/evm
-export PRIVATE_KEY=0xyour_private_key_here
-export NETWORK=hyperliquid-mainnet
+cast wallet import mykey --interactive
+# Enter your private key when prompted (hidden from terminal)
+# Set a password to encrypt the keystore
+```
 
-# Testnet
-export RPC_URL=https://rpc.hyperliquid-testnet.xyz/evm
-export PRIVATE_KEY=0xyour_private_key_here
-export NETWORK=hyperliquid-testnet
+Create a `.env` file for scripts (add to `.gitignore`):
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+RPC_URL=https://rpc.hyperliquid.xyz/evm
+NETWORK=hyperliquid-mainnet
+CONTRACT_ADDRESS=0xyour_contract_address
 ```
 
 ### 3. Deploy Contract
@@ -39,25 +46,24 @@ export NETWORK=hyperliquid-testnet
 # Mainnet
 forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://rpc.hyperliquid.xyz/evm \
-  --private-key $PRIVATE_KEY \
+  --account mykey \
   --broadcast -vvvv
 
 # Testnet
 forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://rpc.hyperliquid-testnet.xyz/evm \
-  --private-key $PRIVATE_KEY \
+  --account mykey \
   --broadcast -vvvv
 ```
 
 ### 4. Run Examples
 
 ```bash
-# Price Feeds
-RPC_URL=$RPC_URL PRIVATE_KEY=$PRIVATE_KEY CONTRACT_ADDRESS=$CONTRACT_ADDRESS \
-  NETWORK=hyperliquid-mainnet bun scripts/run.ts
+# Price Feeds (reads from .env)
+bun scripts/run.ts
 
-# Randomness
-PRIVATE_KEY=$PRIVATE_KEY NETWORK=hyperliquid-mainnet bun run randomness
+# Randomness (reads from .env)
+bun run randomness
 ```
 
 ## Integration Example
