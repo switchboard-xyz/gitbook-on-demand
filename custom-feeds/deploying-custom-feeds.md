@@ -24,9 +24,9 @@ Before “deployment”, you should have:
   - decimal conventions (e.g., 1e8 vs 1e18)
   - which sources/jobs you trust and why
 
-If you haven’t designed and simulated your jobs yet, start here:
-- `custom-feeds-typescript.md` (code-first)
-- `feed-builder-ui.md` (UI-first)
+If you haven't designed and simulated your jobs yet, start here:
+- [Building Feeds with TypeScript](custom-feeds-typescript.md) (code-first)
+- [Feed Builder UI](feed-builder-ui.md) (UI-first)
 
 ---
 

@@ -25,8 +25,6 @@ Open the builder here:
 
 - https://explorer.switchboardlabs.xyz/feed-builder
 
-(You may also see the same interface hosted under other Switchboard explorer domains depending on the network/product you’re using.)
-
 ---
 
 ## Core concepts (quick mental model)
@@ -185,6 +183,6 @@ If you need authenticated APIs:
 
 ## Next steps
 
-- **Build with code**: see `custom-feeds-typescript.md`
-- **Deploy on-chain**: see `deploying-custom-feeds.md`
-- **Task reference**: https://protos.docs.switchboard.xyz/
+- [Build with code](custom-feeds-typescript.md)
+- [Deploy on-chain](deploying-custom-feeds.md)
+- [Task reference](https://protos.docs.switchboard.xyz/)

@@ -227,7 +227,5 @@ If you need to retrieve secrets from a dedicated secrets server at runtime, incl
 
 ## Where to go next
 
-- Ready to put this feed live?
-  - See **Deploying Custom Feeds** (`deploying-custom-feeds.md`)
-- Prefer the visual editor?
-  - See **Feed Builder UI** (`feed-builder-ui.md`)
+- [Deploy on-chain](deploying-custom-feeds.md)
+- [Use the visual editor](feed-builder-ui.md)
