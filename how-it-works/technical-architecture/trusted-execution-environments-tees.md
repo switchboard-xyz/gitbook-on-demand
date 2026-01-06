@@ -1,6 +1,6 @@
 # Trusted Execution Environments (TEEs)
 
-Switchboard enhances its security model with Trusted Execution Environments. Instead of relying solely on the assumption that the majority of oracles are honest ("honest-majority"), we use TEEs like AMD Secure Encrypted Virtualisation (AMD SEV) and Intel Software Guard Extensions (Intel SGX) for added protection.
+Switchboard enhances its security model with Trusted Execution Environments. Instead of relying solely on the assumption that the majority of oracles are honest ("honest-majority"), we use TEEs for added protection. Switchboard currently uses AMD SEV-SNP (Secure Encrypted Virtualization - Secure Nested Paging) for hardware-backed attestation.
 
 Think of TEEs as secure enclaves where code can run in isolation, protected from the rest of the system. This means:
 

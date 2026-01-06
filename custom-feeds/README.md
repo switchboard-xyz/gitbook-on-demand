@@ -1,34 +1,23 @@
----
-description: FAQ on Feed Resolution and Common Feed Examples
----
+# Custom Feeds
 
-# Advanced Feed Configuration
+Create custom data feeds to bring any off-chain data on-chain. Switchboard supports fetching data from REST APIs, DeFi protocols, other oracles, and more.
 
-Switchboard Feeds enable seamless access to data from any API, oracle, major DeFi protocol, and more. Our mission is to simplify the process of retrieving diverse data types—such as price data and event data—in a secure and user-friendly manner.
+## Getting Started
 
-Switchboard data feeds are composed of [Oracle Jobs](https://protos.docs.switchboard.xyz/protos/OracleJob), which define where to source data. Feeds specify a list of different [Task Types](https://protos.docs.switchboard.xyz/protos/Task), which are used as instructions to fetch data.
+Choose your preferred method for creating custom feeds:
 
-This section will explore different task types and give an in-depth explanation on how to build oracle jobs.
+### [Feed Builder UI](feed-builder-ui.md)
 
-## Task Runner
+Use the visual interface to create feeds without writing code. Build, simulate, and publish feed definitions directly from the web app.
 
-All Oracle Jobs are executed by the task-runner, an engine used by oracles to fetch data in a secure and efficient manner. Oracle Jobs must define an array of tasks executed sequentially. Any task producing a value (String, JSON, or Decimal) will be assigned to the job's context for that particular run, and subsequent tasks will manipulate that current task.
+### [Building Feeds with TypeScript](custom-feeds-typescript.md)
 
-Here's a brief overview of what a job might look like (without including full tasks):
+Create and manage feeds programmatically for more complex use cases, CI/CD integration, or dynamic feed generation.
 
-```typescript
-// Oracle Job
-[
-    httpTask,
-    jsonParseTask,
-    multiplyTask, 
-]
-```
+### [Deploying Custom Feeds](deploying-custom-feeds.md)
 
-So here we'd:
+Learn how deployment works across Solana/SVM and EVM chains, and what "deploying a feed" means for each.
 
-1. Fetch a result from some API and set that blob to context
-2. Parse context and replace with value at jsonPath specified
-3. Multiply value in context by some number
+### [Advanced Feed Configuration](advanced-feed-configuration/README.md)
 
-See the next page for more on the task runner.
+Deep dive into oracle job structure, task types, and advanced configuration options for power users.
