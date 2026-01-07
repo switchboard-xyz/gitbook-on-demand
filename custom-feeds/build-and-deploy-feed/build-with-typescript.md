@@ -15,7 +15,7 @@ You’ll learn how to:
 - iterate safely and build production-grade feed definitions
 
 > This guide focuses on designing + simulating feed definitions.  
-> Deployment differs by chain — see `deploying-custom-feeds.md`.
+> Deployment differs by chain — see [Deploy Feed](deploy-feed.md).
 
 ---
 
