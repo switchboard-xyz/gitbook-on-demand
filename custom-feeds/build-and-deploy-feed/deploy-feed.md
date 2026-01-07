@@ -3,8 +3,6 @@ title: Deploy Feed
 description: How deployment works across Solana/SVM and EVM, and what "deploying a feed" actually means per chain.
 ---
 
-# Deploy Feed
-
 “Deploying” a Switchboard feed means different things depending on the chain:
 
 - **Solana/SVM**: you create a real on-chain **PullFeed account** (an address) that references your feed definition and can be updated by oracle signatures.
