@@ -682,4 +682,4 @@ let card_draw = random_bytes[2] % 52;       // 0-51
 
 - **Price Feeds**: Learn oracle integration in [Basic Price Feed](price-feeds/basic-price-feed.md)
 - **Prediction Markets**: See feed verification in [Prediction Market](prediction-market.md)
-- **Custom Feeds**: Create your own feeds in [Custom Feeds](../../../custom-feeds/README.md)
+- **Custom Feeds**: Create your own feeds in [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md)

@@ -2,7 +2,7 @@
 
 Learn how to build and use programs that call Switchboard data feeds on EVM chains like [Ethereum](https://ethereum.org), [Monad](https://monad.xyz), and [Hyperliquid](https://hyperliquid.xyz).
 
-If you need to create a custom data feed, check out the [custom feeds section](../../custom-feeds/README.md).
+If you need to create a custom data feed, check out the [custom feeds section](../../custom-feeds/build-and-deploy-feed/README.md).
 
 
 ## Deployments

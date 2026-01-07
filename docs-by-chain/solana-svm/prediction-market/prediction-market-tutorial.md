@@ -555,5 +555,5 @@ for (i, feed) in feeds.iter().enumerate() {
 ## Next Steps
 
 - **Price Feeds**: Learn basic oracle integration in [Basic Price Feed](price-feeds/basic-price-feed.md)
-- **Custom Feeds**: Create your own feed definitions in [Custom Feeds](../../../custom-feeds/README.md)
+- **Custom Feeds**: Create your own feed definitions in [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md)
 - **Randomness**: Explore verifiable randomness in [Randomness](randomness.md)

@@ -702,4 +702,4 @@ npm run build:testnet
 
 - **Multiple Feeds**: Pass multiple feed hashes to `fetchUpdateQuote()` to update several prices in one transaction
 - **Real-time Streaming**: See the [Surge Price Stream](surge-price-stream.md) tutorial for WebSocket-based streaming
-- **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/README.md) section
+- **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) section

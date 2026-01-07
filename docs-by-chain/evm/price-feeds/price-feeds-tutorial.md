@@ -604,5 +604,5 @@ Popular feeds include:
 ## Next Steps
 
 - Explore [randomness integration](../randomness.md) for gaming and NFTs
-- Learn about [custom feeds](../../../custom-feeds/README.md) for specialized data
+- Learn about [custom feeds](../../../custom-feeds/build-and-deploy-feed/README.md) for specialized data
 - Join the [Switchboard Discord](https://discord.gg/switchboardxyz) for support

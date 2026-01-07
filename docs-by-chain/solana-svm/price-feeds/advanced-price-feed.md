@@ -483,6 +483,6 @@ This function bypasses cryptographic verification. Only use it when:
 
 ## Next Steps
 
-- **Custom Feeds**: Learn to create custom data feeds in [Custom Feeds](../../../custom-feeds/README.md)
+- **Custom Feeds**: Learn to create custom data feeds in [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md)
 - **Multiple Feeds**: Batch multiple price feeds in a single transaction
 - **Randomness**: Explore verifiable randomness in the [Randomness Tutorial](../randomness/README.md)
