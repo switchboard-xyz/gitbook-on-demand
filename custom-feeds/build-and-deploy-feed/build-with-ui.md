@@ -1,9 +1,9 @@
 ---
-title: Switchboard Custom Feed Builder UI
+title: Build with UI
 description: Build, simulate, and publish a custom Switchboard feed definition using the Feed Builder web app.
 ---
 
-# Switchboard Custom Feed Builder UI
+# Build with UI
 
 Switchboard feeds are built from **Oracle Jobs** (your data sources) and **Tasks** (the steps that fetch + transform data). The Feed Builder UI lets you assemble these visually, simulate them, and (when applicable) publish or deploy them.
 
@@ -183,6 +183,6 @@ If you need authenticated APIs:
 
 ## Next steps
 
-- [Build with code](custom-feeds-typescript.md)
-- [Deploy on-chain](deploying-custom-feeds.md)
+- [Build with code](build-with-typescript.md)
+- [Deploy on-chain](deploy-feed.md)
 - [Task reference](https://protos.docs.switchboard.xyz/)

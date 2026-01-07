@@ -1,9 +1,9 @@
 ---
-title: Building Custom Switchboard Feeds in TypeScript
+title: Build with TypeScript
 description: Design, simulate, and publish Switchboard feed definitions using TypeScript (Solana and EVM compatible patterns).
 ---
 
-# Building Custom Switchboard Feeds in TypeScript
+# Build with TypeScript
 
 This guide is for developers who prefer code-first workflows.
 
@@ -227,5 +227,5 @@ If you need to retrieve secrets from a dedicated secrets server at runtime, incl
 
 ## Where to go next
 
-- [Deploy on-chain](deploying-custom-feeds.md)
-- [Use the visual editor](feed-builder-ui.md)
+- [Deploy on-chain](deploy-feed.md)
+- [Use the visual editor](build-with-ui.md)

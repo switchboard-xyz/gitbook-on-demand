@@ -2,22 +2,14 @@
 
 Create custom data feeds to bring any off-chain data on-chain. Switchboard supports fetching data from REST APIs, DeFi protocols, other oracles, and more.
 
-## Getting Started
+## [Build and Deploy Feed](build-and-deploy-feed/README.md)
 
-Choose your preferred method for creating custom feeds:
+Learn how to create and deploy custom Switchboard data feeds:
 
-### [Feed Builder UI](feed-builder-ui.md)
+- [Build with UI](build-and-deploy-feed/build-with-ui.md) - Visual interface for creating feeds without code
+- [Build with TypeScript](build-and-deploy-feed/build-with-typescript.md) - Programmatic feed creation for complex use cases
+- [Deploy Feed](build-and-deploy-feed/deploy-feed.md) - Deploy your feeds on Solana/SVM and EVM chains
 
-Use the visual interface to create feeds without writing code. Build, simulate, and publish feed definitions directly from the web app.
-
-### [Building Feeds with TypeScript](custom-feeds-typescript.md)
-
-Create and manage feeds programmatically for more complex use cases, CI/CD integration, or dynamic feed generation.
-
-### [Deploying Custom Feeds](deploying-custom-feeds.md)
-
-Learn how deployment works across Solana/SVM and EVM chains, and what "deploying a feed" means for each.
-
-### [Advanced Feed Configuration](advanced-feed-configuration/README.md)
+## [Advanced Feed Configuration](advanced-feed-configuration/README.md)
 
 Deep dive into oracle job structure, task types, and advanced configuration options for power users.

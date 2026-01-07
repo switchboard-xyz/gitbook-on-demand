@@ -36,9 +36,10 @@
 
 ## Custom Feeds
 
-* [Feed Builder UI](custom-feeds/feed-builder-ui.md)
-* [Building Feeds with TypeScript](custom-feeds/custom-feeds-typescript.md)
-* [Deploying Custom Feeds](custom-feeds/deploying-custom-feeds.md)
+* [Build and Deploy Feed](custom-feeds/build-and-deploy-feed/README.md)
+  * [Build with UI](custom-feeds/build-and-deploy-feed/build-with-ui.md)
+  * [Build with TypeScript](custom-feeds/build-and-deploy-feed/build-with-typescript.md)
+  * [Deploy Feed](custom-feeds/build-and-deploy-feed/deploy-feed.md)
 * [Advanced Feed Configuration](custom-feeds/advanced-feed-configuration/README.md)
   * [Data Feed Variable Overrides](custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md)
   * [Variables with CacheTask](custom-feeds/advanced-feed-configuration/variables-with-cachetask.md)

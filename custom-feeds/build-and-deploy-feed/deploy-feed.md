@@ -1,9 +1,9 @@
 ---
-title: Deploying Custom Switchboard Feeds On-Chain
-description: How deployment works across Solana/SVM and EVM, and what “deploying a feed” actually means per chain.
+title: Deploy Feed
+description: How deployment works across Solana/SVM and EVM, and what "deploying a feed" actually means per chain.
 ---
 
-# Deploying Custom Switchboard Feeds On-Chain
+# Deploy Feed
 
 “Deploying” a Switchboard feed means different things depending on the chain:
 
@@ -25,8 +25,8 @@ Before “deployment”, you should have:
   - which sources/jobs you trust and why
 
 If you haven't designed and simulated your jobs yet, start here:
-- [Building Feeds with TypeScript](custom-feeds-typescript.md) (code-first)
-- [Feed Builder UI](feed-builder-ui.md) (UI-first)
+- [Build with TypeScript](build-with-typescript.md) (code-first)
+- [Build with UI](build-with-ui.md) (UI-first)
 
 ---
 
