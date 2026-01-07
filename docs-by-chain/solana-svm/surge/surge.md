@@ -203,5 +203,5 @@ surge.on('close', () => {
 ## Next Steps
 
 - Explore [code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
-- Learn about [Crossbar gateway](../../../tooling/crossbar/)
+- Learn about [Crossbar gateway](../../../tooling/crossbar/README.md)
 - Join our [Discord](https://discord.gg/switchboard) for support

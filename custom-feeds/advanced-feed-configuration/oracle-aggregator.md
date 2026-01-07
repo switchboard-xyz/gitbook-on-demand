@@ -35,7 +35,7 @@ The Chainlink Oracle Network provides [145](https://docs.chain.link/data-feeds/p
 
 ## Switchboard V2
 
-[Switchboard V2 (Solana Push)](../../../switchboard/switchboard-v2/) feeds can be referenced within on-demand feeds. It's simple, all you need is an Aggregator public key, which you can find on the [V2 Explorer App](https://app.switchboard.xyz/solana/mainnet).
+Switchboard V2 (Solana Push) feeds can be referenced within on-demand feeds. It's simple, all you need is an Aggregator public key, which you can find on the [V2 Explorer App](https://app.switchboard.xyz/solana/mainnet).
 
 Here's an example of a Switchboard Oracle Task for the price of [BTC/USD](https://app.switchboard.xyz/solana/mainnet/feed/8SXvChNYFhRq4EZuZvnhjrB3jJRQCv4k3P4W6hesH3Ee):
 

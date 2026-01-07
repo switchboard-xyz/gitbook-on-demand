@@ -382,6 +382,6 @@ Parsing EVM Structure:
 
 ## Next Steps
 
-- Learn about [on-demand price feeds](../tutorials/price-feeds.md) for pull-based updates
-- Explore [randomness integration](../tutorials/randomness.md) for gaming and NFTs
-- Check out the [Sui Surge tutorial](../../sui/tutorials/surge-price-stream.md) for comparison
+- Learn about [on-demand price feeds](../price-feeds/price-feeds-tutorial.md) for pull-based updates
+- Explore [randomness integration](../randomness/randomness-tutorial.md) for gaming and NFTs
+- Check out the [Sui Surge tutorial](../../sui/surge/surge-tutorial.md) for comparison

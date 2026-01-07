@@ -4,7 +4,7 @@ description: What is a TEE and why do Switchboard Oracles need it?
 
 # Hardware Requirements and AMD SEV SNP
 
-Switchboard Oracles code uses a security feature called a [TEE (Trusted Execution Environment)](../../../understanding-switchboard/introduction/switchboards-architecture-tech-stack-and-security/trusted-execution-environments-tees.md) to ensure that the code and data in transit is safe and secure, even from the Oracle Operators themselves.
+Switchboard Oracles code uses a security feature called a [TEE (Trusted Execution Environment)](../../../technical-architecture/trusted-execution-environments-tees.md) to ensure that the code and data in transit is safe and secure, even from the Oracle Operators themselves.
 
 To achieve this solution, a server that supports TEE via [AMD SEV SNP](https://en.wikipedia.org/wiki/Secure_Encrypted_Virtualization).
 

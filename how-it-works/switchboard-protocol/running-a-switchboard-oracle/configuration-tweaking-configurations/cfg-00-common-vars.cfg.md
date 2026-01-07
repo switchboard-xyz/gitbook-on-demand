@@ -27,7 +27,7 @@ CLUSTER_DOMAIN="${IPv4}.xip.switchboard-oracles.xyz"
 ```
 
 This is a DNS record that points to the IP specified above.\
-If you don't have a DNS record, fear not, as explained in section [broken-reference](broken-reference/ "mention") you can just leave it as it is written now and it will automatically resolve to your DNS.
+If you don't have a DNS record, you can leave it as written and it will automatically resolve to your IP address.
 
 ```bash
 # this URL should always be a MAINNET non rate-limited RPC (even when using devnet)

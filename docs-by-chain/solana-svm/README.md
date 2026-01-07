@@ -2,7 +2,7 @@
 
 Learn how to build and use programs that call existing Switchboard data feeds on Solana and other SVM platforms.
 
-If you need to create a custom data feed, check out the [custom feeds section](/custom-feeds).
+If you need to create a custom data feed, check out the [custom feeds section](../../custom-feeds/).
 
 ## Accounts
 
