@@ -223,13 +223,3 @@ If you’re targeting a non-Solana chain, treat “deployment” as:
 1. Create/publish a feed definition and get its feed ID/address.
 2. Use the chain’s SDK to fetch and verify oracle results in your transaction flow.
 
----
-
-## Checklist before going to production
-
-- [ ] You can simulate every job and get stable numeric outputs.
-- [ ] You have at least 3 independent data sources (for price feeds).
-- [ ] You’ve standardized decimals and units across jobs.
-- [ ] Your variance/quorum/staleness settings match your risk tolerance.
-- [ ] You have a monitoring plan (alerts on stalled updates, outliers, API errors).
-- [ ] Your authority is secured (multisig/DAO/governance, not a hot wallet).
