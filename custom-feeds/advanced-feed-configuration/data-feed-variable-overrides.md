@@ -12,21 +12,21 @@ Variable overrides provide a powerful mechanism for dynamically configuring orac
 
 Variable overrides allow you to inject values into oracle job definitions at runtime using the `${VARIABLE_NAME}` syntax.
 
-## ⚠️ Security Warning: Variables Are Not Verifiable
+## Security Warning: Variables Are Not Verifiable
 
-**IMPORTANT**: Variable overrides are **not part of the cryptographic verification process**. The oracle signatures only verify the job structure, not the variable values injected at runtime. This means:
+Variable overrides are **not part of the cryptographic verification process**. The oracle signatures only verify the job structure, not the variable values injected at runtime. This means:
 
-* **Variables can be manipulated** by whoever controls the execution environment
-* **Feed consumers cannot verify** what variable values were used
-* **Use variables ONLY for authentication** - API keys and authentication tokens
-* **Never use variables for anything else** - URLs, paths, parameters, calculations, or data selection logic
+* Variables can be manipulated by whoever controls the execution environment
+* Feed consumers cannot verify what variable values were used
+* Use variables only for authentication (API keys and tokens)
+* Never use variables for URLs, paths, parameters, calculations, or data selection logic
 
-### Safe Uses ✅
+### Safe Uses
 
 * API keys: `${API_KEY}`
 * Authentication tokens: `${AUTH_TOKEN}`
 
-### Dangerous Uses ❌
+### Unsafe Uses
 
 * Base URLs: `${BASE_URL}` (changes data source)
 * API versions: `${API_VERSION}` (could return different data formats)
@@ -49,7 +49,7 @@ Variables in oracle jobs use the template syntax `${VARIABLE_NAME}` and are repl
 // In your oracle job definition
 {
   httpTask: {
-    url: "https://api.example.com/v1/btc-price?key=${API_KEY}",  // ✅ Hardcoded symbol
+    url: "https://api.example.com/v1/btc-price?key=${API_KEY}",  // Hardcoded symbol
     method: "GET"
   }
 }
@@ -75,7 +75,7 @@ const res = await queue.fetchSignaturesConsensus({
   numSignatures: 1,
   useEd25519: true,
   variableOverrides: {
-    "API_KEY": process.env.API_KEY!  // ✅ Only authentication
+    "API_KEY": process.env.API_KEY!  // Only authentication
   },
 });
 ```
@@ -92,7 +92,7 @@ function getPolygonStockJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",  // ✅ Hardcoded symbol
+          url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",  // Hardcoded symbol
           method: "GET",
         }
       },
@@ -110,7 +110,7 @@ function getPolygonStockJob(): OracleJob {
 const res = await queue.fetchSignaturesConsensus({
   // ... other config
   variableOverrides: {
-    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!  // ✅ Only API key
+    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!  // Only API key
   },
 });
 ```
@@ -125,14 +125,14 @@ function getSecurePriceJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          // ✅ Everything hardcoded except API key
+          // Everything hardcoded except API key
           url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&apikey=${API_KEY}",
           method: "GET"
         }
       },
       {
         jsonParseTask: {
-          // ✅ Hardcoded path - verifiable data extraction
+          // Hardcoded path - verifiable data extraction
           path: "$.data.rates.USD",
         }
       }
@@ -143,7 +143,7 @@ function getSecurePriceJob(): OracleJob {
 
 // Usage - ONLY API key as variable
 variableOverrides: {
-  "API_KEY": process.env.COINBASE_API_KEY!  // ✅ Only credential management
+  "API_KEY": process.env.COINBASE_API_KEY!  // Only credential management
 }
 ```
 
@@ -157,24 +157,24 @@ function getMultiAuthJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          // ✅ Hardcoded endpoint and path - verifiable
+          // Hardcoded endpoint and path - verifiable
           url: "https://api.example.com/v1/btc-price",
           method: "GET",
           headers: [
             {
               key: "Authorization",
-              value: "Bearer ${AUTH_TOKEN}"  // ✅ Auth only
+              value: "Bearer ${AUTH_TOKEN}"  // Auth only
             },
             {
               key: "X-API-Key", 
-              value: "${API_KEY}"           // ✅ Auth only
+              value: "${API_KEY}"           // Auth only
             }
           ]
         }
       },
       {
         jsonParseTask: {
-          // ✅ Hardcoded path - verifiable data extraction
+          // Hardcoded path - verifiable data extraction
           path: "$.price",
         }
       }
@@ -216,27 +216,27 @@ variableOverrides: {
 
 ## Variable Override Patterns
 
-> **⚠️ CRITICAL**: Only use variables for API keys and authentication tokens. Everything else should be hardcoded to ensure feed verifiability.
+> Only use variables for API keys and authentication tokens. Everything else should be hardcoded to ensure feed verifiability.
 
 ### HTTP Headers with Authentication (Recommended Pattern)
 
 ```typescript
 {
   httpTask: {
-    url: "https://api.specificprovider.com/v1/btc-usd",  // ✅ Hardcoded endpoint
+    url: "https://api.specificprovider.com/v1/btc-usd",  // Hardcoded endpoint
     method: "GET",
     headers: [
       {
         key: "Authorization",
-        value: "Bearer ${ACCESS_TOKEN}"  // ✅ Only auth token variable
+        value: "Bearer ${ACCESS_TOKEN}"  // Only auth token variable
       },
       {
         key: "X-API-Key",
-        value: "${API_KEY}"             // ✅ Only API key variable
+        value: "${API_KEY}"             // Only API key variable
       },
       {
         key: "User-Agent",
-        value: "Switchboard-Oracle/1.0"  // ✅ Hardcoded
+        value: "Switchboard-Oracle/1.0"  // Hardcoded
       }
     ]
   }
@@ -248,7 +248,7 @@ variableOverrides: {
 ```typescript
 {
   httpTask: {
-    url: "https://api.specificprovider.com/v1/query",  // ✅ Hardcoded
+    url: "https://api.specificprovider.com/v1/query",  // Hardcoded
     method: "POST",
     headers: [
       {
@@ -256,7 +256,7 @@ variableOverrides: {
         value: "application/json"
       }
     ],
-    // ✅ Only API key as variable, symbol hardcoded and verifiable
+    // Only API key as variable, symbol hardcoded and verifiable
     body: '{"symbol": "BTCUSD", "apiKey": "${API_KEY}"}'
   }
 }
@@ -267,12 +267,12 @@ variableOverrides: {
 ```typescript
 {
   jsonParseTask: {
-    // ✅ Completely hardcoded path - fully verifiable
+    // Completely hardcoded path - fully verifiable
     path: "$.data.price_usd"
   }
 }
 
-// ❌ Don't do this - affects data extraction:
+// Don't do this - affects data extraction:
 // path: "$.${ROOT_KEY}.${DATA_KEY}[${INDEX}].${FIELD}"
 ```
 
@@ -287,7 +287,7 @@ Create a testing script similar to the example:
 import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
 import * as sb from "@switchboard-xyz/on-demand";
 
-// ❌ DANGEROUS EXAMPLE - DO NOT USE IN PRODUCTION
+// Insecure example - do not use in production
 // This example violates security warnings and is for educational purposes only
 function getDangerousJob(): OracleJob {
   // WARNING: This pattern is NOT RECOMMENDED
@@ -296,13 +296,13 @@ function getDangerousJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          url: "${BASE_URL}/api/data?key=${API_KEY}&symbol=${SYMBOL}",  // ❌ Unverifiable
+          url: "${BASE_URL}/api/data?key=${API_KEY}&symbol=${SYMBOL}",  // Unverifiable
           method: "GET",
         }
       },
       {
         jsonParseTask: {
-          path: "${JSON_PATH}",  // ❌ Unverifiable data extraction
+          path: "${JSON_PATH}",  // Unverifiable data extraction
         }
       }
     ]
@@ -310,19 +310,19 @@ function getDangerousJob(): OracleJob {
   return job;
 }
 
-// ✅ RECOMMENDED SECURE VERSION
+// RECOMMENDED SECURE VERSION
 function getSecureJob(): OracleJob {
   const job = OracleJob.fromObject({
     tasks: [
       {
         httpTask: {
-          url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&key=${API_KEY}",  // ✅ Hardcoded
+          url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&key=${API_KEY}",  // Hardcoded
           method: "GET",
         }
       },
       {
         jsonParseTask: {
-          path: "$.data.rates.USD",  // ✅ Hardcoded path
+          path: "$.data.rates.USD",  // Hardcoded path
         }
       }
     ]
@@ -336,36 +336,36 @@ function getSecureJob(): OracleJob {
   const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
   const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
   
-  // ❌ DANGEROUS - Uses unverifiable job
+  // Insecure - uses unverifiable job
   const dangerousRes = await queue.fetchSignaturesConsensus({
     gateway,
     feedConfigs: [{
       feed: {
-        jobs: [getDangerousJob()],  // ❌ Not recommended
+        jobs: [getDangerousJob()],  // Not recommended
       },
     }],
     numSignatures: 1,
     useEd25519: true,
     variableOverrides: {
-      "BASE_URL": process.env.BASE_URL!,      // ❌ Unverifiable
-      "API_KEY": process.env.API_KEY!,        // ✅ OK for auth
-      "SYMBOL": process.env.SYMBOL || "BTC",  // ❌ Data selection
-      "JSON_PATH": process.env.JSON_PATH || "$.price"  // ❌ Data extraction
+      "BASE_URL": process.env.BASE_URL!,      // Unverifiable
+      "API_KEY": process.env.API_KEY!,        // OK for auth
+      "SYMBOL": process.env.SYMBOL || "BTC",  // Data selection
+      "JSON_PATH": process.env.JSON_PATH || "$.price"  // Data extraction
     },
   });
   
-  // ✅ RECOMMENDED - Uses secure job
+  // RECOMMENDED - Uses secure job
   const secureRes = await queue.fetchSignaturesConsensus({
     gateway,
     feedConfigs: [{
       feed: {
-        jobs: [getSecureJob()],  // ✅ Secure and verifiable
+        jobs: [getSecureJob()],  // Secure and verifiable
       },
     }],
     numSignatures: 1,
     useEd25519: true,
     variableOverrides: {
-      "API_KEY": process.env.API_KEY!  // ✅ Only authentication
+      "API_KEY": process.env.API_KEY!  // Only authentication
     },
   });
   
@@ -376,26 +376,26 @@ function getSecureJob(): OracleJob {
 ### 2. Running Tests
 
 ```bash
-# ❌ DANGEROUS - Testing with unverifiable variables
+# Not recommended - testing with unverifiable variables
 # BASE_URL=https://api.example.com \
 # API_KEY=your_api_key_here \
 # SYMBOL=BTC \
 # JSON_PATH=$.result.price \
 # bun run scripts/test-job.ts
 
-# ✅ RECOMMENDED - Testing with only auth variables
+# Recommended - testing with only auth variables
 API_KEY=your_api_key_here bun run scripts/test-job.ts
 ```
 
 ### 3. Environment File Approach
 
 ```bash
-# ❌ DANGEROUS .env setup
+# Not recommended .env setup
 # echo "BASE_URL=https://api.example.com" >> .env  # Unverifiable
 # echo "SYMBOL=BTC" >> .env                        # Data selection
 # echo "JSON_PATH=$.result.price" >> .env         # Data extraction
 
-# ✅ RECOMMENDED .env setup - only authentication
+# Recommended .env setup - only authentication
 echo "API_KEY=your_api_key_here" >> .env
 echo "AUTH_TOKEN=your_auth_token" >> .env
 
@@ -407,7 +407,7 @@ bun run scripts/test-job.ts
 
 ### 1. Never Hardcode Secrets
 
-❌ **Don't do this:**
+**Don't do this:**
 
 ```typescript
 variableOverrides: {
@@ -415,7 +415,7 @@ variableOverrides: {
 }
 ```
 
-✅ **Do this instead:**
+**Do this instead:**
 
 ```typescript
 variableOverrides: {
@@ -489,8 +489,8 @@ url: "${API_KEY}"
 
 // Override must use same case
 variableOverrides: {
-  "API_KEY": "value" // ✅ Correct
-  "api_key": "value" // ❌ Wrong case
+  "API_KEY": "value" // Correct
+  "api_key": "value" // Wrong case
 }
 ```
 
@@ -551,14 +551,14 @@ function getPolygonStockJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          // ✅ Hardcoded endpoint and symbol - verifiable data source
+          // Hardcoded endpoint and symbol - verifiable data source
           url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",
           method: "GET",
         }
       },
       {
         jsonParseTask: {
-          // ✅ Hardcoded path - verifiable data extraction
+          // Hardcoded path - verifiable data extraction
           path: "$.results.p",
         }
       }
@@ -583,7 +583,7 @@ const res = await queue.fetchSignaturesConsensus({
   numSignatures: 1,
   useEd25519: true,
   variableOverrides: {
-    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!,  // ✅ Only API key
+    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!,  // Only API key
   },
 });
 ```
@@ -601,14 +601,14 @@ function getESPNFootballScoreJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          // ✅ Hardcoded specific game endpoint
+          // Hardcoded specific game endpoint
           url: "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard/401547439?apikey=${ESPN_API_KEY}",
           method: "GET",
         }
       },
       {
         jsonParseTask: {
-          // ✅ Hardcoded path to home team final score
+          // Hardcoded path to home team final score
           path: "$.events[0].competitions[0].competitors[0].score",
         }
       }
@@ -633,7 +633,7 @@ const res = await queue.fetchSignaturesConsensus({
   numSignatures: 1,
   useEd25519: true,
   variableOverrides: {
-    "ESPN_API_KEY": process.env.ESPN_API_KEY!,  // ✅ Only API key
+    "ESPN_API_KEY": process.env.ESPN_API_KEY!,  // Only API key
   },
 });
 ```
@@ -651,20 +651,20 @@ function getTwitterFollowersJob(): OracleJob {
     tasks: [
       {
         httpTask: {
-          // ✅ Hardcoded user ID - verifiable target account
+          // Hardcoded user ID - verifiable target account
           url: "https://api.twitter.com/2/users/783214",  // Twitter's official account
           method: "GET",
           headers: [
             {
               key: "Authorization",
-              value: "Bearer ${TWITTER_BEARER_TOKEN}"  // ✅ Only auth token
+              value: "Bearer ${TWITTER_BEARER_TOKEN}"  // Only auth token
             }
           ]
         }
       },
       {
         jsonParseTask: {
-          // ✅ Hardcoded path to follower count
+          // Hardcoded path to follower count
           path: "$.data.public_metrics.followers_count",
         }
       }
@@ -689,7 +689,7 @@ const res = await queue.fetchSignaturesConsensus({
   numSignatures: 1,
   useEd25519: true,
   variableOverrides: {
-    "TWITTER_BEARER_TOKEN": process.env.TWITTER_BEARER_TOKEN!,  // ✅ Only auth token
+    "TWITTER_BEARER_TOKEN": process.env.TWITTER_BEARER_TOKEN!,  // Only auth token
   },
 });
 ```
