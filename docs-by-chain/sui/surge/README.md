@@ -91,11 +91,15 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 });
 ```
 
-## Pricing
+## Pricing & Limits
 
-Surge costs $500/epoch (~$7,500/mo), paid in SWTCH tokens. This includes real-time streaming with 0ms quote intervals, up to 300 feeds, and 15 concurrent connections.
+| Plan | Price | Quote Interval | Max Feeds | Max Connections |
+|------|-------|----------------|-----------|-----------------|
+| **Plug** | Free | 10s | 2 | 1 |
+| **Pro** | ~$3,000/mo | 450ms | 100 | 10 |
+| **Enterprise** | ~$7,500/mo | 0ms | 300 | 15 |
 
-For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
+Subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
 
 ## Primary Use Cases
 
