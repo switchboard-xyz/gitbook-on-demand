@@ -7,7 +7,7 @@ description: Build, simulate, and publish a custom Switchboard feed definition u
 
 Switchboard feeds are built from **Oracle Jobs** (your data sources) and **Tasks** (the steps that fetch + transform data). The Feed Builder UI lets you assemble these visually, simulate them, and (when applicable) publish or deploy them.
 
-> If you prefer code-first workflows, see: **Building custom feeds in TypeScript**.
+> If you prefer code-first workflows, see: [Building custom feeds in TypeScript](build-with-typescript.md).
 
 ---
 

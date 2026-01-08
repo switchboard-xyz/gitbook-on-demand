@@ -2,6 +2,9 @@
 
 Blockchain users want randomness for many applications like gaming, NFT mints, lotteries, and more. However, this poses a fundamental challenge to blockchains, which are deterministic computers replicated across many nodes across the globe. Each node needs to produce the exact same output when given the same sequence of inputs.
 
+<figure><img src="../../../.gitbook/assets/randomness-00.png"><figcaption></figcaption></figure>
+
+
 Imagine if an on-chain lottery was deciding whether to mint an NFT to Alice or Bob. If blockchain nodes ran their own randomness and some decided that the NFT would go to Alice, and others to Bob, there would be a state mismatch.
 
 <figure><img src="../../../.gitbook/assets/randomness-01.png"><figcaption></figcaption></figure>
@@ -14,9 +17,11 @@ However, as a third-party source of randomness, it's critical to make sure that 
 
 <figure><img src="../../../.gitbook/assets/randomness-03.png"><figcaption></figcaption></figure>
 
+As an oracle provider, Switchboard's network serves as a trusted and verified third-party that can post fair random numbers to the blockchain.
 
+<figure><img src="../../../.gitbook/assets/randomness-04.png"><figcaption></figcaption></figure>
 
-## Switchboard’s approach
+## Switchboard's approach
 
 Switchboard leverages Trusted Execution Environments (TEEs), which are protected areas inside of a computer's processing unit that cannot be altered or inspected. This means:
 
@@ -36,7 +41,7 @@ To understand the flow, it's helpful to visualize the following 5 parties.
 - **Crossbar**: server that helps you talk to oracles
 - **Oracle**: generates randomness
 
-<figure><img src="../../../.gitbook/assets/randomness-04.png"><figcaption></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/randomness-05.png"><figcaption></figcaption></figure>
 
 There are two stages, requesting and resolving the randomness.
 
