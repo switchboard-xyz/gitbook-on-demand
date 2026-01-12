@@ -48,6 +48,7 @@
   * [Bounding Results](custom-feeds/advanced-feed-configuration/bounding-results.md)
   * [Decentralized Exchanges](custom-feeds/advanced-feed-configuration/decentralized-exchanges.md)
   * [Oracle Aggregator](custom-feeds/advanced-feed-configuration/oracle-aggregator.md)
+  * [Time-Weighted Average Prices](custom-feeds/advanced-feed-configuration/twap.md)
   * [FAQ](custom-feeds/advanced-feed-configuration/faq.md)
 
 ## How it Works

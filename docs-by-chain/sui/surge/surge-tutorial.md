@@ -17,7 +17,7 @@ A TypeScript application that:
 - Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
 - Node.js 18+ and npm/pnpm
 - A Sui keypair with SUI tokens (in your Sui keystore)
-- Surge API key (obtain from [Switchboard](https://switchboard.xyz))
+- Active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
 
 ## Key Concepts
 
@@ -28,7 +28,7 @@ A TypeScript application that:
 | Update frequency | Request-based | Continuous (~100ms) |
 | Latency | Higher (HTTP request) | Lower (WebSocket) |
 | Use case | Occasional reads | Real-time apps |
-| Authentication | None required | API key required |
+| Authentication | None required | Subscription required |
 
 ### The emitSurgeQuote Function
 
@@ -54,7 +54,6 @@ Here's the complete mainnet streaming example:
 
 ```typescript
 import * as sb from '@switchboard-xyz/on-demand';
-import { CrossbarClient } from '@switchboard-xyz/common';
 import { SuiClient } from '@mysten/sui/client';
 import {
   SwitchboardClient,
@@ -119,7 +118,7 @@ async function processTransactionQueue(): Promise<void> {
   } finally {
     isTransactionProcessing = false;
 
-    // Process next transaction in queue
+    // Process next transaction in queue if any
     if (rawResponseQueue.length > 0) {
       setImmediate(() => processTransactionQueue());
     }
@@ -191,19 +190,14 @@ if (!keypair) {
 // Main function
 (async function main() {
   console.log('Starting Surge streaming...');
-
-  const apiKey = process.env.SURGE_API_KEY!;
-  if (!apiKey) {
-    throw new Error('SURGE_API_KEY environment variable required');
-  }
+  console.log(`Using keypair: ${keypair!.toSuiAddress()}`);
 
   const latencies: number[] = [];
 
-  // Create Surge connection
+  // Initialize Surge with keypair and connection (uses on-chain subscription)
   const surge = new sb.Surge({
-    gatewayUrl: (await CrossbarClient.default().fetchGateway('mainnet')).endpoint(),
-    apiKey,
-    verbose: false,
+    connection: suiClient,
+    keypair: keypair!,
     signatureScheme: 'secp256k1',
   });
 
@@ -227,28 +221,11 @@ if (!keypair) {
       `Update #${stats.count} | Price: ${currentPrice} | Latency: ${currentLatency}ms | Avg: ${stats.mean.toFixed(1)}ms`
     );
 
-    // Log oracle mapping status
-    if (rawResponse.oracle_response?.oracle_pubkey) {
-      let oracleKeyHex = rawResponse.oracle_response.oracle_pubkey;
-      if (oracleKeyHex.startsWith('0x')) {
-        oracleKeyHex = oracleKeyHex.slice(2);
-      }
-
-      const oracleId = oracleMapping.get(oracleKeyHex);
-      if (oracleId) {
-        console.log(`Oracle ID found: ${oracleId}`);
-      } else {
-        console.warn(`Oracle ID not found for key: ${oracleKeyHex}`);
-      }
-    }
-
     // Queue the update for processing
     rawResponseQueue.push({
       rawResponse,
       timestamp: Date.now(),
     });
-
-    console.log(`Response queued (queue length: ${rawResponseQueue.length})`);
 
     // Trigger queue processing
     processTransactionQueue();
@@ -273,17 +250,16 @@ Initialize the Sui and Switchboard clients. For testnet, use `https://fullnode.t
 
 ```typescript
 const surge = new sb.Surge({
-  gatewayUrl: (await CrossbarClient.default().fetchGateway('mainnet')).endpoint(),
-  apiKey,
-  verbose: false,
+  connection: suiClient,
+  keypair: keypair!,
   signatureScheme: 'secp256k1',
 });
 
 await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
 ```
 
-- `gatewayUrl`: Fetched dynamically from Crossbar
-- `apiKey`: Your Surge API key
+- `connection`: Your SuiClient instance
+- `keypair`: Your Sui keypair (must have an active subscription)
 - `signatureScheme`: Use `'secp256k1'` for Sui
 - `connectAndSubscribe()`: Connects and subscribes to specified feeds
 
@@ -322,7 +298,6 @@ The mainnet and testnet examples are nearly identical with these differences:
 | Setting | Mainnet | Testnet |
 |---------|---------|---------|
 | RPC URL | `https://fullnode.mainnet.sui.io:443` | `https://fullnode.testnet.sui.io:443` |
-| Gateway | `fetchGateway('mainnet')` | `fetchGateway('testnet')` |
 | Oracle Mapping | `/oracles/sui` | `/oracles/sui/testnet` |
 
 ### Testnet Configuration
@@ -332,8 +307,8 @@ The mainnet and testnet examples are nearly identical with these differences:
 const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
 
 const surge = new sb.Surge({
-  gatewayUrl: (await CrossbarClient.default().fetchGateway('testnet')).endpoint(),
-  apiKey,
+  connection: suiClient,
+  keypair: keypair!,
   signatureScheme: 'secp256k1',
 });
 
@@ -347,7 +322,7 @@ const response = await fetch('https://crossbar.switchboard.xyz/oracles/sui/testn
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/sui
+cd sb-on-demand-examples/sui/surge/basic
 ```
 
 ### 2. Install Dependencies
@@ -356,38 +331,32 @@ cd sb-on-demand-examples/sui
 npm install
 ```
 
-### 3. Set Up Environment
+### 3. Ensure Active Subscription
 
-```bash
-# Set your Surge API key
-export SURGE_API_KEY="your_api_key_here"
-```
+Your keypair in `~/.sui/sui_config/sui.keystore` must have an active Surge subscription. Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
 
 ### 4. Run the Examples
 
 ```bash
 # Mainnet streaming
-npx tsx examples/mainnet_surge_stream.ts
+npm run stream
 
 # Testnet streaming
-npx tsx examples/testnet_surge_stream.ts
+npm run stream:testnet
 ```
 
 ### Expected Output
 
 ```
 Starting Surge streaming...
+Using keypair: 0x...
 Loaded 15 oracle mappings
 Listening for price updates...
 Update #1 | Price: 97234.50 | Latency: 85ms | Avg: 85.0ms
-Oracle ID found: 0x...
-Response queued (queue length: 1)
 Processing transaction (queue length: 0)
 Transaction completed in 1234ms
 Transaction result: 8Js7NsQ7...
 Update #2 | Price: 97235.10 | Latency: 92ms | Avg: 88.5ms
-Oracle ID found: 0x...
-Response queued (queue length: 1)
 ...
 ```
 
@@ -396,14 +365,13 @@ Response queued (queue length: 1)
 ### Dependencies
 
 ```bash
-npm install @switchboard-xyz/on-demand @switchboard-xyz/common @switchboard-xyz/sui-sdk @mysten/sui
+npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk @mysten/sui
 ```
 
 ### Minimal Integration
 
 ```typescript
 import * as sb from '@switchboard-xyz/on-demand';
-import { CrossbarClient } from '@switchboard-xyz/common';
 import { SuiClient } from '@mysten/sui/client';
 import { SwitchboardClient, emitSurgeQuote } from '@switchboard-xyz/sui-sdk';
 import { Transaction } from '@mysten/sui/transactions';
@@ -412,8 +380,8 @@ const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
 
 const surge = new sb.Surge({
-  gatewayUrl: (await CrossbarClient.default().fetchGateway('mainnet')).endpoint(),
-  apiKey: process.env.SURGE_API_KEY!,
+  connection: suiClient,
+  keypair: yourKeypair,
   signatureScheme: 'secp256k1',
 });
 
@@ -479,8 +447,9 @@ The oracle mapping is cached for 10 minutes to avoid repeated API calls. Adjust 
 - Ensure you have a valid keypair in `~/.sui/sui_config/sui.keystore`
 - Run `sui client new-address ed25519` to create one
 
-### "SURGE_API_KEY environment variable required"
-- Set the environment variable: `export SURGE_API_KEY="your_key"`
+### "Subscription not found" or connection rejected
+- Ensure your keypair has an active Surge subscription
+- Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions)
 
 ### "Oracle ID not found for key"
 - The oracle mapping might be stale
@@ -499,6 +468,6 @@ The oracle mapping is cached for 10 minutes to avoid repeated API calls. Adjust 
 
 ## Next Steps
 
-- **Quote Verifier Pattern**: See the [Price Feeds](price-feeds.md) tutorial for verified on-chain price storage
+- **Quote Verifier Pattern**: See the [Price Feeds](../price-feeds/README.md) tutorial for verified on-chain price storage
 - **Multiple Feeds**: Subscribe to multiple feeds for portfolio tracking
 - **Custom Integration**: Use the price data to trigger your own Move contract logic
