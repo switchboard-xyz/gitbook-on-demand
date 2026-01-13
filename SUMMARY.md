@@ -15,6 +15,8 @@
     * [Prediction Market Tutorial](docs-by-chain/solana-svm/prediction-market/prediction-market-tutorial.md)
   * [Randomness](docs-by-chain/solana-svm/randomness/README.md)
     * [Randomness Tutorial](docs-by-chain/solana-svm/randomness/randomness-tutorial.md)
+  * [X402 Micropayments](docs-by-chain/solana-svm/x402/README.md)
+    * [X402 Tutorial](docs-by-chain/solana-svm/x402/x402-tutorial.md)
 * [EVM](docs-by-chain/evm/README.md)
   * [Price Feeds](docs-by-chain/evm/price-feeds/README.md)
     * [Price Feeds Tutorial](docs-by-chain/evm/price-feeds/price-feeds-tutorial.md)
