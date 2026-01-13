@@ -7,7 +7,7 @@ This tutorial walks you through implementing Switchboard Surge for real-time pri
 ## Prerequisites
 
 - Node.js 18+
-- Surge API key ([request access](https://tinyurl.com/yqubsr8e))
+- Solana keypair with an active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
 - Basic TypeScript knowledge
 
 ## Installation
@@ -25,11 +25,11 @@ Connect to Surge and stream real-time prices:
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
 
-// Initialize Surge client
-const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!,
-  // gatewayUrl is optional - leave empty for automatic selection
-});
+// Load environment (keypair, connection, queue, etc.)
+const { keypair, connection, queue } = await sb.AnchorUtils.loadEnv();
+
+// Initialize Surge client with keypair and connection
+const surge = new sb.Surge({ connection, keypair });
 
 // Discover available feeds
 const availableFeeds = await surge.getSurgeFeeds();
@@ -43,17 +43,18 @@ await surge.connectAndSubscribe([
 
 // Handle real-time updates
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  console.log(`${response.data.symbol}: $${response.data.price}`);
-  console.log(`Latency: ${Date.now() - response.data.source_ts_ms}ms`);
+  const metrics = response.getLatencyMetrics();
 
-  // Option 1: Use price directly
-  await updatePriceDisplay(response.data);
+  // Skip heartbeat messages
+  if (metrics.isHeartbeat) return;
 
-  // Option 2: Convert to on-chain Oracle Quote
-  if (shouldExecuteTrade(response)) {
-    const [sigVerifyIx, oracleQuote] = response.toBundleIx();
-    await executeTrade(sigVerifyIx, oracleQuote);
-  }
+  const prices = response.getFormattedPrices();
+
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+    console.log(`  Source → Oracle: ${feed.sourceToOracleMs}ms`);
+    console.log(`  Emit Latency: ${feed.emitLatencyMs}ms`);
+  });
 });
 ```
 
@@ -63,20 +64,28 @@ When you need to use Surge prices on-chain, convert them to Oracle Quotes:
 
 ```typescript
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  // Convert Surge update to on-chain format
-  const [sigVerifyIx, oracleQuote] = response.toBundleIx();
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
 
-  // Use in your Solana transaction
-  const tx = new Transaction()
-    .add(sigVerifyIx)
-    .add(
+  // Convert Surge update to on-chain instructions
+  const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+
+  // Build transaction with oracle quote update
+  const tx = await sb.asV0Tx({
+    connection,
+    ixs: [
+      ...crankIxs,
       await program.methods
-        .yourInstruction(oracleQuote)
+        .yourInstruction()
         .accounts({ /* ... */ })
         .instruction()
-    );
+    ],
+    signers: [keypair],
+    computeUnitPrice: 20_000,
+    computeUnitLimitMultiple: 1.3,
+  });
 
-  await sendAndConfirmTransaction(connection, tx, [wallet]);
+  await connection.sendTransaction(tx);
 });
 ```
 
@@ -157,20 +166,25 @@ export function PriceFeed({ symbol }: { symbol: string }) {
 
 ```typescript
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  const market = perpetuals.get(response.data.symbol);
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
 
-  // Update mark price instantly
-  market.markPrice = response.data.price;
+  const prices = response.getFormattedPrices();
 
-  // Check liquidations with zero latency
-  const underwaterPositions = await market.checkLiquidations(response.data.price);
-  for (const position of underwaterPositions) {
-    const [ix, oracleQuote] = response.toBundleIx();
-    await liquidatePosition(position, ix, oracleQuote);
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const market = perpetuals.get(feed.symbol);
+
+    // Update mark price instantly
+    market.markPrice = price;
+
+    // Check liquidations with latest price
+    const underwaterPositions = await market.checkLiquidations(price);
+    for (const position of underwaterPositions) {
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await liquidatePosition(position, crankIxs);
+    }
   }
-
-  // Calculate funding rates
-  await market.updateFundingRate(response.data);
 });
 ```
 
@@ -178,11 +192,20 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
 ```typescript
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
-  const opportunity = checkArbitrage(response.data);
-  if (opportunity?.profit > MIN_PROFIT) {
-    // Execute within milliseconds
-    const [ix, oracleQuote] = response.toBundleIx();
-    await executeArbitrageTrade(ix, oracleQuote);
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await executeArbitrageTrade(crankIxs, calculateOptimalSize(spread));
+    }
   }
 });
 ```

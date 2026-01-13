@@ -14,7 +14,6 @@ A TypeScript script that:
 ## Prerequisites
 
 - **Bun** or Node.js 18+
-- Surge API key ([request access](https://tinyurl.com/yqubsr8e))
 - Basic understanding of hexadecimal encoding
 
 ## The Conversion Flow
