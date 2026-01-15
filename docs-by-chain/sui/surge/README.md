@@ -40,7 +40,9 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 
 ### 1. Subscribe
 
-Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+Surge subscriptions are managed on **Solana**, regardless of which chain you're building on. Connect your Solana wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+
+Once subscribed, prices are streamed to your application off-chain via WebSocket. You then convert and post these prices to Sui when needed for on-chain operations.
 
 ### 2. Install the SDK
 
