@@ -36,13 +36,39 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 
 **Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
 
+## User Flow
+
+Surge works the same way regardless of your target chain:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              Surge User Flow                            │
+└─────────────────────────────────────────────────────────────────────────┘
+
+  1. SUBSCRIBE                2. STREAM                   3. POST
+  ─────────────               ─────────────               ─────────────
+  Subscribe to Surge          Prices stream to            Convert and post
+  on Solana (all chains       your app off-chain          prices to your
+  use Solana for subs)        via WebSocket               target chain
+
+  ┌──────────────┐           ┌──────────────┐           ┌──────────────┐
+  │   Solana     │           │  Off-Chain   │           │ Target Chain │
+  │   Wallet     │──────────▶│  WebSocket   │──────────▶│  (Solana,    │
+  │              │           │  Stream      │           │  EVM, Sui)   │
+  └──────────────┘           └──────────────┘           └──────────────┘
+```
+
+1. **Subscribe on Solana** — All Surge subscriptions are managed on Solana, regardless of which chain you're building on. Connect your Solana wallet at the [subscription portal](https://explorer.switchboardlabs.xyz/subscriptions).
+
+2. **Stream prices off-chain** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+
+3. **Post to your target chain** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
+
 ## Getting Started
 
 ### 1. Subscribe
 
-Surge subscriptions are managed on **Solana**, regardless of which chain you're building on. Connect your Solana wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
-
-Once subscribed, prices are streamed to your application off-chain via WebSocket. You then convert and post these prices to Sui when needed for on-chain operations.
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
 
 ### 2. Install the SDK
 
