@@ -36,6 +36,16 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 
 **Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
 
+## User Flow
+
+Surge works the same way regardless of your target chain:
+
+1. **Subscribe** — All Surge subscriptions are managed on Solana, regardless of which chain you're building on. Connect your Solana wallet at the [subscription portal](https://explorer.switchboardlabs.xyz/subscriptions).
+
+2. **Stream Prices** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+
+3. **Use Prices** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
+
 ## Getting Started
 
 ### 1. Subscribe
