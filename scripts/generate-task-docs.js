@@ -75,26 +75,113 @@ async function fetchProto() {
 function parseTaskDocumentation(protoContent) {
   const tasks = new Map();
 
-  // Match block comments followed by message definitions
-  // Pattern: /* ... */ followed by message TaskName {
-  const taskPattern = /\/\*\s*([\s\S]*?)\s*\*\/\s*message\s+(\w+Task)\s*\{/g;
+  // Split content into lines for easier processing
+  const lines = protoContent.split('\n');
 
-  let match;
-  while ((match = taskPattern.exec(protoContent)) !== null) {
-    const [, docComment, taskName] = match;
-    tasks.set(taskName, cleanDocumentation(docComment));
-  }
+  // Find all message TaskName definitions and their documentation
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const messageMatch = line.match(/^\s*message\s+(\w+Task)\s*\{/);
 
-  // Also find tasks without block comments (just /// comments or none)
-  const simpleTaskPattern = /message\s+(\w+Task)\s*\{/g;
-  while ((match = simpleTaskPattern.exec(protoContent)) !== null) {
-    const taskName = match[1];
-    if (!tasks.has(taskName)) {
-      tasks.set(taskName, null);
+    if (messageMatch) {
+      const taskName = messageMatch[1];
+
+      // Look backwards for documentation (either /* */ block or /// comments)
+      let doc = null;
+      let fields = [];
+
+      // Check for block comment (/* ... */) before this line
+      const textBefore = lines.slice(0, i).join('\n');
+      const blockCommentMatch = textBefore.match(/\/\*\s*([\s\S]*?)\s*\*\/\s*$/);
+
+      if (blockCommentMatch) {
+        doc = cleanDocumentation(blockCommentMatch[1]);
+      } else {
+        // Check for /// comments immediately before
+        const tripleSlashComments = [];
+        let j = i - 1;
+        while (j >= 0 && lines[j].trim().startsWith('///')) {
+          tripleSlashComments.unshift(lines[j].trim().replace(/^\/\/\/\s?/, ''));
+          j--;
+        }
+        if (tripleSlashComments.length > 0) {
+          doc = tripleSlashComments.join('\n');
+        }
+      }
+
+      // Extract fields from the message body
+      fields = extractFields(lines, i);
+
+      tasks.set(taskName, { doc, fields });
     }
   }
 
   return tasks;
+}
+
+function extractFields(lines, messageStartIndex) {
+  const fields = [];
+  let braceCount = 0;
+  let insideMessage = false;
+  let nestedDepth = 0;
+
+  for (let i = messageStartIndex; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Count braces
+    for (const char of line) {
+      if (char === '{') {
+        braceCount++;
+        if (!insideMessage) {
+          insideMessage = true;
+        } else {
+          nestedDepth++;
+        }
+      } else if (char === '}') {
+        braceCount--;
+        if (nestedDepth > 0) {
+          nestedDepth--;
+        }
+      }
+    }
+
+    // Exit when we close the main message
+    if (insideMessage && braceCount === 0) break;
+
+    // Skip if we're inside a nested message/enum/oneof
+    if (nestedDepth > 0) continue;
+
+    // Skip nested message/enum/oneof declarations (they open a new brace level)
+    if (line.match(/^\s*(message|enum|oneof)\s+\w+/)) {
+      continue;
+    }
+
+    // Match field definitions: optional/repeated type name = number;
+    const fieldMatch = line.match(/^\s*(optional|repeated|required)?\s*(\w+)\s+(\w+)\s*=\s*\d+/);
+    if (fieldMatch && insideMessage) {
+      const [, , type, name] = fieldMatch;
+
+      // Look for /// comment on the line before
+      let description = '';
+      const prevLine = lines[i - 1] || '';
+      if (prevLine.trim().startsWith('///')) {
+        description = prevLine.trim().replace(/^\/\/\/\s?/, '');
+      }
+      // Also check for inline comment
+      const inlineCommentMatch = line.match(/\/\/\s*(.+)$/);
+      if (inlineCommentMatch && !description) {
+        description = inlineCommentMatch[1];
+      }
+
+      fields.push({
+        name: name,
+        type: type,
+        description: description
+      });
+    }
+  }
+
+  return fields;
 }
 
 function cleanDocumentation(doc) {
@@ -124,12 +211,12 @@ function generateMarkdown(tasks) {
   const categorized = {};
 
   // Categorize all tasks
-  for (const [taskName, doc] of tasks) {
+  for (const [taskName, taskData] of tasks) {
     const category = categorizeTask(taskName);
     if (!categorized[category]) {
       categorized[category] = [];
     }
-    categorized[category].push({ name: taskName, doc });
+    categorized[category].push({ name: taskName, ...taskData });
   }
 
   // Generate markdown
@@ -166,14 +253,27 @@ Some tasks do not consume the running input (such as HttpTask and WebsocketTask)
     // Sort tasks alphabetically within category
     tasksInCategory.sort((a, b) => a.name.localeCompare(b.name));
 
-    for (const { name, doc } of tasksInCategory) {
-      const camelCaseName = name.charAt(0).toLowerCase() + name.slice(1);
+    for (const { name, doc, fields } of tasksInCategory) {
       markdown += `### ${name}\n\n`;
 
       if (doc) {
         markdown += `${doc}\n\n`;
       } else {
-        markdown += `*Documentation pending.*\n\n`;
+        markdown += `*No description available.*\n\n`;
+      }
+
+      // Add field table if there are documented fields
+      if (fields && fields.length > 0) {
+        const documentedFields = fields.filter(f => f.description);
+        if (documentedFields.length > 0) {
+          markdown += `| Field | Type | Description |\n`;
+          markdown += `|-------|------|-------------|\n`;
+          for (const field of documentedFields) {
+            const escapedDesc = field.description.replace(/\|/g, '\\|');
+            markdown += `| \`${field.name}\` | ${field.type} | ${escapedDesc} |\n`;
+          }
+          markdown += `\n`;
+        }
       }
 
       markdown += `---\n\n`;
