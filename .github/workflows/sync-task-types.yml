@@ -1,0 +1,45 @@
+name: Sync Task Types Documentation
+
+on:
+  # Run daily to check for proto updates
+  schedule:
+    - cron: '0 0 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+  # Allow trigger from sbv3 repo via repository_dispatch
+  repository_dispatch:
+    types: [proto-updated]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate task documentation
+        run: node scripts/generate-task-docs.js
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet custom-feeds/task-types.md || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add custom-feeds/task-types.md
+          git commit -m "Sync task types documentation from proto
+
+          Auto-generated from job_schemas.proto"
+          git push

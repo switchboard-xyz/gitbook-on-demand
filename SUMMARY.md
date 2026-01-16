@@ -52,6 +52,7 @@
   * [Oracle Aggregator](custom-feeds/advanced-feed-configuration/oracle-aggregator.md)
   * [Time-Weighted Average Prices](custom-feeds/advanced-feed-configuration/twap.md)
   * [FAQ](custom-feeds/advanced-feed-configuration/faq.md)
+* [Task Types Reference](custom-feeds/task-types.md)
 
 ## How it Works
 
