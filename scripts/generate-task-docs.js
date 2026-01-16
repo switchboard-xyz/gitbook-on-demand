@@ -74,43 +74,51 @@ async function fetchProto() {
 
 function parseTaskDocumentation(protoContent) {
   const tasks = new Map();
-
-  // Split content into lines for easier processing
   const lines = protoContent.split('\n');
 
-  // Find all message TaskName definitions and their documentation
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const messageMatch = line.match(/^\s*message\s+(\w+Task)\s*\{/);
 
     if (messageMatch) {
       const taskName = messageMatch[1];
-
-      // Look backwards for documentation (either /* */ block or /// comments)
       let doc = null;
-      let fields = [];
 
-      // Check for block comment (/* ... */) before this line
-      const textBefore = lines.slice(0, i).join('\n');
-      const blockCommentMatch = textBefore.match(/\/\*\s*([\s\S]*?)\s*\*\/\s*$/);
+      // Look backwards for documentation immediately before this message
+      let j = i - 1;
 
-      if (blockCommentMatch) {
-        doc = cleanDocumentation(blockCommentMatch[1]);
-      } else {
-        // Check for /// comments immediately before
+      // Skip empty lines
+      while (j >= 0 && lines[j].trim() === '') j--;
+
+      // Check for block comment (ends with */)
+      if (j >= 0 && lines[j].trim().endsWith('*/')) {
+        let commentEnd = j;
+        // Search backwards for the matching /*
+        while (j >= 0 && !lines[j].includes('/*')) {
+          j--;
+        }
+        if (j >= 0) {
+          // Extract just this comment block
+          const commentLines = lines.slice(j, commentEnd + 1);
+          const commentText = commentLines.join('\n');
+          const match = commentText.match(/\/\*\s*([\s\S]*?)\s*\*\//);
+          if (match) {
+            doc = cleanDocumentation(match[1]);
+          }
+        }
+      }
+      // Check for /// comments immediately before (existing logic)
+      else if (j >= 0 && lines[j].trim().startsWith('///')) {
         const tripleSlashComments = [];
-        let j = i - 1;
         while (j >= 0 && lines[j].trim().startsWith('///')) {
           tripleSlashComments.unshift(lines[j].trim().replace(/^\/\/\/\s?/, ''));
           j--;
         }
-        if (tripleSlashComments.length > 0) {
-          doc = tripleSlashComments.join('\n');
-        }
+        doc = tripleSlashComments.join('\n');
       }
 
       // Extract fields from the message body
-      fields = extractFields(lines, i);
+      const fields = extractFields(lines, i);
 
       tasks.set(taskName, { doc, fields });
     }
