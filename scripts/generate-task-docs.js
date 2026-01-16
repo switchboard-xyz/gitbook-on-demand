@@ -203,7 +203,25 @@ function cleanDocumentation(doc) {
     .replace(/\r\n/g, '\n')
     .trim();
 
+  // Format JSON code blocks for better readability
+  cleaned = formatJsonCodeBlocks(cleaned);
+
   return cleaned;
+}
+
+function formatJsonCodeBlocks(text) {
+  // Match ```json ... ``` code blocks
+  return text.replace(/```json\s*([\s\S]*?)```/g, (match, jsonContent) => {
+    const trimmed = jsonContent.trim();
+    try {
+      const parsed = JSON.parse(trimmed);
+      const formatted = JSON.stringify(parsed, null, 2);
+      return '```json\n' + formatted + '\n```';
+    } catch {
+      // If parsing fails, return original
+      return match;
+    }
+  });
 }
 
 function categorizeTask(taskName) {
