@@ -32,13 +32,29 @@ _**Returns**_: String representation of the http response.
 _**Example**_: Basic HttpTask
 
 ```json
-{"httpTask": {"url": "https://mywebsite.org/path"} }
+{
+  "httpTask": {
+    "url": "https://mywebsite.org/path"
+  }
+}
 ```
 
 _**Example**_: HttpTask example with headers
 
 ```json
-{ "httpTask": { "url": "https://mywebsite.org/path", "method": "METHOD_POST", "headers": [ { "key": "MY_HEADER_KEY", "value": "MY_HEADER_VALUE" } ], "body": "{\"MY_BODY_KEY\":\"MY_BODY_VALUE\"}" } }
+{
+  "httpTask": {
+    "url": "https://mywebsite.org/path",
+    "method": "METHOD_POST",
+    "headers": [
+      {
+        "key": "MY_HEADER_KEY",
+        "value": "MY_HEADER_VALUE"
+      }
+    ],
+    "body": "{\"MY_BODY_KEY\":\"MY_BODY_VALUE\"}"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -89,7 +105,14 @@ _**Returns**_: String representation of the websocket subscription message.
 _**Example**_: Opens a coinbase websocket
 
 ```json
-{ "websocketTask": { "url": "wss://ws-feed.pro.coinbase.com", "subscription": "{\"type\":\"subscribe\",\"product_ids\":[\"BTC-USD\"],\"channels\":[\"ticker\",{\"name\":\"ticker\",\"product_ids\":[\"BTC-USD\"]}]}", "maxDataAgeSeconds": 15, "filter": "$[?(@.type == 'ticker' && @.product_id == 'BTC-USD')]" } }
+{
+  "websocketTask": {
+    "url": "wss://ws-feed.pro.coinbase.com",
+    "subscription": "{\"type\":\"subscribe\",\"product_ids\":[\"BTC-USD\"],\"channels\":[\"ticker\",{\"name\":\"ticker\",\"product_ids\":[\"BTC-USD\"]}]}",
+    "maxDataAgeSeconds": 15,
+    "filter": "$[?(@.type == 'ticker' && @.product_id == 'BTC-USD')]"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -126,13 +149,25 @@ _**Returns**_: A timestamp
 _**Example**_: Return the unix timestamp for the on-chain SYSCLOCK
 
 ```json
-{"cronParseTask":{"cronPattern":"* * * * * *","clockOffset":0,"clock":"SYSCLOCK"}}
+{
+  "cronParseTask": {
+    "cronPattern": "* * * * * *",
+    "clockOffset": 0,
+    "clock": "SYSCLOCK"
+  }
+}
 ```
 
 _**Example**_: Return the unix timestamp for next friday at 5pm UTC
 
 ```json
-{"cronParseTask":{"cronPattern":"0 17 * * 5","clockOffset":0,"clock":0}}
+{
+  "cronParseTask": {
+    "cronPattern": "0 17 * * 5",
+    "clockOffset": 0,
+    "clock": 0
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -155,7 +190,11 @@ _**Returns**_: A numerical result.
 _**Example**_: Parses the price field from a JSON object
 
 ```json
-{"jsonParse": {"path": "$.price"} }
+{
+  "jsonParse": {
+    "path": "$.price"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -226,9 +265,18 @@ _**Example**_: Map "yes" to "1", "no" to "2", "maybe" to "3" (case-insensitive)
 {
   "stringMapTask": {
     "mappings": [
-      {"key": "yes", "value": "1"},
-      {"key": "no", "value": "2"},
-      {"key": "maybe", "value": "3"}
+      {
+        "key": "yes",
+        "value": "1"
+      },
+      {
+        "key": "no",
+        "value": "2"
+      },
+      {
+        "key": "maybe",
+        "value": "3"
+      }
     ],
     "defaultValue": "0",
     "caseSensitive": false
@@ -254,9 +302,18 @@ _**Example**_: Map HTTP response status with case-sensitive matching
     {
       "stringMapTask": {
         "mappings": [
-          {"key": "active", "value": "100"},
-          {"key": "inactive", "value": "0"},
-          {"key": "pending", "value": "50"}
+          {
+            "key": "active",
+            "value": "100"
+          },
+          {
+            "key": "inactive",
+            "value": "0"
+          },
+          {
+            "key": "pending",
+            "value": "50"
+          }
         ],
         "defaultValue": "-1",
         "caseSensitive": true
@@ -288,19 +345,84 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the numerical result by adding by a job of subtasks.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"addTask":{"job":{"tasks":[{"valueTask":{"value":10}}]}}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "addTask": {
+        "job": {
+          "tasks": [
+            {
+              "valueTask": {
+                "value": 10
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by multiplying by an aggregator.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"addTask":{"aggregatorPubkey":"GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "addTask": {
+        "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by multiplying by a big.
 
 ```json
-{"tasks":[{"cacheTask":{"cacheItems":[{"variableName":"TEN","job":{"tasks":[{"valueTask":{"value":10}}]}}]}},{"valueTask":{"value":100}},{"addTask":{"big":"${TEN}"}}]}
+{
+  "tasks": [
+    {
+      "cacheTask": {
+        "cacheItems": [
+          {
+            "variableName": "TEN",
+            "job": {
+              "tasks": [
+                {
+                  "valueTask": {
+                    "value": 10
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "addTask": {
+        "big": "${TEN}"
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -316,7 +438,14 @@ _**Returns**_: The running result bounded to an upper or lower bound if it excee
 _**Example**_: Bound the running result to a value between 0.90 and 1.10
 
 ```json
-{ "boundTask": { "lowerBoundValue": "0.90","onExceedsLowerBoundValue": "0.90","upperBoundValue": "1.10","onExceedsUpperBoundValue": "1.10" } }
+{
+  "boundTask": {
+    "lowerBoundValue": "0.90",
+    "onExceedsLowerBoundValue": "0.90",
+    "upperBoundValue": "1.10",
+    "onExceedsUpperBoundValue": "1.10"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -343,19 +472,84 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the numerical result by dividing by a job of subtasks.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"divideTask":{"job":{"tasks":[{"valueTask":{"value":10}}]}}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "divideTask": {
+        "job": {
+          "tasks": [
+            {
+              "valueTask": {
+                "value": 10
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by dividing by an aggregator.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"divideTask":{"aggregatorPubkey":"GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "divideTask": {
+        "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by dividing by a big.
 
 ```json
-{"tasks":[{"cacheTask":{"cacheItems":[{"variableName":"TEN","job":{"tasks":[{"valueTask":{"value":10}}]}}]}},{"valueTask":{"value":100}},{"divideTask":{"big":"${TEN}"}}]}
+{
+  "tasks": [
+    {
+      "cacheTask": {
+        "cacheItems": [
+          {
+            "variableName": "TEN",
+            "job": {
+              "tasks": [
+                {
+                  "valueTask": {
+                    "value": 10
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "divideTask": {
+        "big": "${TEN}"
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -371,13 +565,80 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the maximum numerical result from 3 tasks.
 
 ```json
-{"maxTask": {"tasks": [{"valueTask": {"value": 10}},{"valueTask": {"value": 20}},{"valueTask": {"value": 30}}]}}
+{
+  "maxTask": {
+    "tasks": [
+      {
+        "valueTask": {
+          "value": 10
+        }
+      },
+      {
+        "valueTask": {
+          "value": 20
+        }
+      },
+      {
+        "valueTask": {
+          "value": 30
+        }
+      }
+    ]
+  }
+}
 ```
 
 _**Example**_: Returns the maximum numerical result from 3 jobs.
 
 ```json
-{"maxTask": {"jobs": [{"tasks": [{"httpTask": {"url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"}},{"jsonParseTask": {"path": "$[0][7]"}}]}]}}
+{
+  "maxTask": {
+    "jobs": [
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$[0][7]"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -398,13 +659,80 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the mean numerical result of 3 tasks.
 
 ```json
-{"meanTask": {"tasks": [{"valueTask": {"value": 10}},{"valueTask": {"value": 20}},{"valueTask": {"value": 30}}]}}
+{
+  "meanTask": {
+    "tasks": [
+      {
+        "valueTask": {
+          "value": 10
+        }
+      },
+      {
+        "valueTask": {
+          "value": 20
+        }
+      },
+      {
+        "valueTask": {
+          "value": 30
+        }
+      }
+    ]
+  }
+}
 ```
 
 _**Example**_: Returns the mean numerical result of 3 jobs.
 
 ```json
-{"meanTask": {"jobs": [{"tasks": [{"httpTask": {"url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"}},{"jsonParseTask": {"path": "$[0][7]"}}]}]}}
+{
+  "meanTask": {
+    "jobs": [
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$[0][7]"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -425,13 +753,80 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the median numerical result of 3 tasks.
 
 ```json
-{"medianTask": {"tasks": [{"valueTask": {"value": 10}},{"valueTask": {"value": 20}},{"valueTask": {"value": 30}}]}}
+{
+  "medianTask": {
+    "tasks": [
+      {
+        "valueTask": {
+          "value": 10
+        }
+      },
+      {
+        "valueTask": {
+          "value": 20
+        }
+      },
+      {
+        "valueTask": {
+          "value": 30
+        }
+      }
+    ]
+  }
+}
 ```
 
 _**Example**_: Returns the median numerical result of 3 jobs.
 
 ```json
-{"medianTask": {"jobs": [{"tasks": [{"httpTask": {"url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"}},{"jsonParseTask": {"path": "$[0][7]"}}]}]}}
+{
+  "medianTask": {
+    "jobs": [
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$[0][7]"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -454,13 +849,80 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the minimum numerical result from 3 tasks.
 
 ```json
-{"minTask": {"tasks": [{"valueTask": {"value": 10}},{"valueTask": {"value": 20}},{"valueTask": {"value": 30}}]}}
+{
+  "minTask": {
+    "tasks": [
+      {
+        "valueTask": {
+          "value": 10
+        }
+      },
+      {
+        "valueTask": {
+          "value": 20
+        }
+      },
+      {
+        "valueTask": {
+          "value": 30
+        }
+      }
+    ]
+  }
+}
 ```
 
 _**Example**_: Returns the minimum numerical result from 3 jobs.
 
 ```json
-{"minTask": {"jobs": [{"tasks": [{"httpTask": {"url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"}},{"jsonParseTask": {"path": "$.price"}}]},{"tasks": [{"httpTask": {"url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"}},{"jsonParseTask": {"path": "$[0][7]"}}]}]}}
+{
+  "minTask": {
+    "jobs": [
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.com/api/v3/ticker/price?symbol=SOLUSDT"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://www.binance.us/api/v3/ticker/price?symbol=SOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$.price"
+            }
+          }
+        ]
+      },
+      {
+        "tasks": [
+          {
+            "httpTask": {
+              "url": "https://api-pub.bitfinex.com/v2/tickers?symbols=tSOLUSD"
+            }
+          },
+          {
+            "jsonParseTask": {
+              "path": "$[0][7]"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -481,19 +943,84 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the numerical result by multiplying by a job of subtasks.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"multiplyTask":{"job":{"tasks":[{"valueTask":{"value":10}}]}}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "multiplyTask": {
+        "job": {
+          "tasks": [
+            {
+              "valueTask": {
+                "value": 10
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by multiplying by an aggregator.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"multiplyTask":{"aggregatorPubkey":"GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "multiplyTask": {
+        "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by multiplying by a big.
 
 ```json
-{"tasks":[{"cacheTask":{"cacheItems":[{"variableName":"TEN","job":{"tasks":[{"valueTask":{"value":10}}]}}]}},{"valueTask":{"value":100}},{"multiplyTask":{"big":"${TEN}"}}]}
+{
+  "tasks": [
+    {
+      "cacheTask": {
+        "cacheItems": [
+          {
+            "variableName": "TEN",
+            "job": {
+              "tasks": [
+                {
+                  "valueTask": {
+                    "value": 10
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "multiplyTask": {
+        "big": "${TEN}"
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -509,7 +1036,20 @@ _**Returns**_: The input raised to an exponential power.
 _**Example**_: Raise 2 to the power of 3, 2^3
 
 ```json
-{"tasks":[{"valueTask":{"value":2}},{"powTask":{"scalar":3}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 2
+      }
+    },
+    {
+      "powTask": {
+        "scalar": 3
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -525,7 +1065,12 @@ _**Returns**_: The running result rounded to a set number of decimal places.
 _**Example**_: Round down the running resul to 8 decimal places
 
 ```json
-{ "roundTask": { "method": "METHOD_ROUND_DOWN", "decimals": 8 } }
+{
+  "roundTask": {
+    "method": "METHOD_ROUND_DOWN",
+    "decimals": 8
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -546,19 +1091,84 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the numerical result by subtracting by a job of subtasks.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"subtractTask":{"job":{"tasks":[{"valueTask":{"value":10}}]}}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "subtractTask": {
+        "job": {
+          "tasks": [
+            {
+              "valueTask": {
+                "value": 10
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by multiplying by an aggregator.
 
 ```json
-{"tasks":[{"valueTask":{"value":100}},{"subtractTask":{"aggregatorPubkey":"GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"}}]}
+{
+  "tasks": [
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "subtractTask": {
+        "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+      }
+    }
+  ]
+}
 ```
 
 _**Example**_: Returns the numerical result by multiplying by a big.
 
 ```json
-{"tasks":[{"cacheTask":{"cacheItems":[{"variableName":"TEN","job":{"tasks":[{"valueTask":{"value":10}}]}}]}},{"valueTask":{"value":100}},{"subtractTask":{"big":"${TEN}"}}]}
+{
+  "tasks": [
+    {
+      "cacheTask": {
+        "cacheItems": [
+          {
+            "variableName": "TEN",
+            "job": {
+              "tasks": [
+                {
+                  "valueTask": {
+                    "value": 10
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "valueTask": {
+        "value": 100
+      }
+    },
+    {
+      "subtractTask": {
+        "big": "${TEN}"
+      }
+    }
+  ]
+}
 ```
 
 ---
@@ -630,13 +1240,24 @@ _**Returns**_: The swap price on Jupiter for a given input and output token mint
 _**Example**_: Fetch the JupiterSwap price for exchanging 1 SOL into USDC.
 
 ```json
-{ "jupiterSwapTask": { "inTokenAddress": "So11111111111111111111111111111111111111112", "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" } }
+{
+  "jupiterSwapTask": {
+    "inTokenAddress": "So11111111111111111111111111111111111111112",
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  }
+}
 ```
 
 _**Example**_: Fetch the JupiterSwap price for exchanging 1000 SOL into USDC.
 
 ```json
-{ "jupiterSwapTask": { "inTokenAddress": "So11111111111111111111111111111111111111112", "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "baseAmount": "1000" } }
+{
+  "jupiterSwapTask": {
+    "inTokenAddress": "So11111111111111111111111111111111111111112",
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "baseAmount": "1000"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -659,13 +1280,27 @@ _**Returns**_: The expected output amount for swapping tokens via Kuru.
 _**Example**_: Fetch a quote for swapping 1 WETH to USDC.
 
 ```json
-{ "kuruTask": { "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "amount": "1000000000000000000" } }
+{
+  "kuruTask": {
+    "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "amount": "1000000000000000000"
+  }
+}
 ```
 
 _**Example**_: Fetch a quote with custom slippage tolerance.
 
 ```json
-{ "kuruTask": { "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "amount": "1000000000000000000", "autoSlippage": false, "slippageTolerance": 100 } }
+{
+  "kuruTask": {
+    "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "amount": "1000000000000000000",
+    "autoSlippage": false,
+    "slippageTolerance": 100
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -697,13 +1332,21 @@ _**Returns**_: The swap price for a given AMM pool.
 _**Example**_: Fetch the exchange rate from the Orca SOL/USDC pool
 
 ```json
-{ "lpExchangeRateTask": { "orcaPoolAddress": "APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9" } }
+{
+  "lpExchangeRateTask": {
+    "orcaPoolAddress": "APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9"
+  }
+}
 ```
 
 _**Example**_: Fetch the exchange rate from the Raydium SOL/USDC pool
 
 ```json
-{ "lpExchangeRateTask": { "raydiumPoolAddress": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2" } }
+{
+  "lpExchangeRateTask": {
+    "raydiumPoolAddress": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -727,19 +1370,41 @@ _**Returns**_: The price of an LP token for a given AMM pool.
 _**Example**_: Fetch the Orca LP token price of the SOL/USDC pool
 
 ```json
-{ "lpTokenPriceTask": { "orcaPoolAddress": "APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9" } }
+{
+  "lpTokenPriceTask": {
+    "orcaPoolAddress": "APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9"
+  }
+}
 ```
 
 _**Example**_: Fetch the fair price Orca LP token price of the SOL/USDC pool
 
 ```json
-{ "lpTokenPriceTask": { "orcaPoolAddress": "APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9", "useFairPrice": true, "priceFeedAddresses": [ "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR", "BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW" ] } }
+{
+  "lpTokenPriceTask": {
+    "orcaPoolAddress": "APDFRM3HMr8CAGXwKHiu2f5ePSpaiEJhaURwhsRrUUt9",
+    "useFairPrice": true,
+    "priceFeedAddresses": [
+      "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR",
+      "BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW"
+    ]
+  }
+}
 ```
 
 _**Example**_: Fetch the fair price Raydium LP token price of the SOL/USDC pool
 
 ```json
-{ "lpTokenPriceTask": { "raydiumPoolAddress": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2", "useFairPrice": true,"priceFeedAddresses": ["GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR","BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW" ] } }
+{
+  "lpTokenPriceTask": {
+    "raydiumPoolAddress": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
+    "useFairPrice": true,
+    "priceFeedAddresses": [
+      "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR",
+      "BjUgj6YCnFBZ49wF54ddBVA9qu8TeqkFtkbqmZcee8uW"
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -762,13 +1427,27 @@ _**Returns**_: The expected output amount for swapping tokens via MACE aggregato
 _**Example**_: Fetch a quote for swapping 1 WETH to USDC on Ethereum.
 
 ```json
-{ "maceTask": { "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "amount": "1000000000000000000" } }
+{
+  "maceTask": {
+    "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "amount": "1000000000000000000"
+  }
+}
 ```
 
 _**Example**_: Fetch a quote with custom slippage and gas price.
 
 ```json
-{ "maceTask": { "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "amount": "1000000000000000000", "slippageToleranceBps": 100, "gasPriceWei": "50000000000" } }
+{
+  "maceTask": {
+    "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "amount": "1000000000000000000",
+    "slippageToleranceBps": 100,
+    "gasPriceWei": "50000000000"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -907,13 +1586,25 @@ _**Returns**_: The swap price on Titan for a given input and output token mint a
 _**Example**_: Fetch the Titan price for exchanging 1 SOL into USDC.
 
 ```json
-{ "titanTask": { "inTokenAddress": "So11111111111111111111111111111111111111112", "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" } }
+{
+  "titanTask": {
+    "inTokenAddress": "So11111111111111111111111111111111111111112",
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  }
+}
 ```
 
 _**Example**_: Fetch the Titan price for exchanging 1000 SOL into USDC with slippage.
 
 ```json
-{ "titanTask": { "inTokenAddress": "So11111111111111111111111111111111111111112", "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "amount": "1000", "slippageBps": 50 } }
+{
+  "titanTask": {
+    "inTokenAddress": "So11111111111111111111111111111111111111112",
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "amount": "1000",
+    "slippageBps": 50
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1006,7 +1697,9 @@ _**Returns**_: The current price of sUSD relative to USD (1.0 = $1.00)
 _**Example**_: Fetch the current sUSD price
 
 ```json
-{ "solayerSusdTask": {} }
+{
+  "solayerSusdTask": {}
+}
 ```
 
 ---
@@ -1039,7 +1732,9 @@ _**Example**_: haSUI (simple - 1 shared object):
     "packageId": "0xbde4ba4c2e274a60ce15c1cfff9e5c42e41654ac8b6d906a57efa4bd3c29f47d",
     "module": "staking",
     "function": "get_sui_by_stsui",
-    "sharedObjects": ["0x47b224762220393057ebf4f70501b6e657c3e56684737568439a04f80849b2ca"],
+    "sharedObjects": [
+      "0x47b224762220393057ebf4f70501b6e657c3e56684737568439a04f80849b2ca"
+    ],
     "provideLstAmount": true
   }
 }
@@ -1104,19 +1799,31 @@ _**Returns**_: The current price of an on-chain oracle.
 _**Example**_: The Switchboard SOL/USD oracle price.
 
 ```json
-{ "oracleTask": { "switchboardAddress": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR" } }
+{
+  "oracleTask": {
+    "switchboardAddress": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+  }
+}
 ```
 
 _**Example**_: The Pyth SOL/USD oracle price.
 
 ```json
-{ "oracleTask": { "pythAddress": "H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG" } }
+{
+  "oracleTask": {
+    "pythAddress": "H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG"
+  }
+}
 ```
 
 _**Example**_: The Chainlink SOL/USD oracle price.
 
 ```json
-{ "oracleTask": { "chainlinkAddress": "CcPVS9bqyXbD9cLnTbhhHazLsrua8QMFUHTutPtjyDzq" } }
+{
+  "oracleTask": {
+    "chainlinkAddress": "CcPVS9bqyXbD9cLnTbhhHazLsrua8QMFUHTutPtjyDzq"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1217,7 +1924,14 @@ _**Returns**_: The time weighted average of an aggregator over a given time peri
 _**Example**_: The 1hr Twap of the SOL/USD Aggregator, requiring at least 60 samples.
 
 ```json
-{ "twapTask": { "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR", "period": 3600, "minSamples": 60, "weightByPropagationTime": true  } }
+{
+  "twapTask": {
+    "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR",
+    "period": 3600,
+    "minSamples": 60,
+    "weightByPropagationTime": true
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1293,7 +2007,11 @@ _**Returns**_: The requested price or value based on the specified method.
 _**Example**_: Fetch the syrupUSDC fair price from Maple Finance
 
 ```json
-{ "mapleFinanceTask": { "method": "METHOD_SYRUP_USDC_FAIR_PRICE" } }
+{
+  "mapleFinanceTask": {
+    "method": "METHOD_SYRUP_USDC_FAIR_PRICE"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1524,7 +2242,24 @@ _**Returns**_: The input
 _**Example**_: CacheTask storing ${ONE} = 1
 
 ```json
-{ "cacheTask": { "cacheItems": [ { "variableName": "ONE", "job": { "tasks": [ { "valueTask": { "value": 1 } } ] } } ] } }
+{
+  "cacheTask": {
+    "cacheItems": [
+      {
+        "variableName": "ONE",
+        "job": {
+          "tasks": [
+            {
+              "valueTask": {
+                "value": 1
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1560,7 +2295,29 @@ _**Returns**_: A numerical result, else run `on_failure` subtasks.
 _**Example**_: Returns the numerical result from the conditionalTask's subtasks, else `on_failure` returns the numerical result from its subtasks.
 
 ```json
-{"conditionalTask":{"attempt":[{"tasks":[{"jupiterSwapTask":{"inTokenAddress":"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","outTokenAddress":"DUALa4FC2yREwZ59PHeu1un4wis36vHRv5hWVBmzykCJ"}}]}],"onFailure":[{"lpExchangeRateTask":{"orcaPoolAddress":"7yJ4gMRJhEoCR48aPE3EAWRmCoygakik81ZS1sajaTnE"}}]}}
+{
+  "conditionalTask": {
+    "attempt": [
+      {
+        "tasks": [
+          {
+            "jupiterSwapTask": {
+              "inTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              "outTokenAddress": "DUALa4FC2yREwZ59PHeu1un4wis36vHRv5hWVBmzykCJ"
+            }
+          }
+        ]
+      }
+    ],
+    "onFailure": [
+      {
+        "lpExchangeRateTask": {
+          "orcaPoolAddress": "7yJ4gMRJhEoCR48aPE3EAWRmCoygakik81ZS1sajaTnE"
+        }
+      }
+    ]
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1581,7 +2338,11 @@ _**Returns**_: The input
 _**Example**_: SecretsTask
 
 ```json
-{ "secretsTask": { "authority": "Accb21tUCWocJea6Uk3DgrNZawgmKegDVeHw8cGMDPi5" } }
+{
+  "secretsTask": {
+    "authority": "Accb21tUCWocJea6Uk3DgrNZawgmKegDVeHw8cGMDPi5"
+  }
+}
 ```
 
 | Field | Type | Description |
@@ -1618,19 +2379,31 @@ _**Returns**_: A numerical result.
 _**Example**_: Returns the value 10
 
 ```json
-{"valueTask": {"value": 10} }
+{
+  "valueTask": {
+    "value": 10
+  }
+}
 ```
 
 _**Example**_: Returns the currentRound result of an aggregator
 
 ```json
-{"valueTask": {"aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"} }
+{
+  "valueTask": {
+    "aggregatorPubkey": "GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+  }
+}
 ```
 
 _**Example**_: Returns the value stored in a CacheTask variable
 
 ```json
-{"valueTask": {"big": "${ONE}"} }
+{
+  "valueTask": {
+    "big": "${ONE}"
+  }
+}
 ```
 
 ---
@@ -1696,7 +2469,11 @@ _**Returns**_: The current price of the specified Fragmetric token relative to S
 _**Example**_: Fetch the fragSOL token price
 
 ```json
-{ "fragmetricTask": { "token": "TOKEN_FRAG_SOL" } }
+{
+  "fragmetricTask": {
+    "token": "TOKEN_FRAG_SOL"
+  }
+}
 ```
 
 | Field | Type | Description |
