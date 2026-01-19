@@ -15,5 +15,5 @@ Why use Switchboard? Our protocol is designed around 4 principles:
 * **Secure and Private**
   * Switchboard prevents anyone, including node operators, from altering, exposing or frontrunning your data. Inside Trusted Execution Environments (TEEs), your code and data stay safe and secure.
 
-The Switchboard Protocol is [open-source](https://github.com/switchboard-xyz) and contributions are welcome. Need help using Switchboard? Our support team is available around the clock on [Discord](https://discord.gg/switchboardxyz).
+The Switchboard Protocol is [open-source](https://github.com/switchboard-xyz) and contributions are welcome. Need help using Switchboard? Our support team is available around the clock on [Discord](https://discord.gg/EyBm9a3bYm).
 

@@ -266,4 +266,4 @@ The SDK includes automatic reconnection logic with exponential backoff. Your app
 * [Surge Tutorial](surge-tutorial.md) - Step-by-step implementation guide
 * [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
 * [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
-* [Join our Discord](https://discord.gg/switchboard)
+* [Join our Discord](https://discord.gg/EyBm9a3bYm)

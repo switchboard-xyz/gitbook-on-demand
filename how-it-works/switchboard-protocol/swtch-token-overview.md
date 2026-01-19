@@ -99,7 +99,7 @@ SWTCH is the governance and utility token that powers the Switchboard oracle net
 
 ## Community & Support
 
-* **Discord**: [discord.gg/switchboardxyz](https://discord.gg/switchboardxyz)
+* **Discord**: [discord.gg/EyBm9a3bYm](https://discord.gg/EyBm9a3bYm)
 * **Twitter**: [@switchboardxyz](https://x.com/switchboardxyz)
 * **Foundation**: [switchboard.foundation](https://switchboard.foundation/)
 

@@ -293,4 +293,4 @@ Simulation succeeded!
 - Learn about [Variable Overrides](../../../custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md) for other dynamic patterns
 - Explore [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) for building your own oracle jobs
 - Check out other [Solana examples](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana)
-- Join our [Discord](https://discord.gg/switchboard) for support
+- Join our [Discord](https://discord.gg/EyBm9a3bYm) for support

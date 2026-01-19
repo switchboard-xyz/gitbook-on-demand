@@ -12,4 +12,4 @@ Exchanges with low liquidity/volume can become manipulable by bad actors if smal
 
 ## How do I get a new Task Type added?
 
-It's recommended to exhaust all options for fetching the data you desire using existing task types before requesting new task types, but if it requires a custom On-Chain SDK, please [reach out ](https://discord.com/invite/switchboardxyz)and it can get added to the roadmap.
+It's recommended to exhaust all options for fetching the data you desire using existing task types before requesting new task types, but if it requires a custom On-Chain SDK, please [reach out ](https://discord.gg/EyBm9a3bYm)and it can get added to the roadmap.
