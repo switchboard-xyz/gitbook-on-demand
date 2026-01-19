@@ -151,7 +151,7 @@ Whether you've participated in Switchboard Orbs points programs, staked with Fra
 
 * **Official Website**: [switchboard.xyz](https://switchboard.xyz)
 * **Twitter/X**: [@switchboardxyz](https://x.com/switchboardxyz)
-* **Discord**: [discord.gg/switchboardxyz](https://discord.gg/switchboardxyz)
+* **Discord**: [discord.gg/EyBm9a3bYm](https://discord.gg/EyBm9a3bYm)
 * **Medium Blog**: [switchboardxyz.medium.com](https://switchboardxyz.medium.com/)
 * **GitHub**: [github.com/switchboard-xyz](https://github.com/switchboard-xyz)
 * **YouTube**: [@SwitchboardFoundationGroup](https://www.youtube.com/@SwitchboardFoundationGroup)
