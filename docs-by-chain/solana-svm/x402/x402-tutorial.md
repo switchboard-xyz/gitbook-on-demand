@@ -18,19 +18,19 @@ In this tutorial, we'll fetch data from a **paywalled Helius RPC endpoint** usin
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              X402 Oracle Flow                                │
+│                              X402 Oracle Flow                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
+│                                                                             │
 │   YOUR APP                           ORACLE (TEE)           PAYWALLED API   │
 │   ────────                           ────────────           ─────────────   │
-│                                                                              │
-│   1. Derive X402 payment ─────┐                                              │
-│      headers (USDC auth)      │                                              │
-│                               ▼                                              │
-│   2. Define feed with    ┌─────────┐                                         │
-│      ${PLACEHOLDER}  ───►│Crossbar │                                         │
-│      variables           └────┬────┘                                         │
-│                               │                                              │
+│                                                                             │
+│   1. Derive X402 payment ─────┐                                             │
+│      headers (USDC auth)      │                                             │
+│                               ▼                                             │
+│   2. Define feed with    ┌─────────┐                                        │
+│      ${PLACEHOLDER}  ───►│Crossbar │                                        │
+│      variables           └────┬────┘                                        │
+│                               │                                             │
 │   3. Pass headers as          │    4. Oracle makes               ┌────────┐ │
 │      variable overrides ──────┼─────► authenticated ────────────►│ Helius │ │
 │                               │       HTTP request               │  RPC   │ │
@@ -38,12 +38,12 @@ In this tutorial, we'll fetch data from a **paywalled Helius RPC endpoint** usin
 │                               │       header                         │      │
 │                               │                                      │      │
 │                               │    5. Paywalled data ◄───────────────┘      │
-│                               │       returned                               │
-│                               ▼                                              │
-│   6. Signed oracle data  ┌─────────┐                                         │
-│      in quote account ◄──│ Oracle  │                                         │
-│                          │Response │                                         │
-│                          └─────────┘                                         │
+│                               │       returned                              │
+│                               ▼                                             │
+│   6. Signed oracle data  ┌─────────┐                                        │
+│      in quote account ◄──│ Oracle  │                                        │
+│                          │Response │                                        │
+│                          └─────────┘                                        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
