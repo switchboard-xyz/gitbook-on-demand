@@ -57,9 +57,7 @@ A **Queue** is the set of oracles that will resolve your feed. Feeds are always 
 ### Simulation vs deployment
 
 - **Simulation**: run your job(s) against real sources off-chain to validate logic and observe outputs.
-- **Deployment** (chain-dependent):
-  - On **Solana/SVM**, deployment typically creates an on-chain *PullFeed* account.
-  - On **EVM**, feeds are identified by a deterministic `bytes32` ID and are updated via the Switchboard contract (no separate “feed account” creation step on-chain).
+- **Deployment**: Store your feed definition with Crossbar to get a feed hash/ID. On all chains, feeds use canonical accounts derived from this ID—no explicit account creation needed.
 
 This page focuses on **building and simulating** with the UI.
 

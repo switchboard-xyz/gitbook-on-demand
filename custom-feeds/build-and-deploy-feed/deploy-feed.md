@@ -3,12 +3,12 @@ title: Deploy Feed
 description: How deployment works across Solana/SVM and EVM, and what "deploying a feed" actually means per chain.
 ---
 
-“Deploying” a Switchboard feed means different things depending on the chain:
+"Deploying" a Switchboard feed means making it available for use on-chain. With Switchboard's **managed update system**, this is simpler than ever:
 
-- **Solana/SVM**: you create a real on-chain **PullFeed account** (an address) that references your feed definition and can be updated by oracle signatures.
-- **EVM**: feeds are identified by a deterministic `bytes32` ID (derived from the job definition + queue). You generally **do not** create a dedicated on-chain “feed account”; instead, you submit oracle-signed updates to the Switchboard contract and read the latest update from storage.
+- **Solana/SVM**: Feeds use **canonical OracleQuote accounts** derived deterministically from feed IDs. No explicit account creation needed—accounts are created automatically on first use.
+- **EVM**: Feeds are identified by a deterministic `bytes32` ID. You submit oracle-signed updates to the Switchboard contract and read the latest update from storage.
 
-This guide covers both paths and explains why Switchboard’s docs historically focused on Solana deployment: **Solana requires an explicit on-chain initialization transaction**, whereas EVM is closer to “publish + integrate + update”.
+Both chains follow the same pattern: **store your feed definition, get a feed ID, then use managed updates**.
 
 ---
 
@@ -28,18 +28,18 @@ If you haven't designed and simulated your jobs yet, start here:
 
 ---
 
-# Solana / SVM: Deploy a PullFeed account
+# Solana / SVM: Deploy with Managed Updates
 
 ## What you are doing
 
 On Solana, deployment means:
 
 1. Choose a **queue** (oracle subnet).
-2. Optionally **store/pin** your job definition so it’s discoverable.
-3. Create a **new PullFeed account** on-chain and configure it with:
-   - feed hash (the definition)
-   - variance/quorum/staleness rules
-   - authority and metadata
+2. **Store/pin** your job definition with Crossbar to get a feed hash.
+3. Use the feed hash to derive the **canonical OracleQuote account** address.
+4. Fetch managed update instructions and include them in your transactions.
+
+The canonical account is created automatically on first use—no explicit initialization transaction required.
 
 ## Requirements
 
@@ -47,7 +47,7 @@ On Solana, deployment means:
 - A Solana RPC URL
 - Your OracleJob[] definition
 
-Create a keypair file if you don’t have one:
+Create a keypair file if you don't have one:
 
 ```bash
 solana-keygen new --outfile path/to/solana-keypair.json
@@ -61,13 +61,13 @@ bun add @switchboard-xyz/on-demand @switchboard-xyz/common
 
 ## Deployment flow (TypeScript)
 
-Below is the canonical deployment flow as a single script outline. You can merge this into the same project where you built/simulated your jobs.
+Below is the deployment flow using managed updates. You can merge this into the same project where you built/simulated your jobs.
 
 ```ts
 import { CrossbarClient, OracleJob } from "@switchboard-xyz/common";
 import {
   AnchorUtils,
-  PullFeed,
+  OracleQuote,
   getDefaultQueue,
   getDefaultDevnetQueue,
   asV0Tx,
@@ -85,51 +85,52 @@ const connection = /* new Connection(RPC_URL) */;
 const queue = await getDefaultQueue(connection.rpcUrl);
 // or: const queue = await getDefaultDevnetQueue(connection.rpcUrl);
 
-// 4) (Recommended) Store jobs with Crossbar and get a feedHash
+// 4) Store jobs with Crossbar and get a feedHash
 const crossbarClient = CrossbarClient.default();
 const { feedHash } = await crossbarClient.store(queue.pubkey.toBase58(), jobs);
+console.log("Feed hash:", feedHash);
 
-// 5) Load payer (funded)
+// 5) Derive the canonical OracleQuote account address
+// This is deterministic - same feed hash always produces the same address
+const [quoteAccount] = OracleQuote.getCanonicalPubkey(queue.pubkey, [feedHash]);
+console.log("Quote account:", quoteAccount.toBase58());
+
+// 6) Load payer (funded)
 const payer = await AnchorUtils.initKeypairFromFile("path/to/solana-keypair.json");
 
-// 6) Generate a new pull feed keypair + wrapper
-const [pullFeed, feedKeypair] = PullFeed.generate(queue.program);
-
-// 7) Create the init instruction (configure validation + metadata)
-const initPullIx = await pullFeed.initIx({
-  feedHash,
-  minSampleSize: 1,
-  maxStalenessSlots: 1000,
-  maxVariance: 1,
-  minResponses: 1,
-  name: "MY-FEED",
+// 7) Fetch managed update instructions
+// This returns Ed25519 verification + quote storage instructions
+const updateIxs = await queue.fetchManagedUpdateIxs(crossbarClient, [feedHash], {
+  payer: payer.publicKey,
 });
 
-// 8) Build a v0 transaction and send it
+// 8) Build and send a transaction to verify everything works
 const tx = await asV0Tx({
   connection,
-  ixs: [initPullIx],
+  ixs: updateIxs,
   payer: payer.publicKey,
-  signers: [payer, feedKeypair],
+  signers: [payer],
 });
 
 const sig = await connection.sendTransaction(tx);
 console.log("Transaction signature:", sig);
-console.log("PullFeed publicKey:", pullFeed.pubkey.toBase58());
+console.log("Feed deployed! Quote account:", quoteAccount.toBase58());
 ```
 
-### Choosing validation parameters
+### Using validation parameters
 
-- **minResponses**: raise this if you want stronger quorum guarantees.
-- **maxVariance**: lower this if you want tighter agreement across job outputs.
-- **maxStalenessSlots**: raise this if you can tolerate older data; lower it for strict freshness.
-- **minSampleSize**: determines how many samples are considered when reading.
+Validation parameters (min responses, max variance, staleness) are now specified when fetching updates or reading data, rather than at deployment time:
 
-If you’re coming from the UI, these correspond to the same concepts (Min Responses, Max Variance, Sample Size, Max Staleness).
+```ts
+// When reading in your program, use QuoteVerifier with max_age
+const quote_data = QuoteVerifier::new()
+    .max_age(30)  // Reject data older than 30 slots
+    .verify_account(quote)?;
+```
 
 ### Make it discoverable
 
-Storing with Crossbar pins the feed definition to IPFS and makes it easier to view/debug in the Switchboard explorer.
+Storing with Crossbar pins the feed definition to IPFS and makes it easier to view/debug in the Switchboard explorer. The feed hash is the key identifier you'll use throughout your integration.
 
 ---
 
@@ -144,7 +145,7 @@ On EVM, a feed is identified by a **deterministic `bytes32` feed ID**. You can t
 3. Fetch oracle-signed updates off-chain.
 4. Submit updates on-chain via `updateFeeds`.
 
-There is no per-feed “account creation” transaction analogous to Solana’s PullFeed init.
+This is the same pattern Solana now uses with managed updates—no explicit account creation needed.
 
 ## On-chain: reading and updating
 
