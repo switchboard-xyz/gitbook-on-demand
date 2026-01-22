@@ -10,7 +10,7 @@
     * [Basic Price Feed Tutorial](docs-by-chain/solana-svm/price-feeds/basic-price-feed.md)
     * [Advanced Price Feed Tutorial](docs-by-chain/solana-svm/price-feeds/advanced-price-feed.md)
   * [Surge Price Feeds](docs-by-chain/solana-svm/surge/README.md)
-    * [Surge Tutorial](docs-by-chain/solana-svm/surge/surge.md)
+    * [Surge Tutorial](docs-by-chain/solana-svm/surge/surge-tutorial.md)
   * [Prediction Market](docs-by-chain/solana-svm/prediction-market/README.md)
     * [Prediction Market Tutorial](docs-by-chain/solana-svm/prediction-market/prediction-market-tutorial.md)
   * [Randomness](docs-by-chain/solana-svm/randomness/README.md)
@@ -31,9 +31,9 @@
     * [Price Feeds Tutorial](docs-by-chain/sui/price-feeds/price-feeds-tutorial.md)
   * [Surge Price Feeds](docs-by-chain/sui/surge/README.md)
     * [Surge Tutorial](docs-by-chain/sui/surge/surge-tutorial.md)
-* [Aptos](docs-by-chain/aptos/data-feeds.md)
-* [Iota](docs-by-chain/iota/data-feeds.md)
-* [Movement](docs-by-chain/movement/data-feeds.md)
+* [Aptos](docs-by-chain/aptos/aptos.md)
+* [Iota](docs-by-chain/iota/iota.md)
+* [Movement](docs-by-chain/movement/movement.md)
 * [SAIL](docs-by-chain/sail.md)
 
 ## Custom Feeds
@@ -91,8 +91,8 @@
 
 * [Crossbar](tooling/crossbar/README.md)
   * [Run Crossbar with Docker Compose](tooling/crossbar/run-crossbar-with-docker-compose.md)
-* [CLI (Command Line Interface)](tooling/switchboard-command-line-interface.md)
-* [SDKs (Software Developer Kits)](tooling/technical-resources-and-documentation/sdks-and-documentation.md)
+* [CLI](tooling/cli.md)
+* [SDKs](tooling/sdks.md)
 
 ## Governance & Tokenomics
 
