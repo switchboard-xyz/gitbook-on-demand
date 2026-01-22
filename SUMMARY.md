@@ -31,9 +31,9 @@
     * [Price Feeds Tutorial](docs-by-chain/sui/price-feeds/price-feeds-tutorial.md)
   * [Surge Price Feeds](docs-by-chain/sui/surge/README.md)
     * [Surge Tutorial](docs-by-chain/sui/surge/surge-tutorial.md)
-* [Aptos](docs-by-chain/aptos/data-feeds.md)
-* [Iota](docs-by-chain/iota/data-feeds.md)
-* [Movement](docs-by-chain/movement/data-feeds.md)
+* [Aptos](docs-by-chain/aptos/aptos.md)
+* [Iota](docs-by-chain/iota/iota.md)
+* [Movement](docs-by-chain/movement/movement.md)
 * [SAIL](docs-by-chain/sail.md)
 
 ## Custom Feeds
