@@ -4,8 +4,6 @@
 
 Crossbar can be run pretty easily with Docker. The instructions below will walk you through running Crossbar in Docker containers using Docker Compose.
 
-For Swagger documentation, see: [https://crossbar.switchboard.xyz/docs](https://crossbar.switchboard.xyz/docs)
-
 #### Crossbar Rust Implementation
 
 The current version of Crossbar is implemented in Rust and includes built-in simulation capabilities, eliminating the need for a separate Task Runner Simulator service. This provides better performance and simplified deployment.
