@@ -80,4 +80,4 @@ While a public instance is available for quick testing, running your own Crossba
 **Examples:**
 
 * **Job Definition Fetch:** [https://crossbar.switchboard.xyz/fetch/2718f49aa8fb6b71452ef149fa654a06d3996113034c27e2dca5c71b4a2866e7](https://crossbar.switchboard.xyz/fetch/2718f49aa8fb6b71452ef149fa654a06d3996113034c27e2dca5c71b4a2866e7)
-* **EVM Oracle Fetch (Core Testnet):** [https://crossbar.switchboard.xyz/updates/evm/1115/4f0e020e3d6f65cf21adb7766d065f787293154964be259dddb56e848ff838a0](https://crossbar.switchboard.xyz/updates/evm/1115/4f0e020e3d6f65cf21adb7766d065f787293154964be259dddb56e848ff838a0)
+* **EVM Oracle Fetch (Core Mainnet):** [https://crossbar.switchboard.xyz/updates/evm/1116/fd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c](https://crossbar.switchboard.xyz/updates/evm/1116/fd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c)

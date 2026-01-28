@@ -26,12 +26,16 @@ Before running crossbar, ensure you have the following
 
 1. **Create a `docker-compose.yml` File**: In your project directory, create a file named `docker-compose.yml`. This file will define the Docker services and environment variables.
 
+> **Platform Compatibility Note:** The Crossbar Docker image is built for `linux/amd64` (x86/Intel architecture). If you're running on Apple Silicon (M1, M2, M3, M4 Macs) or other ARM-based systems, add the `platform: linux/amd64` line under the service definition. Docker Desktop will use Rosetta 2 or QEMU to emulate the x86 architecture. For best performance on Apple Silicon, ensure "Use Rosetta for x86/amd64 emulation" is enabled in Docker Desktop settings.
+
 ```yaml
 version: '3.8'
 
 services:
   crossbar:
     image: switchboardlabs/rust-crossbar:stable
+    # Uncomment the following line if running on Apple Silicon (M1/M2/M3/M4) or other ARM systems:
+    # platform: linux/amd64
     ports:
       - "8080:8080"  # HTTP API
       - "8081:8081"  # WebSocket
@@ -41,17 +45,15 @@ services:
       WS_PORT: ${WS_PORT:-8081}
       
       # === Blockchain RPCs (Optional - Recommended) ===
-      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-"https://api.mainnet-beta.solana.com"}
-      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-"https://api.devnet.solana.com"}
-      
+      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-https://api.mainnet-beta.solana.com}
+      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-https://api.devnet.solana.com}
+
       # === IPFS Configuration (Optional) ===
-      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-"https://ipfs.io"}
-      PINATA_JWT_KEY: ${PINATA_JWT_KEY}
-      PINATA_GATEWAY_KEY: ${PINATA_GATEWAY_KEY}
-      
+      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io}
+
       # === Performance (Optional) ===
       BROADCAST_WORKER_THREADS: ${BROADCAST_WORKER_THREADS:-32}
-      RUST_LOG: ${RUST_LOG:-"info"}
+      RUST_LOG: ${RUST_LOG:-info}
 ```
 
 #### **Step 3: Create the `.env` File**
@@ -63,8 +65,8 @@ services:
 # All environment variables are optional and have sensible defaults
 
 # Recommended for better performance
-SOLANA_MAINNET_RPC_URL="your-mainnet-rpc-url"
-SOLANA_DEVNET_RPC_URL="your-devnet-rpc-url"
+SOLANA_MAINNET_RPC_URL=https://api.mainnet-beta.solana.com
+SOLANA_DEVNET_RPC_URL=https://api.devnet.solana.com
 
 # Optional IPFS configuration
 # PINATA_JWT_KEY="your-pinata-jwt-key"
@@ -167,6 +169,6 @@ This command will stop and remove the containers defined in your `docker-compose
 
 ### Testing it out:
 
-Try the deployment out by navigating to (can take a few seconds the first run): [http://localhost:8080/updates/evm/1115/4f0e020e3d6f65cf21adb7766d065f787293154964be259dddb56e848ff838a0](http://localhost:8080/updates/evm/1115/4f0e020e3d6f65cf21adb7766d065f787293154964be259dddb56e848ff838a0)
+Try the deployment out by navigating to (can take a few seconds the first run): [http://localhost:8080/updates/evm/1116/fd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c](http://localhost:8080/updates/evm/1116/fd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c)
 
-The equivalent result should look something like the output from the public node: [https://crossbar.switchboard.xyz/updates/evm/1115/4f0e020e3d6f65cf21adb7766d065f787293154964be259dddb56e848ff838a0](https://crossbar.switchboard.xyz/updates/evm/1115/4f0e020e3d6f65cf21adb7766d065f787293154964be259dddb56e848ff838a0)
+The equivalent result should look something like the output from the public node: [https://crossbar.switchboard.xyz/updates/evm/1116/fd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c](https://crossbar.switchboard.xyz/updates/evm/1116/fd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c)
