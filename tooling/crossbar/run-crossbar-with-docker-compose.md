@@ -26,12 +26,16 @@ Before running crossbar, ensure you have the following
 
 1. **Create a `docker-compose.yml` File**: In your project directory, create a file named `docker-compose.yml`. This file will define the Docker services and environment variables.
 
+> **Platform Compatibility Note:** The Crossbar Docker image is built for `linux/amd64` (x86/Intel architecture). If you're running on Apple Silicon (M1, M2, M3, M4 Macs) or other ARM-based systems, add the `platform: linux/amd64` line under the service definition. Docker Desktop will use Rosetta 2 or QEMU to emulate the x86 architecture. For best performance on Apple Silicon, ensure "Use Rosetta for x86/amd64 emulation" is enabled in Docker Desktop settings.
+
 ```yaml
 version: '3.8'
 
 services:
   crossbar:
     image: switchboardlabs/rust-crossbar:stable
+    # Uncomment the following line if running on Apple Silicon (M1/M2/M3/M4) or other ARM systems:
+    # platform: linux/amd64
     ports:
       - "8080:8080"  # HTTP API
       - "8081:8081"  # WebSocket
@@ -41,17 +45,15 @@ services:
       WS_PORT: ${WS_PORT:-8081}
       
       # === Blockchain RPCs (Optional - Recommended) ===
-      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-"https://api.mainnet-beta.solana.com"}
-      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-"https://api.devnet.solana.com"}
-      
+      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-https://api.mainnet-beta.solana.com}
+      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-https://api.devnet.solana.com}
+
       # === IPFS Configuration (Optional) ===
-      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-"https://ipfs.io"}
-      PINATA_JWT_KEY: ${PINATA_JWT_KEY}
-      PINATA_GATEWAY_KEY: ${PINATA_GATEWAY_KEY}
-      
+      IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io}
+
       # === Performance (Optional) ===
       BROADCAST_WORKER_THREADS: ${BROADCAST_WORKER_THREADS:-32}
-      RUST_LOG: ${RUST_LOG:-"info"}
+      RUST_LOG: ${RUST_LOG:-info}
 ```
 
 #### **Step 3: Create the `.env` File**
@@ -63,8 +65,8 @@ services:
 # All environment variables are optional and have sensible defaults
 
 # Recommended for better performance
-SOLANA_MAINNET_RPC_URL="your-mainnet-rpc-url"
-SOLANA_DEVNET_RPC_URL="your-devnet-rpc-url"
+SOLANA_MAINNET_RPC_URL=https://api.mainnet-beta.solana.com
+SOLANA_DEVNET_RPC_URL=https://api.devnet.solana.com
 
 # Optional IPFS configuration
 # PINATA_JWT_KEY="your-pinata-jwt-key"
