@@ -20,4 +20,4 @@ The entire site content in a single file. Useful for smaller docsets or offline 
 
 ### MCP Server
 
-GitBook exposes an MCP endpoint at `/<root>/~gitbook/mcp` so tools can discover and retrieve docs as structured resources rather than scraping.
+Use the MCP endpoint at `docs.switchboard.xyz/~gitbook/mcp` to discover and retrieve docs as structured resources rather than scraping.
