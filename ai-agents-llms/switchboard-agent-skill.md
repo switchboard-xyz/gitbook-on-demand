@@ -4,6 +4,7 @@ This skill defines an autonomous operator for designing, simulating, deploying, 
 
 ## Skill (Full Markdown)
 
+````md
 ---
 name: switchboard-data-operator
 description: Autonomous operator for Switchboard on-demand feeds, Surge streaming, and randomness. Designs jobs, simulates via Crossbar, and deploys/updates/reads feeds across Solana/SVM, EVM, Sui, and other Switchboard-supported chains—with user-controlled security, spend limits, and allow/deny lists.
@@ -1231,3 +1232,4 @@ When producing artifacts, use these headings and keep them concise:
 
 ### Code & API References
 See "Developer Resources & Tools" table in the SDKs section above.
+````
