@@ -94,6 +94,10 @@
 * [CLI](tooling/cli.md)
 * [SDKs](tooling/sdks.md)
 
+## AI Agents / LLMs
+
+* [Overview](ai-agents-llms/README.md)
+
 ## Governance & Tokenomics
 
 * [SWTCH Token Overview](how-it-works/switchboard-protocol/swtch-token-overview.md)
