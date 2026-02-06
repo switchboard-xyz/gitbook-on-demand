@@ -584,7 +584,7 @@ function shouldLiquidate(
 
 ## Available Feeds
 
-Find available price feeds at the [Switchboard Explorer](https://explorer.switchboard.xyz).
+Find available price feeds at the [Switchboard Explorer](https://explorer.switchboardlabs.xyz).
 
 Popular feeds include:
 - **BTC/USD**: `0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812`
