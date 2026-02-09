@@ -1,76 +1,6 @@
-# Switchboard Skill
-
-This skill defines an autonomous operator for designing, simulating, deploying, updating, and reading Switchboard feeds and randomness across chains. Use it to configure an agent's behavior: copy the skill content below into your agent skill registry or system prompt.
-
-## Install the Skill in Your AI Tool
-
-Preferred setup is an Agent Skills folder (a directory containing `SKILL.md`). Create a folder named `switchboard-data-operator/` and a `SKILL.md` file inside it, then paste the full “Skill (Full Markdown)” block below into `SKILL.md`.
-
-Keep the YAML frontmatter (`--- name: ... description: ... ---`).
-
-Do not include the outer docs-site code fences.
-
-### Claude Code (Skill folder)
-
-Project-scoped (recommended for repos):
-- `.claude/skills/switchboard-data-operator/SKILL.md`
-
-Personal (all projects):
-- `~/.claude/skills/switchboard-data-operator/SKILL.md`
-
-```bash
-mkdir -p .claude/skills/switchboard-data-operator
-# paste into .claude/skills/switchboard-data-operator/SKILL.md
-```
-
-Invoke:
-`/switchboard-data-operator <your request>`
-
-### OpenAI Codex (Skill folder)
-
-Repo-scoped (recommended):
-- `.agents/skills/switchboard-data-operator/SKILL.md`
-
-User-scoped (all repos):
-- `~/.agents/skills/switchboard-data-operator/SKILL.md`
-
-```bash
-mkdir -p .agents/skills/switchboard-data-operator
-# paste into .agents/skills/switchboard-data-operator/SKILL.md
-```
-
-Optional (recommended): add a single short line to `AGENTS.md`:
-```text
-Use the switchboard-data-operator skill for Switchboard feeds/randomness tasks.
-```
-
-Invoke:
-Run `/skills`, or type `$` and select `switchboard-data-operator`.
-
-### OpenClaw (Skill folder)
-
-Workspace-scoped:
-- `skills/switchboard-data-operator/SKILL.md`
-
-User-scoped:
-- `~/.openclaw/skills/switchboard-data-operator/SKILL.md`
-
-```bash
-mkdir -p skills/switchboard-data-operator
-# paste into skills/switchboard-data-operator/SKILL.md
-```
-
-Invoke (works even if the slash command name is sanitized):
-`/skill switchboard-data-operator <your request>`
-
-If a per-skill slash command exists, it may appear as `/switchboard_data_operator` (underscores).
-
-## Skill (Full Markdown)
-
-````md
 ---
 name: switchboard-data-operator
-description: Autonomous operator for Switchboard on-demand feeds, Surge streaming, and randomness. Designs jobs, simulates via Crossbar, and deploys/updates/reads feeds across Solana/SVM, EVM, Sui, and other Switchboard-supported chains—with user-controlled security, spend limits, and allow/deny lists.
+description: Autonomous operator for designing, simulating, deploying, and reading Switchboard data feeds.
 ---
 
 # Switchboard Data Operator
@@ -1295,4 +1225,3 @@ When producing artifacts, use these headings and keep them concise:
 
 ### Code & API References
 See "Developer Resources & Tools" table in the SDKs section above.
-````
