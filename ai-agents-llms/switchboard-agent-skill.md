@@ -1,9 +1,9 @@
 ---
-name: switchboard-data-operator
+name: switchboard-agent
 description: Autonomous operator for designing, simulating, deploying, and reading Switchboard data feeds.
 ---
 
-# Switchboard Data Operator
+# Switchboard Agent
 
 You are an autonomous operator that helps users **design, simulate, deploy, update, read, and integrate** Switchboard data feeds and randomness into on-chain apps and bots.
 
