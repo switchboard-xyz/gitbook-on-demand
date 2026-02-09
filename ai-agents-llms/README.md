@@ -17,63 +17,60 @@ The [Switchboard Agent Skill](switchboard-agent-skill.md) defines an autonomous 
 
 ### Install the Skill in Your AI Tool
 
-Preferred setup is an Agent Skills folder (a directory containing `SKILL.md`). Create a folder named `switchboard-data-operator/` and a `SKILL.md` file inside it, then paste the full "Skill (Full Markdown)" block below into `SKILL.md`.
+Preferred setup is an Agent Skills folder (a directory containing `SKILL.md`). Create a folder named `switchboard-agent/` and a `SKILL.md` file inside it, then paste the [raw markdown for the skill](https://docs.switchboard.xyz/ai-agents-llms/switchboard-agent-skill.md) into it.
 
-Keep the YAML frontmatter (`--- name: ... description: ... ---`).
-
-Do not include the outer docs-site code fences.
 
 #### Claude Code (Skill folder)
 
 Project-scoped (recommended for repos):
-- `.claude/skills/switchboard-data-operator/SKILL.md`
+- `.claude/skills/switchboard-agent/SKILL.md`
 
 Personal (all projects):
-- `~/.claude/skills/switchboard-data-operator/SKILL.md`
+- `~/.claude/skills/switchboard-agent/SKILL.md`
 
 ```bash
-mkdir -p .claude/skills/switchboard-data-operator
-# paste into .claude/skills/switchboard-data-operator/SKILL.md
+mkdir -p .claude/skills/switchboard-agent
+# paste into .claude/skills/switchboard-agent/SKILL.md
 ```
 
 Invoke:
-`/switchboard-data-operator <your request>`
+`/switchboard-agent <your request>`
 
 #### OpenAI Codex (Skill folder)
 
 Repo-scoped (recommended):
-- `.agents/skills/switchboard-data-operator/SKILL.md`
+- `.agents/skills/switchboard-agent/SKILL.md`
 
 User-scoped (all repos):
-- `~/.agents/skills/switchboard-data-operator/SKILL.md`
+- `~/.agents/skills/switchboard-agent/SKILL.md`
 
 ```bash
-mkdir -p .agents/skills/switchboard-data-operator
-# paste into .agents/skills/switchboard-data-operator/SKILL.md
+mkdir -p .agents/skills/switchboard-agent
+# paste into .agents/skills/switchboard-agent/SKILL.md
 ```
 
 Optional (recommended): add a single short line to `AGENTS.md`:
 ```text
-Use the switchboard-data-operator skill for Switchboard feeds/randomness tasks.
+Use the switchboard-agent skill for Switchboard feeds/randomness tasks.
 ```
 
 Invoke:
-Run `/skills`, or type `$` and select `switchboard-data-operator`.
+Run `/skills`, or type `$` and select `switchboard-agent`.
 
 #### OpenClaw (Skill folder)
 
 Workspace-scoped:
-- `skills/switchboard-data-operator/SKILL.md`
+- `skills/switchboard-agent/SKILL.md`
 
 User-scoped:
-- `~/.openclaw/skills/switchboard-data-operator/SKILL.md`
+- `~/.openclaw/skills/switchboard-agent/SKILL.md`
 
 ```bash
-mkdir -p skills/switchboard-data-operator
-# paste into skills/switchboard-data-operator/SKILL.md
+mkdir -p skills/switchboard-agent
+# paste into skills/switchboard-agent/SKILL.md
 ```
 
 Invoke (works even if the slash command name is sanitized):
-`/skill switchboard-data-operator <your request>`
+`/skill switchboard-agent <your request>`
 
-If a per-skill slash command exists, it may appear as `/switchboard_data_operator` (underscores).
+If a per-skill slash command exists, it may appear as `/switchboard_agent` (underscores).
