@@ -16,8 +16,10 @@ A TypeScript application that:
 
 - Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
 - Node.js 18+ and npm/pnpm
-- A Sui keypair with SUI tokens (in your Sui keystore)
-- Active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
+- A Sui keypair with SUI tokens (in your Sui keystore) for signing Sui transactions
+- A Solana keypair with an active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
+
+Surge subscriptions are currently Solana-only; you cannot subscribe with a Sui keypair yet.
 
 ## Key Concepts
 
@@ -61,6 +63,7 @@ import {
 } from '@switchboard-xyz/sui-sdk';
 import { fromB64 } from '@mysten/bcs';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { Keypair as SolanaKeypair } from '@solana/web3.js';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -103,7 +106,7 @@ async function processTransactionQueue(): Promise<void> {
 
     const result = await suiClient.signAndExecuteTransaction({
       transaction: transaction,
-      signer: keypair!,
+      signer: suiKeypair!,
       options: {
         showEvents: true,
         showEffects: true,
@@ -171,34 +174,54 @@ function calculateStatistics(latencies: number[]) {
   };
 }
 
-// Load keypair from Sui keystore
-let keypair: Ed25519Keypair | null = null;
+// Load Sui keypair (for signing Sui transactions)
+let suiKeypair: Ed25519Keypair | null = null;
 
 try {
   const keystorePath = path.join(os.homedir(), '.sui', 'sui_config', 'sui.keystore');
   const keystore = JSON.parse(fs.readFileSync(keystorePath, 'utf-8'));
   const secretKey = fromB64(keystore[0]);
-  keypair = Ed25519Keypair.fromSecretKey(secretKey.slice(1));
+  suiKeypair = Ed25519Keypair.fromSecretKey(secretKey.slice(1));
 } catch (error) {
-  console.error('Error loading keypair:', error);
+  console.error('Error loading Sui keypair:', error);
 }
 
-if (!keypair) {
-  throw new Error('Keypair not loaded');
+// Load Solana keypair (subscription owner)
+let solanaKeypair: SolanaKeypair | null = null;
+
+try {
+  const solanaKeypairPath =
+    process.env.SOLANA_KEYPAIR_PATH ||
+    path.join(os.homedir(), '.config', 'solana', 'id.json');
+  const secretKey = Uint8Array.from(
+    JSON.parse(fs.readFileSync(solanaKeypairPath, 'utf-8'))
+  );
+  solanaKeypair = SolanaKeypair.fromSecretKey(secretKey);
+} catch (error) {
+  console.error('Error loading Solana keypair:', error);
+}
+
+if (!suiKeypair) {
+  throw new Error('Sui keypair not loaded');
+}
+
+if (!solanaKeypair) {
+  throw new Error('Solana keypair not loaded');
 }
 
 // Main function
 (async function main() {
   console.log('Starting Surge streaming...');
-  console.log(`Using keypair: ${keypair!.toSuiAddress()}`);
+  console.log(`Using Sui keypair: ${suiKeypair!.toSuiAddress()}`);
+  console.log(`Using Solana keypair: ${solanaKeypair!.publicKey.toBase58()}`);
 
   const latencies: number[] = [];
 
-  // Initialize Surge with keypair and connection (uses on-chain subscription)
+  // Initialize Surge with Solana keypair (subscription owner)
   const surge = new sb.Surge({
     connection: suiClient,
-    keypair: keypair!,
-    signatureScheme: 'secp256k1',
+    keypair: solanaKeypair!,
+    signatureScheme: 'ed25519',
   });
 
   // Connect and subscribe to feeds
@@ -251,16 +274,16 @@ Initialize the Sui and Switchboard clients. For testnet, use `https://fullnode.t
 ```typescript
 const surge = new sb.Surge({
   connection: suiClient,
-  keypair: keypair!,
-  signatureScheme: 'secp256k1',
+  keypair: solanaKeypair!,
+  signatureScheme: 'ed25519',
 });
 
 await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
 ```
 
 - `connection`: Your SuiClient instance
-- `keypair`: Your Sui keypair (must have an active subscription)
-- `signatureScheme`: Use `'secp256k1'` for Sui
+- `keypair`: Your Solana keypair (must have an active Surge subscription)
+- `signatureScheme`: Use `'ed25519'` for Solana keypairs
 - `connectAndSubscribe()`: Connects and subscribes to specified feeds
 
 #### Handling Updates
@@ -285,7 +308,7 @@ await emitSurgeQuote(switchboardClient, transaction, rawResponse);
 
 const result = await suiClient.signAndExecuteTransaction({
   transaction,
-  signer: keypair,
+  signer: suiKeypair,
 });
 ```
 
@@ -308,8 +331,8 @@ const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
 
 const surge = new sb.Surge({
   connection: suiClient,
-  keypair: keypair!,
-  signatureScheme: 'secp256k1',
+  keypair: solanaKeypair!,
+  signatureScheme: 'ed25519',
 });
 
 // Testnet oracle mapping endpoint
@@ -333,7 +356,7 @@ npm install
 
 ### 3. Ensure Active Subscription
 
-Your keypair in `~/.sui/sui_config/sui.keystore` must have an active Surge subscription. Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+Your Solana keypair (default `~/.config/solana/id.json` or `SOLANA_KEYPAIR_PATH`) must have an active Surge subscription. The Sui keypair only signs Sui transactions. Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
 
 ### 4. Run the Examples
 
@@ -349,7 +372,8 @@ npm run stream:testnet
 
 ```
 Starting Surge streaming...
-Using keypair: 0x...
+Using Sui keypair: 0x...
+Using Solana keypair: 9k...
 Loaded 15 oracle mappings
 Listening for price updates...
 Update #1 | Price: 97234.50 | Latency: 85ms | Avg: 85.0ms
@@ -365,10 +389,12 @@ Update #2 | Price: 97235.10 | Latency: 92ms | Avg: 88.5ms
 ### Dependencies
 
 ```bash
-npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk @mysten/sui
+npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk @mysten/sui @solana/web3.js
 ```
 
 ### Minimal Integration
+
+This example assumes you already loaded a `solanaKeypair` (with an active Surge subscription) and a `suiKeypair` (for signing Sui transactions).
 
 ```typescript
 import * as sb from '@switchboard-xyz/on-demand';
@@ -381,8 +407,8 @@ const switchboardClient = new SwitchboardClient(suiClient);
 
 const surge = new sb.Surge({
   connection: suiClient,
-  keypair: yourKeypair,
-  signatureScheme: 'secp256k1',
+  keypair: solanaKeypair, // Solana keypair with active Surge subscription
+  signatureScheme: 'ed25519',
 });
 
 await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
@@ -394,7 +420,7 @@ surge.on('signedPriceUpdate', async (response) => {
   // Sign and send transaction
   await suiClient.signAndExecuteTransaction({
     transaction: tx,
-    signer: keypair,
+    signer: suiKeypair,
   });
 });
 ```
@@ -444,11 +470,13 @@ The oracle mapping is cached for 10 minutes to avoid repeated API calls. Adjust 
 ## Troubleshooting
 
 ### "Keypair not loaded"
-- Ensure you have a valid keypair in `~/.sui/sui_config/sui.keystore`
+- Ensure you have a valid Sui keypair in `~/.sui/sui_config/sui.keystore`
 - Run `sui client new-address ed25519` to create one
+- Ensure you have a valid Solana keypair at `~/.config/solana/id.json` or `SOLANA_KEYPAIR_PATH`
+- Run `solana-keygen new` to create one
 
 ### "Subscription not found" or connection rejected
-- Ensure your keypair has an active Surge subscription
+- Ensure your Solana keypair has an active Surge subscription
 - Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions)
 
 ### "Oracle ID not found for key"

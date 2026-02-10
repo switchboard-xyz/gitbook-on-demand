@@ -28,7 +28,7 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 
 **Unmatched Performance** — Sub-100ms latency with direct WebSocket streaming and event-driven updates. No polling required.
 
-**Zero Setup** — No data feed accounts or on-chain deployment needed. Just use your keypair and connection to start streaming.
+**Zero Setup** — No data feed accounts or on-chain deployment needed. Just use your Solana keypair (subscription owner) and connection to start streaming.
 
 **Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when submitting to contracts.
 
@@ -66,8 +66,8 @@ yarn add @switchboard-xyz/on-demand @switchboard-xyz/common
 import * as sb from "@switchboard-xyz/on-demand";
 import { EVMUtils } from "@switchboard-xyz/common";
 
-// Initialize with keypair and connection (uses on-chain subscription)
-const surge = new sb.Surge({ connection, keypair });
+// Initialize with Solana keypair and connection (uses on-chain subscription)
+const surge = new sb.Surge({ connection, keypair }); // keypair = Solana keypair with active Surge subscription
 
 // Discover available feeds
 const availableFeeds = await surge.getSurgeFeeds();
@@ -226,7 +226,7 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
-const surge = new sb.Surge({ connection, keypair });
+const surge = new sb.Surge({ connection, keypair }); // Solana keypair with active Surge subscription
 const feeds = await surge.getSurgeFeeds();
 
 feeds.forEach(feed => {
