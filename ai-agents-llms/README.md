@@ -57,20 +57,6 @@ Use the switchboard-agent skill for Switchboard feeds/randomness tasks.
 Invoke:
 Run `/skills`, or type `$` and select `switchboard-agent`.
 
-#### OpenClaw (Skill folder)
+#### OpenClaw
 
-Workspace-scoped:
-- `skills/switchboard-agent/SKILL.md`
-
-User-scoped:
-- `~/.openclaw/skills/switchboard-agent/SKILL.md`
-
-```bash
-mkdir -p skills/switchboard-agent
-# paste into skills/switchboard-agent/SKILL.md
-```
-
-Invoke (works even if the slash command name is sanitized):
-`/skill switchboard-agent <your request>`
-
-If a per-skill slash command exists, it may appear as `/switchboard_agent` (underscores).
+Install the Switchboard Data Operator skill from [clawhub.ai](https://clawhub.ai/oakencore/switchboard-data-operator).
