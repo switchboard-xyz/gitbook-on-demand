@@ -12,6 +12,8 @@ Key benefits:
 - **Instant payments**: USDC micropayments settle immediately on Solana
 - **Seamless integration**: Works with standard HTTP APIs via authentication headers
 
+**Prerequisite:** A Solana keypair funded with USDC on mainnet-beta (including a USDC associated token account with balance) is required to generate PAYMENT-SIGNATURE headers.
+
 ## How It Works with Switchboard
 
 Switchboard integrates with X402 through **variable overrides**, a powerful feature that allows you to inject dynamic values into oracle job definitions at runtime. This enables oracles to authenticate with paywalled endpoints without storing sensitive credentials on-chain or in IPFS.
@@ -21,9 +23,9 @@ Switchboard integrates with X402 through **variable overrides**, a powerful feat
 │                           X402 + Switchboard Flow                       │
 └─────────────────────────────────────────────────────────────────────────┘
 
-  ┌──────────┐      1. Derive X402       ┌────────────────┐
-  │   Your   │      payment headers      │  X402 Manager  │
-  │   App    │ ────────────────────────► │  (Faremeter)   │
+  ┌──────────┐      1. Derive            ┌────────────────┐
+  │   Your   │      PAYMENT-SIGNATURE   │  x402 v2 Client │
+  │   App    │ ────────────────────────► │                │
   └──────────┘                           └────────────────┘
        │                                         │
        │ 2. Pass headers as                      │
@@ -31,7 +33,7 @@ Switchboard integrates with X402 through **variable overrides**, a powerful feat
        ▼                                         │
   ┌──────────┐                                   │
   │Crossbar  │ ◄─────────────────────────────────┘
-  │          │       X-PAYMENT header
+  │          │     PAYMENT-SIGNATURE header
   └──────────┘
        │
        │ 3. Fetch oracle update
@@ -51,20 +53,23 @@ Switchboard integrates with X402 through **variable overrides**, a powerful feat
   └──────────┘
 ```
 
-The key innovation is that oracle feeds are defined **inline** (not stored on IPFS), with placeholder variables like `${X402_PAYMENT_HEADER}` that get replaced at runtime with actual authentication headers.
+The key innovation is that oracle feeds are defined **inline** (not stored on IPFS), with placeholder variables like `${X402_PAYMENT_SIGNATURE}` that get replaced at runtime with actual authentication headers.
 
 ## Key Concepts
 
-### Faremeter Wallet
+### x402 v2 Client
 
-Faremeter is the payment infrastructure behind X402. You create a local wallet that manages USDC payments:
+Create an x402 v2 client that can sign USDC payments on Solana:
 
 ```typescript
-import { createLocalWallet } from "@faremeter/wallet-solana";
-import { exact } from "@faremeter/payment-solana";
+import { x402Client } from "@x402/fetch";
+import { registerExactSvmScheme } from "@x402/svm/exact/client";
+import { toClientSvmSigner } from "@x402/svm";
+import { createKeyPairSignerFromBytes } from "@solana/kit";
 
-const wallet = await createLocalWallet("mainnet-beta", keypair);
-const paymentHandler = exact.createPaymentHandler(wallet, USDC, connection);
+const signer = await createKeyPairSignerFromBytes(keypair.secretKey);
+const client = new x402Client();
+registerExactSvmScheme(client, { signer: toClientSvmSigner(signer) });
 ```
 
 ### Variable Overrides
@@ -79,8 +84,7 @@ const ORACLE_FEED = {
       httpTask: {
         url: "https://paywalled-api.example.com",
         headers: [
-          { key: "X-PAYMENT", value: "${X402_PAYMENT_HEADER}" },
-          { key: "X-SWITCHBOARD-PAYMENT", value: "${X402_SWITCHBOARD_PAYMENT_HEADER}" }
+          { key: "PAYMENT-SIGNATURE", value: "${X402_PAYMENT_SIGNATURE}" }
         ]
       }
     }]
@@ -93,8 +97,7 @@ At runtime, you derive the actual headers and pass them as overrides:
 ```typescript
 const instructions = await queue.fetchManagedUpdateIxs(crossbar, [ORACLE_FEED], {
   variableOverrides: {
-    X402_PAYMENT_HEADER: paymentHeader,
-    X402_SWITCHBOARD_PAYMENT_HEADER: switchboardPaymentHeader
+    X402_PAYMENT_SIGNATURE: paymentSignature
   }
 });
 ```

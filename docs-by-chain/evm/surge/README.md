@@ -50,7 +50,7 @@ Surge works the same way regardless of your target chain:
 
 ### 1. Subscribe
 
-Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions). If you are an AI agent or wish to subscribe programmatically rather than through the UI, see the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md).
 
 ### 2. Install the SDK
 
