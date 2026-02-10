@@ -189,7 +189,7 @@ Switchboard uses a **pull-based** (on-demand) model:
 - `sb.Randomness.create(program, keypair, queue)` — create randomness account
 - `randomness.commitIx(queue)` — commit to randomness
 - `randomness.revealIx()` — reveal randomness
-- `sb.Surge({ apiKey, gatewayUrl })` — Surge streaming client
+- `sb.Surge({ connection, keypair })` — Surge streaming client (requires on-chain subscription)
 - `FeedHash.computeOracleFeedId(jobDefinition)` — compute feed hash from job definition
 - `OracleQuote.getCanonicalPubkey(queuePubkey, feedHashes)` — derive canonical quote account
 
@@ -792,8 +792,8 @@ If targeting Aptos, Iota, or Movement:
 Surge is Switchboard's **signed, low-latency WebSocket streaming** service:
 - **2–5ms oracle latency** (sub-100ms end-to-end including network)
 - Signed updates that can be settled on-chain
-- Subscriptions managed on Solana regardless of target chain
-- Paid in **SWTCH tokens**
+- **Subscriptions managed on-chain via Solana**, regardless of target chain
+- Paid in **SWTCH tokens** via on-chain subscription
 
 ### Subscription Tiers
 
@@ -809,15 +809,18 @@ Surge is Switchboard's **signed, low-latency WebSocket streaming** service:
 ## Procedure
 
 ### 1. Initialize Surge client
+
+Surge requires an on-chain subscription. Initialize with your Solana connection and keypair:
+
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
 
-const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!,
-  gatewayUrl: "https://92.222.100.185.xip.switchboard-oracles.xyz/devnet",
-  verbose: true,
-});
+// Initialize with keypair and connection (uses on-chain subscription)
+const { keypair, connection, program } = await sb.AnchorUtils.loadEnv();
+const surge = new sb.Surge({ connection, keypair });
 ```
+
+**Note**: To create a Surge subscription programmatically, see the [Surge Subscription Guide](https://docs.switchboard.xyz/ai-agents-llms/surge-subscription-guide).
 
 ### 2. Discover available feeds
 ```typescript
@@ -901,21 +904,22 @@ Always apply:
 - NOT for on-chain use (unsigned data cannot be verified on-chain)
 
 ## Overview
-Unsigned streaming is a **lightweight, chain-agnostic WebSocket** feed for display purposes. It uses Crossbar mode and does not include cryptographic signatures.
+Unsigned streaming is a **lightweight, chain-agnostic WebSocket** feed for display purposes. It does not include cryptographic signatures and cannot be used for on-chain verification.
 
 ## Procedure
 
-### Initialize in Crossbar mode
+### Initialize for unsigned streaming
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
 
-const surge = new sb.Surge({
-  apiKey: process.env.SURGE_API_KEY!,
-  crossbarUrl: "https://crossbar.switchboardlabs.xyz",
-  crossbarMode: true, // enables unsigned streaming
-  verbose: true,
-});
+// Initialize with keypair and connection (uses on-chain subscription)
+const { keypair, connection, program } = await sb.AnchorUtils.loadEnv();
+const surge = new sb.Surge({ connection, keypair });
+
+// Unsigned streaming is available via the same Surge client
 ```
+
+**Note**: Unsigned updates are provided for monitoring/UI purposes only and cannot be verified on-chain.
 
 ### Handle unsigned updates
 ```typescript
