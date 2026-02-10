@@ -97,8 +97,8 @@
 ## AI Agents / LLMs
 
 * [Overview](ai-agents-llms/README.md)
-  * [Switchboard Agent Skill](ai-agents-llms/switchboard-agent-skill.md)
-  * [Surge Subscription Guide](ai-agents-llms/surge-subscription-guide.md)
+* [Switchboard Agent Skill](ai-agents-llms/switchboard-agent-skill.md)
+* [Surge Subscription Guide](ai-agents-llms/surge-subscription-guide.md)
 
 ## Governance & Tokenomics
 
