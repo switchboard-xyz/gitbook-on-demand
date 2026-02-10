@@ -808,9 +808,88 @@ Surge is Switchboard's **signed, low-latency WebSocket streaming** service:
 
 ## Procedure
 
+### 0. Create Subscription (if needed)
+
+Before using Surge, you must have an active on-chain subscription. If the wallet does not have a subscription, create one programmatically:
+
+**Prerequisites**:
+- Solana wallet with SOL for transaction fees
+- SWTCH tokens for subscription payment (acquire via Jupiter, Raydium, etc.)
+- Choose a tier: Plug (free), Pro (~$3k/mo), or Enterprise (~$7.5k/mo)
+
+**Subscription Flow** (see [full programmatic guide](https://docs.switchboard.xyz/ai-agents-llms/surge-subscription-guide) for complete details):
+
+1. **Derive PDAs**:
+```typescript
+const SURGE_PROGRAM_ID = new PublicKey("orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz");
+
+// State PDA
+const [statePda] = PublicKey.findProgramAddressSync(
+  [Buffer.from("STATE")],
+  SURGE_PROGRAM_ID
+);
+
+// Tier PDA (e.g., tier 2 = Pro)
+const tierId = 2;
+const [tierPda] = PublicKey.findProgramAddressSync(
+  [Buffer.from("TIER"), new BN(tierId).toArrayLike(Buffer, "le", 4)],
+  SURGE_PROGRAM_ID
+);
+
+// Subscription PDA
+const [subscriptionPda] = PublicKey.findProgramAddressSync(
+  [Buffer.from("SUBSCRIPTION"), keypair.publicKey.toBuffer()],
+  SURGE_PROGRAM_ID
+);
+```
+
+2. **Fetch SWTCH/USDT oracle quote** (required for live pricing):
+```typescript
+const queue = await sb.Queue.loadDefault(program!);
+const crossbar = new sb.Crossbar({ rpcUrl: connection.rpcEndpoint, programId: queue.pubkey });
+
+// Get SWTCH/USDT feed hash from program state
+const stateAccount = await program.account.state.fetch(statePda);
+const swtchFeedHash = stateAccount.swtchFeedId.toString("hex");
+
+const quoteIxs = await queue.fetchQuoteIx(crossbar, [swtchFeedHash], {
+  numSignatures: 1,
+  payer: keypair.publicKey,
+});
+```
+
+3. **Call `subscription_init`** with the oracle quote in the same transaction:
+```typescript
+// Build subscription_init instruction (using Surge program IDL)
+const subscriptionInitIx = buildSubscriptionInitIx({
+  tierId: 2,           // Pro tier
+  epochAmount: 40,     // ~40 epochs (~2-3 months)
+  contactName: null,
+  contactEmail: null,
+  accounts: { state: statePda, tier: tierPda, owner: keypair.publicKey, ... },
+});
+
+// Submit transaction with quote + subscription_init
+const tx = await sb.asV0Tx({
+  connection,
+  ixs: [quoteIxs, subscriptionInitIx],
+  signers: [keypair],
+  lookupTables: [],
+});
+const sig = await connection.sendTransaction(tx);
+```
+
+**Key Points**:
+- The program calculates the SWTCH payment amount at the live SWTCH/USDT price (no hardcoded rates)
+- Subscriptions are valid for the specified number of Solana epochs (1 epoch ≈ 2-3 days)
+- Plug tier (tier ID 1) is free but limited to 2 feeds and 10-second intervals
+- Each wallet can have only one subscription at `[SUBSCRIPTION, owner_pubkey]`
+
+**For full implementation details**, see the [Surge Subscription Guide](https://docs.switchboard.xyz/ai-agents-llms/surge-subscription-guide).
+
 ### 1. Initialize Surge client
 
-Surge requires an on-chain subscription. Initialize with your Solana connection and keypair:
+Once you have an active subscription, initialize the Surge client with your Solana connection and keypair:
 
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
@@ -819,8 +898,6 @@ import * as sb from "@switchboard-xyz/on-demand";
 const { keypair, connection, program } = await sb.AnchorUtils.loadEnv();
 const surge = new sb.Surge({ connection, keypair });
 ```
-
-**Note**: To create a Surge subscription programmatically, see the [Surge Subscription Guide](https://docs.switchboard.xyz/ai-agents-llms/surge-subscription-guide).
 
 ### 2. Discover available feeds
 ```typescript
