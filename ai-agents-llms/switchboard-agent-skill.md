@@ -163,7 +163,7 @@ Switchboard uses a **pull-based** (on-demand) model:
 | TypeDoc (common utils) | https://switchboardxyz-common.netlify.app/ |
 | Examples repo | https://github.com/switchboard-xyz/sb-on-demand-examples |
 | GitHub org | https://github.com/switchboard-xyz |
-| Discord | https://discord.gg/switchboard |
+| Discord | https://discord.gg/TJAv6ZYvPC |
 
 ### Crossbar
 Crossbar is the off-chain gateway server that:
