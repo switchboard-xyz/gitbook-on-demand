@@ -1,0 +1,1993 @@
+# Surge (source: docs-by-chain/solana-svm/surge/README.md)
+
+# Surge
+
+## The Future of Oracle Technology
+
+Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for the next generation of DeFi applications, trading systems, and real-time dashboards.
+
+## Key Innovation
+
+Traditional oracles require multiple steps—gathering prices, writing to blockchain state, reaching consensus, and then making data available—resulting in 2-10 seconds of latency.
+
+Switchboard oracles must pass a hardware proof when joining the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket, achieving sub-100ms latency.
+
+```
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  Price Sources   │────▶│  Oracle Network  │────▶│  Surge Gateway   │
+│   (CEX, DEX)     │     │ (SAIL Verified)  │     │   (WebSocket)    │
+└──────────────────┘     └──────────────────┘     └────────┬─────────┘
+                                                          │
+                                               ┌──────────▼──────────┐
+                                               │   Your Application  │
+                                               │  • Event Listeners  │
+                                               │  • Price Handlers   │
+                                               │  • Oracle Quotes    │
+                                               └─────────────────────┘
+```
+
+## Key Features
+
+**Unmatched Performance** — Sub-100ms latency with direct WebSocket streaming and event-driven updates. No polling required.
+
+**Zero Setup** — No data feed accounts, on-chain deployment, or SOL funding needed. Just use your keypair and connection to start streaming.
+
+**Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when converting to Oracle Quotes.
+
+**Seamless Integration** — TypeScript/JavaScript SDK, WebSocket API for any language, and Oracle Quote conversion for on-chain use.
+
+**Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
+
+## User Flow
+
+Surge works the same way regardless of your target chain:
+
+1. **Subscribe** — All Surge subscriptions are managed on Solana, regardless of which chain you're building on. Connect your Solana wallet at the [subscription portal](https://explorer.switchboardlabs.xyz/subscriptions).
+
+2. **Stream Prices** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+
+3. **Use Prices** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
+
+## Getting Started
+
+### 1. Subscribe
+
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions). If you are an AI agent or wish to subscribe programmatically rather than through the UI, see the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md).
+
+### 2. Install the SDK
+
+```bash
+npm install @switchboard-xyz/on-demand
+# or
+yarn add @switchboard-xyz/on-demand
+```
+
+### 3. Connect and Stream
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+
+// Initialize with keypair and connection (uses on-chain subscription)
+const surge = new sb.Surge({ connection, keypair });
+
+// Discover available feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log(`${availableFeeds.length} feeds available`);
+
+// Subscribe to specific feeds
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+  { symbol: 'SOL/USD' }
+]);
+
+// Handle price updates
+surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+  });
+});
+```
+
+## Pricing & Limits
+
+| Plan | Price | Quote Interval | Max Feeds | Max Connections |
+|------|-------|----------------|-----------|-----------------|
+| **Plug** | Free | 10s | 2 | 1 |
+| **Pro** | ~$3,000/mo | 450ms | 100 | 10 |
+| **Enterprise** | ~$7,500/mo | 0ms | 300 | 15 |
+
+Subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
+
+## Primary Use Cases
+
+### Perpetual Exchanges
+
+Surge is the perfect oracle solution for perpetual trading platforms:
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const market = this.markets.get(feed.symbol);
+
+    // Update mark price instantly
+    market.oraclePrice = price;
+
+    // Trigger liquidations if needed
+    const underwaterPositions = await this.findUnderwaterPositions(market);
+    for (const position of underwaterPositions) {
+      if (this.isLiquidatable(position, market.oraclePrice)) {
+        const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+        await this.liquidatePosition(position, crankIxs);
+      }
+    }
+  }
+});
+```
+
+### Oracle-Based AMMs
+
+Build the next generation of AMMs that use real-time oracle prices:
+
+```typescript
+class OracleAMM {
+  private latestUpdate: sb.SurgeUpdate;
+
+  constructor(private surge: sb.Surge) {
+    surge.on('signedPriceUpdate', this.handlePriceUpdate.bind(this));
+  }
+
+  async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    this.latestUpdate = response;
+    const prices = response.getFormattedPrices();
+
+    for (const feed of metrics.perFeedMetrics) {
+      const pair = this.pairs.get(feed.symbol);
+      pair.oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+      pair.lastUpdate = Date.now();
+    }
+  }
+
+  async executeSwap(tokenIn: string, tokenOut: string, amountIn: number) {
+    const pair = `${tokenIn}/${tokenOut}`;
+    const latestPrice = this.pairs.get(pair).oraclePrice;
+    const amountOut = amountIn * latestPrice * (1 - this.swapFee);
+
+    // Convert to Oracle Quote for on-chain execution
+    const crankIxs = this.latestUpdate.toQuoteIx(queue.pubkey, keypair.publicKey);
+
+    return await this.program.methods
+      .swap(amountIn, amountOut)
+      .accounts({ amm: this.ammPda, queue: this.queuePubkey })
+      .preInstructions(crankIxs)
+      .rpc();
+  }
+}
+```
+
+### High-Frequency Trading & Arbitrage
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await executeArbitrage(crankIxs, calculateOptimalSize(spread));
+    }
+  }
+});
+```
+
+### Liquidation Engines
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const positions = await getPositionsByCollateral(feed.symbol);
+
+    for (const position of positions) {
+      const ltv = calculateLTV(position, price);
+      if (ltv > LIQUIDATION_THRESHOLD) {
+        const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+        await liquidatePosition(position, crankIxs);
+      }
+    }
+  }
+});
+```
+
+## Technical Specifications
+
+### Program ID
+
+```
+orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz
+```
+
+### Latency Breakdown
+
+* Oracle processing: \~10ms
+* Network transmission: \~20-50ms
+* Client processing: \~10ms
+* **Total: <100ms**
+
+### Discovering Available Feeds
+
+Use the `getSurgeFeeds()` method to see all available trading pairs:
+
+```typescript
+const surge = new sb.Surge({ connection, keypair });
+const feeds = await surge.getSurgeFeeds();
+
+feeds.forEach(feed => {
+  console.log(`${feed.symbol}`);
+});
+```
+
+### Supported Assets
+
+* All major cryptocurrency pairs
+* Multiple exchange sources available
+* New pairs added regularly
+* Custom feeds available on request
+
+Note: Surge does not support custom feeds created with the [feed builder](https://explorer.switchboardlabs.xyz/feed-builder).
+
+## FAQ
+
+### How is Surge different from traditional oracles?
+
+Surge streams data directly to your application via WebSocket, bypassing the blockchain entirely for reads. This eliminates gas costs and reduces latency from seconds to milliseconds.
+
+### Can I use Surge data on-chain?
+
+Yes! Surge updates can be converted to Oracle Quote format for on-chain use: `response.toQuoteIx(queue.pubkey, keypair.publicKey)`
+
+### What's the reliability?
+
+Surge operates with 99.9% uptime SLA, automatic failover, and global redundancy. Enterprise customers get dedicated infrastructure.
+
+### How do I handle disconnections?
+
+The SDK includes automatic reconnection logic with exponential backoff. Your application will seamlessly recover from network interruptions.
+
+## Next Steps
+
+* [Surge Tutorial](surge.md) - Step-by-step implementation guide
+* [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
+* [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+* [Join our Discord](https://discord.gg/TJAv6ZYvPC)
+
+
+---
+
+# Surge Tutorial (source: docs-by-chain/solana-svm/surge/surge-tutorial.md)
+
+# Surge Tutorial
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/surge](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/surge)
+
+This tutorial walks you through implementing Switchboard Surge for real-time price streaming on Solana.
+
+## Prerequisites
+
+- Node.js 18+
+- Solana keypair with an active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
+- Basic TypeScript knowledge
+
+## Installation
+
+```bash
+npm install @switchboard-xyz/on-demand
+# or
+yarn add @switchboard-xyz/on-demand
+```
+
+## Basic Implementation
+
+Connect to Surge and stream real-time prices:
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+
+// Load environment (keypair, connection, queue, etc.)
+const { keypair, connection, queue } = await sb.AnchorUtils.loadEnv();
+
+// Initialize Surge client with keypair and connection
+const surge = new sb.Surge({ connection, keypair });
+
+// Discover available feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log(`Found ${availableFeeds.length} available feeds`);
+
+// Subscribe to price feeds
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'SOL/USD' },
+]);
+
+// Handle real-time updates
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+
+  // Skip heartbeat messages
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+    console.log(`  Source → Oracle: ${feed.sourceToOracleMs}ms`);
+    console.log(`  Emit Latency: ${feed.emitLatencyMs}ms`);
+  });
+});
+```
+
+## Converting to Oracle Quotes
+
+When you need to use Surge prices on-chain, convert them to Oracle Quotes:
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  // Convert Surge update to on-chain instructions
+  const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+
+  // Build transaction with oracle quote update
+  const tx = await sb.asV0Tx({
+    connection,
+    ixs: [
+      ...crankIxs,
+      await program.methods
+        .yourInstruction()
+        .accounts({ /* ... */ })
+        .instruction()
+    ],
+    signers: [keypair],
+    computeUnitPrice: 20_000,
+    computeUnitLimitMultiple: 1.3,
+  });
+
+  await connection.sendTransaction(tx);
+});
+```
+
+## Streaming to Frontend with Crossbar
+
+Crossbar is Switchboard's local gateway service for streaming prices to frontend applications.
+
+### Setting Up Crossbar
+
+```bash
+# Using Docker Compose (recommended)
+git clone https://github.com/switchboard-xyz/crossbar
+cd crossbar
+docker-compose up -d
+
+# Crossbar will be available at:
+# HTTP: http://localhost:8080
+# WebSocket: ws://localhost:8080/ws
+```
+
+### React Integration
+
+```typescript
+import { useEffect, useState } from 'react';
+
+interface PriceData {
+  symbol: string;
+  price: number;
+  source_ts_ms: number;
+  feedHash: string;
+}
+
+export function PriceFeed({ symbol }: { symbol: string }) {
+  const [priceData, setPriceData] = useState<PriceData | null>(null);
+
+  useEffect(() => {
+    const websocket = new WebSocket('ws://localhost:8080/ws');
+
+    websocket.onopen = () => {
+      websocket.send(JSON.stringify({
+        type: 'subscribe',
+        feeds: [symbol]
+      }));
+    };
+
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'price_update' && data.symbol === symbol) {
+        setPriceData({
+          symbol: data.symbol,
+          price: data.price,
+          source_ts_ms: data.source_ts_ms,
+          feedHash: data.feedHash
+        });
+      }
+    };
+
+    return () => websocket.close();
+  }, [symbol]);
+
+  if (!priceData) return <div>Loading...</div>;
+
+  return (
+    <div className="price-feed">
+      <h3>{priceData.symbol}</h3>
+      <div className="price">${priceData.price.toFixed(2)}</div>
+      <div className="latency">
+        Latency: {Date.now() - priceData.source_ts_ms}ms
+      </div>
+    </div>
+  );
+}
+```
+
+## Use Case Examples
+
+### Perpetual Exchange
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const market = perpetuals.get(feed.symbol);
+
+    // Update mark price instantly
+    market.markPrice = price;
+
+    // Check liquidations with latest price
+    const underwaterPositions = await market.checkLiquidations(price);
+    for (const position of underwaterPositions) {
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await liquidatePosition(position, crankIxs);
+    }
+  }
+});
+```
+
+### Arbitrage Bot
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      const crankIxs = response.toQuoteIx(queue.pubkey, keypair.publicKey);
+      await executeArbitrageTrade(crankIxs, calculateOptimalSize(spread));
+    }
+  }
+});
+```
+
+## Error Handling
+
+```typescript
+surge.on('error', (error) => {
+  console.error('Surge error:', error);
+});
+
+surge.on('close', () => {
+  console.log('Connection closed');
+  // SDK handles automatic reconnection
+});
+```
+
+## Next Steps
+
+- Explore [code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+- Learn about [Crossbar gateway](../../../tooling/crossbar/README.md)
+- Join our [Discord](https://discord.gg/TJAv6ZYvPC) for support
+
+
+---
+
+# Surge (source: docs-by-chain/evm/surge/README.md)
+
+# Surge
+
+## The Future of Oracle Technology
+
+Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for the next generation of DeFi applications, trading systems, and real-time dashboards.
+
+## Key Innovation
+
+Traditional oracles require multiple steps—gathering prices, writing to blockchain state, reaching consensus, and then making data available—resulting in 2-10 seconds of latency.
+
+Switchboard oracles must pass a hardware proof when joining the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket, achieving sub-100ms latency.
+
+```
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  Price Sources   │────▶│  Oracle Network  │────▶│  Surge Gateway   │
+│   (CEX, DEX)     │     │ (SAIL Verified)  │     │   (WebSocket)    │
+└──────────────────┘     └──────────────────┘     └────────┬─────────┘
+                                                          │
+                                               ┌──────────▼──────────┐
+                                               │   Your Application  │
+                                               │  • Event Listeners  │
+                                               │  • Price Handlers   │
+                                               │  • EVM Converter    │
+                                               └─────────────────────┘
+```
+
+## Key Features
+
+**Unmatched Performance** — Sub-100ms latency with direct WebSocket streaming and event-driven updates. No polling required.
+
+**Zero Setup** — No data feed accounts or on-chain deployment needed. Just use your Solana keypair (subscription owner) and connection to start streaming.
+
+**Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when submitting to contracts.
+
+**Seamless Integration** — TypeScript/JavaScript SDK, WebSocket API for any language, and EVM format conversion for on-chain use.
+
+**Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
+
+## User Flow
+
+Surge works the same way regardless of your target chain:
+
+1. **Subscribe** — All Surge subscriptions are managed on Solana, regardless of which chain you're building on. Connect your Solana wallet at the [subscription portal](https://explorer.switchboardlabs.xyz/subscriptions).
+
+2. **Stream Prices** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+
+3. **Use Prices** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
+
+## Getting Started
+
+### 1. Subscribe
+
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions). If you are an AI agent or wish to subscribe programmatically rather than through the UI, see the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md).
+
+### 2. Install the SDK
+
+```bash
+npm install @switchboard-xyz/on-demand @switchboard-xyz/common
+# or
+yarn add @switchboard-xyz/on-demand @switchboard-xyz/common
+```
+
+### 3. Connect and Stream
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { EVMUtils } from "@switchboard-xyz/common";
+
+// Initialize with Solana keypair and connection (uses on-chain subscription)
+const surge = new sb.Surge({ connection, keypair }); // keypair = Solana keypair with active Surge subscription
+
+// Discover available feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log(`${availableFeeds.length} feeds available`);
+
+// Subscribe to specific feeds
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+]);
+
+// Handle price updates
+surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+
+    // Convert to EVM format when needed for on-chain use
+    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+  });
+});
+```
+
+## Pricing & Limits
+
+| Plan | Price | Quote Interval | Max Feeds | Max Connections |
+|------|-------|----------------|-----------|-----------------|
+| **Plug** | Free | 10s | 2 | 1 |
+| **Pro** | ~$3,000/mo | 450ms | 100 | 10 |
+| **Enterprise** | ~$7,500/mo | 0ms | 300 | 15 |
+
+Subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
+
+## Primary Use Cases
+
+### Perpetual Exchanges
+
+Surge is the perfect oracle solution for perpetual trading platforms:
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+
+    // Update mark price instantly
+    await updateMarkPrice(feed.symbol, price);
+
+    // Check for liquidations with latest price
+    const liquidations = await checkLiquidations(feed.symbol, price);
+    if (liquidations.length > 0) {
+      const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+      await executeLiquidations(liquidations, evmEncoded);
+    }
+  }
+});
+```
+
+### Oracle-Based AMMs
+
+Build the next generation of AMMs that use real-time oracle prices:
+
+```typescript
+class OracleAMM {
+  private latestUpdate: sb.SurgeUpdate;
+
+  async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    this.latestUpdate = response;
+    const prices = response.getFormattedPrices();
+
+    for (const feed of metrics.perFeedMetrics) {
+      const pair = this.pairs.get(feed.symbol);
+      pair.oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+      pair.lastUpdate = Date.now();
+    }
+  }
+
+  async executeSwap(tokenIn: string, tokenOut: string, amountIn: number) {
+    const pair = `${tokenIn}/${tokenOut}`;
+    const latestPrice = this.pairs.get(pair).oraclePrice;
+    const amountOut = amountIn * latestPrice * (1 - this.swapFee);
+
+    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(this.latestUpdate.getRawResponse());
+    return await this.contract.swap(amountIn, amountOut, evmEncoded);
+  }
+}
+```
+
+### High-Frequency Trading & Arbitrage
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+      await executeArbitrage(evmEncoded, calculateOptimalSize(spread));
+    }
+  }
+});
+```
+
+### Liquidation Engines
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const positions = await getPositionsByCollateral(feed.symbol);
+
+    for (const position of positions) {
+      const ltv = calculateLTV(position, price);
+      if (ltv > LIQUIDATION_THRESHOLD) {
+        const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(response.getRawResponse());
+        await liquidatePosition(position, evmEncoded);
+      }
+    }
+  }
+});
+```
+
+## Technical Specifications
+
+### Latency Breakdown
+
+* Oracle processing: ~10ms
+* Network transmission: ~20-50ms
+* Client processing: ~10ms
+* **Total: <100ms**
+
+### Discovering Available Feeds
+
+Use the `getSurgeFeeds()` method to see all available trading pairs:
+
+```typescript
+const surge = new sb.Surge({ connection, keypair }); // Solana keypair with active Surge subscription
+const feeds = await surge.getSurgeFeeds();
+
+feeds.forEach(feed => {
+  console.log(`${feed.symbol}`);
+});
+```
+
+### Supported Assets
+
+* All major cryptocurrency pairs
+* Multiple exchange sources available
+* New pairs added regularly
+* Custom feeds available on request
+
+Note: Surge does not support custom feeds created with the [feed builder](https://explorer.switchboardlabs.xyz/feed-builder).
+
+## FAQ
+
+### How is Surge different from traditional oracles?
+
+Surge streams data directly to your application via WebSocket, bypassing the blockchain entirely for reads. This eliminates gas costs and reduces latency from seconds to milliseconds.
+
+### Can I use Surge data on-chain?
+
+Yes! Surge updates can be converted to EVM-compatible format using `EVMUtils.convertSurgeUpdateToEvmFormat()` and submitted to your smart contracts.
+
+### What's the reliability?
+
+Surge operates with 99.9% uptime SLA, automatic failover, and global redundancy. Enterprise customers get dedicated infrastructure.
+
+### How do I handle disconnections?
+
+The SDK includes automatic reconnection logic with exponential backoff. Your application will seamlessly recover from network interruptions.
+
+## Next Steps
+
+* [Surge Tutorial](surge-tutorial.md) - Step-by-step implementation guide
+* [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
+* [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
+* [Join our Discord](https://discord.gg/TJAv6ZYvPC)
+
+
+---
+
+# Surge Tutorial (source: docs-by-chain/evm/surge/surge-tutorial.md)
+
+# Surge Tutorial
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/evm/price-feeds](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/evm/price-feeds) (see `scripts/surgeToEvmConversion.ts`)
+
+This tutorial walks you through converting Switchboard Surge real-time price updates into EVM-compatible format for use with your smart contracts.
+
+## What You'll Build
+
+A TypeScript script that:
+- Receives Surge real-time price updates
+- Converts them to EVM-encoded format
+- Submits the data to your smart contracts
+
+## Prerequisites
+
+- **Bun** or Node.js 18+
+- Basic understanding of hexadecimal encoding
+
+## The Conversion Flow
+
+```
+Surge WebSocket → SurgeRawGatewayResponse → EVMUtils.convertSurgeUpdateToEvmFormat() → bytes → Smart Contract
+```
+
+## The SurgeRawGatewayResponse Structure
+
+When you receive a Surge update, it has this structure:
+
+```typescript
+interface SurgeRawGatewayResponse {
+  type: 'bundle_update';
+  feed_bundle_id: string;
+  feed_values: Array<{
+    value: string;           // Price value as string (wei-like format)
+    feed_hash: string;       // 32-byte hex feed identifier
+    symbol: string;          // Human-readable symbol (e.g., "BTC/USD")
+    source: string;          // Data source
+  }>;
+  oracle_response: {
+    oracle_pubkey: string;   // Oracle's public key
+    eth_address: string;     // Oracle's Ethereum address
+    signature: string;       // Base64-encoded 64-byte signature
+    recovery_id: number;     // ECDSA recovery ID (v value)
+    timestamp: number;       // Unix timestamp in seconds
+    slot: number;            // Solana slot number
+    // ... additional fields
+  };
+}
+```
+
+## The Conversion Script
+
+Here's a complete example that converts Surge updates to EVM format:
+
+```typescript
+import { EVMUtils, type SurgeRawGatewayResponse } from '@switchboard-xyz/common';
+import * as fs from 'fs';
+
+// Sample Surge update data
+const sampleSurgeUpdate: SurgeRawGatewayResponse = {
+  type: 'bundle_update',
+  feed_bundle_id: 'sample-bundle-id',
+  feed_values: [
+    {
+      value: '1000000000000000000',  // 1e18
+      feed_hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      symbol: 'BTC/USD',
+      source: 'switchboard'
+    },
+    {
+      value: '2500000000000000000',  // 2.5e18
+      feed_hash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+      symbol: 'ETH/USD',
+      source: 'switchboard'
+    }
+  ],
+  oracle_response: {
+    oracle_pubkey: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+    eth_address: '0x742d35Cc6634C0532925a3b8D4C0B4E5C0C8b6C9',
+    signature: 'Zl+8HHAyFbKTmaH66HEkQ/4nKRGYKWV8YOjPT9JcGdEhZzy+qI9OKhF3m+nmz9mbegPJRtIJdLfdi1o7wjZCaw==',
+    checksum: 'sample-checksum',
+    recovery_id: 0,
+    oracle_idx: 0,
+    timestamp: Math.floor(Date.now() / 1000),
+    recent_hash: '0xdeadbeefcafebabe',
+    slot: 12345678
+  },
+  source_ts_ms: Date.now(),
+  seen_at_ts_ms: Date.now(),
+  triggered_on_price_change: true,
+  message: 'Sample surge update'
+};
+
+async function convertSurgeToEvm() {
+  // Load surge data (from file or use sample)
+  let surgeData: SurgeRawGatewayResponse;
+
+  const surgeDataFile = process.env.SURGE_DATA_FILE;
+  if (surgeDataFile && fs.existsSync(surgeDataFile)) {
+    const fileContent = fs.readFileSync(surgeDataFile, 'utf-8');
+    surgeData = JSON.parse(fileContent);
+  } else {
+    surgeData = sampleSurgeUpdate;
+  }
+
+  // Perform the conversion
+  const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
+    minOracleSamples: 1
+  });
+
+  console.log('Encoded Data:', evmEncoded);
+  console.log('Length:', (evmEncoded.length - 2) / 2, 'bytes');
+
+  return evmEncoded;
+}
+
+convertSurgeToEvm();
+```
+
+### The convertSurgeUpdateToEvmFormat Function
+
+```typescript
+import { EVMUtils } from '@switchboard-xyz/common';
+
+const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
+  minOracleSamples: 1  // Minimum oracle samples required
+});
+```
+
+This function takes the raw Surge response and returns a `0x`-prefixed hex string that your smart contract can parse.
+
+## EVM Data Structure
+
+The encoded data follows this binary format:
+
+| Field | Size | Description |
+|-------|------|-------------|
+| Slot | 8 bytes | Solana slot number |
+| Timestamp | 8 bytes | Unix timestamp |
+| Number of Feeds | 1 byte | Count of feeds in update |
+| Number of Signatures | 1 byte | Count of oracle signatures |
+| Feed Data | Variable | Per-feed data (see below) |
+| Signature Data | Variable | Per-signature data (see below) |
+
+### Feed Data (per feed)
+
+| Field | Size | Description |
+|-------|------|-------------|
+| Feed Hash | 32 bytes | Feed identifier |
+| Value | 16 bytes | Price value (int128) |
+| Min Samples | 1 byte | Minimum oracle samples |
+
+### Signature Data (per signature)
+
+| Field | Size | Description |
+|-------|------|-------------|
+| Signature | 64 bytes | ECDSA signature (r, s) |
+| Recovery ID | 1 byte | ECDSA recovery ID (v) |
+
+## Parsing the Encoded Data
+
+To understand what the encoded data contains, you can parse it:
+
+```typescript
+function parseEvmEncodedData(evmEncoded: string) {
+  const hexData = evmEncoded.slice(2); // Remove 0x prefix
+  let offset = 0;
+
+  // Parse header
+  const slot = parseInt(hexData.slice(offset, offset + 16), 16);
+  offset += 16;
+
+  const timestamp = parseInt(hexData.slice(offset, offset + 16), 16);
+  offset += 16;
+
+  const numFeeds = parseInt(hexData.slice(offset, offset + 2), 16);
+  offset += 2;
+
+  const numSigs = parseInt(hexData.slice(offset, offset + 2), 16);
+  offset += 2;
+
+  console.log('Slot:', slot);
+  console.log('Timestamp:', new Date(timestamp * 1000).toISOString());
+  console.log('Number of Feeds:', numFeeds);
+  console.log('Number of Signatures:', numSigs);
+
+  // Parse feeds
+  for (let i = 0; i < numFeeds; i++) {
+    const feedHash = '0x' + hexData.slice(offset, offset + 64);
+    offset += 64;
+    const value = '0x' + hexData.slice(offset, offset + 32);
+    offset += 32;
+    const minSamples = parseInt(hexData.slice(offset, offset + 2), 16);
+    offset += 2;
+
+    console.log(`Feed ${i + 1}:`, { feedHash, value, minSamples });
+  }
+
+  // Parse signatures
+  for (let i = 0; i < numSigs; i++) {
+    const signature = '0x' + hexData.slice(offset, offset + 128);
+    offset += 128;
+    const recoveryId = parseInt(hexData.slice(offset, offset + 2), 16);
+    offset += 2;
+
+    console.log(`Signature ${i + 1}:`, {
+      signature: signature.slice(0, 20) + '...',
+      recoveryId
+    });
+  }
+}
+```
+
+## Using with Smart Contracts
+
+Once you have the encoded data, submit it to Switchboard:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import { ISwitchboard } from "./switchboard/interfaces/ISwitchboard.sol";
+
+contract SurgePriceConsumer {
+    ISwitchboard public immutable switchboard;
+
+    constructor(address _switchboard) {
+        switchboard = ISwitchboard(_switchboard);
+    }
+
+    function updateFromSurge(bytes calldata surgeUpdateData) external payable {
+        // Get the required fee
+        bytes[] memory updates = new bytes[](1);
+        updates[0] = surgeUpdateData;
+
+        uint256 fee = switchboard.getFee(updates);
+        require(msg.value >= fee, "Insufficient fee");
+
+        // Submit to Switchboard for verification
+        switchboard.updateFeeds{ value: fee }(updates);
+
+        // Data is now verified and available via latestUpdate()
+    }
+}
+```
+
+### TypeScript Integration
+
+```typescript
+import * as ethers from "ethers";
+import { EVMUtils, type SurgeRawGatewayResponse } from "@switchboard-xyz/common";
+
+async function submitSurgeUpdate(
+  contract: ethers.Contract,
+  switchboard: ethers.Contract,
+  surgeData: SurgeRawGatewayResponse
+) {
+  // Convert Surge update to EVM format
+  const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
+    minOracleSamples: 1
+  });
+
+  // Get fee and submit
+  const fee = await switchboard.getFee([evmEncoded]);
+  const tx = await contract.updateFromSurge(evmEncoded, { value: fee });
+
+  await tx.wait();
+  console.log("Surge update submitted:", tx.hash);
+}
+```
+
+## Full Integration Pattern
+
+Here's how to combine Surge WebSocket streaming with EVM submission:
+
+```typescript
+import { EVMUtils, type SurgeRawGatewayResponse } from "@switchboard-xyz/common";
+import * as ethers from "ethers";
+
+// Connect to your contract
+const provider = new ethers.JsonRpcProvider("https://rpc.hyperliquid.xyz/evm");
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+const contract = new ethers.Contract(contractAddress, abi, signer);
+
+// Handle incoming Surge updates
+async function handleSurgeUpdate(surgeData: SurgeRawGatewayResponse) {
+  try {
+    // Convert to EVM format
+    const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
+      minOracleSamples: 1
+    });
+
+    // Submit to chain
+    const updates = [evmEncoded];
+    const fee = await switchboard.getFee(updates);
+
+    const tx = await contract.updatePrices(updates, { value: fee });
+    console.log("Submitted:", tx.hash);
+
+    await tx.wait();
+    console.log("Confirmed");
+
+  } catch (error) {
+    console.error("Failed to submit:", error);
+  }
+}
+
+// Connect to Surge WebSocket (pseudo-code)
+// const ws = new WebSocket(SURGE_WS_URL);
+// ws.onmessage = (event) => {
+//   const surgeData = JSON.parse(event.data);
+//   handleSurgeUpdate(surgeData);
+// };
+```
+
+## Running the Example
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples
+cd sb-on-demand-examples/evm/price-feeds
+```
+
+### 2. Install Dependencies
+
+```bash
+bun install
+```
+
+### 3. Run the Conversion Example
+
+```bash
+# With sample data
+bun examples/surgeToEvmConversion.ts
+
+# With custom surge data file
+SURGE_DATA_FILE=path/to/surge-data.json bun examples/surgeToEvmConversion.ts
+```
+
+### Expected Output
+
+```
+Using sample surge data
+Input Surge Update Summary:
+   - Type: bundle_update
+   - Feed Count: 2
+   - Timestamp: 1734523800 (2024-12-18T12:30:00.000Z)
+   - Slot: 12345678
+
+Converting to EVM format...
+
+EVM Conversion Results:
+   - Encoded Data: 0x00000000bc614e0000000000675946f80201...
+   - Length: 284 hex characters (142 bytes)
+
+Parsing EVM Structure:
+   - Slot: 12345678
+   - Timestamp: 1734523800 (2024-12-18T12:30:00.000Z)
+   - Number of Feeds: 2
+   - Number of Signatures: 1
+   - Feed Data:
+     Feed 1:
+       - Hash: 0x1234567890abcdef...
+       - Value: 0x0de0b6b3a7640000
+       - Min Samples: 1
+     Feed 2:
+       - Hash: 0xabcdef1234567890...
+       - Value: 0x22b1c8c1227a0000
+       - Min Samples: 1
+```
+
+## Troubleshooting
+
+| Error | Solution |
+|-------|----------|
+| `Invalid surge data` | Ensure the input matches `SurgeRawGatewayResponse` structure |
+| `Missing signature` | The `oracle_response.signature` field must be a valid base64 string |
+| `Invalid recovery_id` | Must be 0 or 1 |
+| `Fee errors on-chain` | Query `switchboard.getFee()` with your encoded data |
+
+## Next Steps
+
+- Learn about [on-demand price feeds](../price-feeds/price-feeds-tutorial.md) for pull-based updates
+- Explore [randomness integration](../randomness/randomness-tutorial.md) for gaming and NFTs
+- Check out the [Sui Surge tutorial](../../sui/surge/surge-tutorial.md) for comparison
+
+
+---
+
+# Surge (source: docs-by-chain/sui/surge/README.md)
+
+# Surge
+
+## The Future of Oracle Technology
+
+Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for the next generation of DeFi applications, trading systems, and real-time dashboards.
+
+## Key Innovation
+
+Traditional oracles require multiple steps—gathering prices, writing to blockchain state, reaching consensus, and then making data available—resulting in 2-10 seconds of latency.
+
+Switchboard oracles must pass a hardware proof when joining the network, ensuring they run only verified Switchboard code. This allows oracles to stream price data directly from sources to your application via WebSocket, achieving sub-100ms latency.
+
+```
+┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  Price Sources   │────▶│  Oracle Network  │────▶│  Surge Gateway   │
+│   (CEX, DEX)     │     │ (SAIL Verified)  │     │   (WebSocket)    │
+└──────────────────┘     └──────────────────┘     └────────┬─────────┘
+                                                          │
+                                               ┌──────────▼──────────┐
+                                               │   Your Application  │
+                                               │  • Event Listeners  │
+                                               │  • Price Handlers   │
+                                               │  • Quote Converter  │
+                                               └─────────────────────┘
+```
+
+## Key Features
+
+**Unmatched Performance** — Sub-100ms latency with direct WebSocket streaming and event-driven updates. No polling required.
+
+**Zero Setup** — No data feed accounts or on-chain deployment needed. Just use your keypair and connection to start streaming.
+
+**Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when submitting to contracts.
+
+**Seamless Integration** — TypeScript/JavaScript SDK, WebSocket API for any language, and Sui quote conversion for on-chain use.
+
+**Enterprise-Grade Reliability** — 99.9% uptime SLA with global infrastructure, automatic failover, and professional support.
+
+## User Flow
+
+Surge works the same way regardless of your target chain:
+
+1. **Subscribe** — All Surge subscriptions are managed on Solana, regardless of which chain you're building on. Connect your Solana wallet at the [subscription portal](https://explorer.switchboardlabs.xyz/subscriptions).
+
+2. **Stream Prices** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+
+3. **Use Prices** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
+
+## Getting Started
+
+### 1. Subscribe
+
+Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions). If you are an AI agent or wish to subscribe programmatically rather than through the UI, see the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md).
+
+### 2. Install the SDK
+
+```bash
+npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk
+# or
+yarn add @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk
+```
+
+### 3. Connect and Stream
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
+import { Transaction } from "@mysten/sui/transactions";
+
+// Initialize with keypair and connection (uses on-chain subscription)
+const surge = new sb.Surge({ connection, keypair });
+
+// Discover available feeds
+const availableFeeds = await surge.getSurgeFeeds();
+console.log(`${availableFeeds.length} feeds available`);
+
+// Subscribe to specific feeds
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+]);
+
+// Handle price updates
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+  metrics.perFeedMetrics.forEach((feed) => {
+    console.log(`${feed.symbol}: ${prices[feed.feed_hash]}`);
+  });
+
+  // Convert to on-chain Oracle Quote for Sui contracts when needed
+  const ptb = new Transaction();
+  const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+
+  ptb.moveCall({
+    target: `${PACKAGE_ID}::your_module::your_function`,
+    arguments: [quoteData],
+  });
+});
+```
+
+## Pricing & Limits
+
+| Plan | Price | Quote Interval | Max Feeds | Max Connections |
+|------|-------|----------------|-----------|-----------------|
+| **Plug** | Free | 10s | 2 | 1 |
+| **Pro** | ~$3,000/mo | 450ms | 100 | 10 |
+| **Enterprise** | ~$7,500/mo | 0ms | 300 | 15 |
+
+Subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
+
+## Primary Use Cases
+
+### Perpetual Exchanges
+
+Surge is the perfect oracle solution for perpetual trading platforms:
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
+import { Transaction } from "@mysten/sui/transactions";
+
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+
+    // Update mark price instantly
+    await updateMarkPrice(feed.symbol, price);
+
+    // Check for liquidations with latest price
+    const liquidations = await checkLiquidations(feed.symbol, price);
+    if (liquidations.length > 0) {
+      const ptb = new Transaction();
+      const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+      await executeLiquidations(liquidations, ptb, quoteData);
+    }
+  }
+});
+```
+
+### Oracle-Based AMMs
+
+Build the next generation of AMMs that use real-time oracle prices:
+
+```typescript
+class OracleAMM {
+  private latestUpdate: sb.SurgeUpdate;
+
+  async handlePriceUpdate(response: sb.SurgeUpdate) {
+    const metrics = response.getLatencyMetrics();
+    if (metrics.isHeartbeat) return;
+
+    this.latestUpdate = response;
+    const prices = response.getFormattedPrices();
+
+    for (const feed of metrics.perFeedMetrics) {
+      const pair = this.pairs.get(feed.symbol);
+      pair.oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+      pair.lastUpdate = Date.now();
+    }
+  }
+
+  async executeSwap(tokenIn: string, tokenOut: string, amountIn: number) {
+    const pair = `${tokenIn}/${tokenOut}`;
+    const latestPrice = this.pairs.get(pair).oraclePrice;
+    const amountOut = amountIn * latestPrice * (1 - this.swapFee);
+
+    const ptb = new Transaction();
+    const quoteData = await convertSurgeUpdateToQuotes(ptb, this.latestUpdate, MAINNET_QUEUE_ID);
+
+    ptb.moveCall({
+      target: `${PACKAGE_ID}::amm::swap`,
+      arguments: [amountIn, amountOut, quoteData],
+    });
+
+    return await this.client.signAndExecuteTransaction({ transaction: ptb });
+  }
+}
+```
+
+### High-Frequency Trading & Arbitrage
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const oraclePrice = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const dexPrice = await getDexPrice(feed.symbol);
+
+    const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
+    if (spread > MIN_PROFIT_THRESHOLD) {
+      const ptb = new Transaction();
+      const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+      await executeArbitrage(ptb, quoteData, calculateOptimalSize(spread));
+    }
+  }
+});
+```
+
+### Liquidation Engines
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const metrics = response.getLatencyMetrics();
+  if (metrics.isHeartbeat) return;
+
+  const prices = response.getFormattedPrices();
+
+  for (const feed of metrics.perFeedMetrics) {
+    const price = parseFloat(prices[feed.feed_hash].replace(/[$,]/g, ''));
+    const positions = await getPositionsByCollateral(feed.symbol);
+
+    for (const position of positions) {
+      const ltv = calculateLTV(position, price);
+      if (ltv > LIQUIDATION_THRESHOLD) {
+        const ptb = new Transaction();
+        const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+        await liquidatePosition(position, ptb, quoteData);
+      }
+    }
+  }
+});
+```
+
+## Technical Specifications
+
+### Latency Breakdown
+
+* Oracle processing: ~10ms
+* Network transmission: ~20-50ms
+* Client processing: ~10ms
+* **Total: <100ms**
+
+### Discovering Available Feeds
+
+Use the `getSurgeFeeds()` method to see all available trading pairs:
+
+```typescript
+const surge = new sb.Surge({ connection, keypair });
+const feeds = await surge.getSurgeFeeds();
+
+feeds.forEach(feed => {
+  console.log(`${feed.symbol}`);
+});
+```
+
+### Supported Assets
+
+* All major cryptocurrency pairs
+* Multiple exchange sources available
+* New pairs added regularly
+* Custom feeds available on request
+
+Note: Surge does not support custom feeds created with the [feed builder](https://explorer.switchboardlabs.xyz/feed-builder).
+
+## FAQ
+
+### How is Surge different from traditional oracles?
+
+Surge streams data directly to your application via WebSocket, bypassing the blockchain entirely for reads. This eliminates gas costs and reduces latency from seconds to milliseconds.
+
+### Can I use Surge data on-chain?
+
+Yes! Surge updates can be converted to Sui quote format using `convertSurgeUpdateToQuotes()` from the `@switchboard-xyz/sui-sdk` and submitted to your Move contracts.
+
+### What's the reliability?
+
+Surge operates with 99.9% uptime SLA, automatic failover, and global redundancy. Enterprise customers get dedicated infrastructure.
+
+### How do I handle disconnections?
+
+The SDK includes automatic reconnection logic with exponential backoff. Your application will seamlessly recover from network interruptions.
+
+## Next Steps
+
+* [Surge Tutorial](surge-tutorial.md) - Step-by-step implementation guide
+* [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
+* [Explore code examples](https://github.com/switchboard-xyz/sui)
+* [Join our Discord](https://discord.gg/TJAv6ZYvPC)
+
+
+---
+
+# Surge Tutorial (source: docs-by-chain/sui/surge/surge-tutorial.md)
+
+# Surge Tutorial
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/sui/surge/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sui/surge/basic)
+
+This tutorial shows you how to stream real-time price data via WebSocket using Switchboard Surge and submit updates to the Sui blockchain. This approach is ideal for applications requiring sub-second price updates.
+
+## What You'll Build
+
+A TypeScript application that:
+- Connects to Switchboard Surge for real-time price streaming via WebSocket
+- Receives signed price updates with sub-second latency
+- Submits price updates to the Sui blockchain
+- Tracks latency statistics and oracle performance
+
+## Prerequisites
+
+- Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
+- Node.js 18+ and npm/pnpm
+- A Sui keypair with SUI tokens (in your Sui keystore) for signing Sui transactions
+- A Solana keypair with an active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
+
+Surge subscriptions are currently Solana-only; you cannot subscribe with a Sui keypair yet.
+
+## Key Concepts
+
+### Surge vs On-Demand Quotes
+
+| Feature | On-Demand Quotes | Surge Streaming |
+|---------|-----------------|-----------------|
+| Update frequency | Request-based | Continuous (~100ms) |
+| Latency | Higher (HTTP request) | Lower (WebSocket) |
+| Use case | Occasional reads | Real-time apps |
+| Authentication | None required | Subscription required |
+
+### The emitSurgeQuote Function
+
+Surge provides the `emitSurgeQuote()` function from `@switchboard-xyz/sui-sdk` that converts Surge updates into Sui transactions. This handles:
+- Oracle signature formatting
+- Transaction building
+- Quote verification setup
+
+### Oracle Mapping
+
+Surge returns oracle public keys, but Sui needs oracle object IDs. The example fetches a mapping from Crossbar to convert between these formats.
+
+### Transaction Queue Management
+
+Since Sui transactions are sequential, the example implements a queue to:
+- Buffer incoming price updates
+- Process one transaction at a time
+- Track processing latency
+
+## The Streaming Client
+
+Here's the complete mainnet streaming example:
+
+```typescript
+import * as sb from '@switchboard-xyz/on-demand';
+import { SuiClient } from '@mysten/sui/client';
+import {
+  SwitchboardClient,
+  emitSurgeQuote,
+} from '@switchboard-xyz/sui-sdk';
+import { fromB64 } from '@mysten/bcs';
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { Keypair as SolanaKeypair } from '@solana/web3.js';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
+import { Transaction } from '@mysten/sui/transactions';
+
+// Initialize Sui clients
+const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
+const switchboardClient = new SwitchboardClient(suiClient);
+
+// Oracle mapping cache
+const oracleMapping = new Map<string, string>();
+let lastOracleFetch = 0;
+const ORACLE_CACHE_TTL = 1000 * 60 * 10; // 10 minutes
+
+// Transaction queue management
+let isTransactionProcessing = false;
+const rawResponseQueue: Array<{
+  rawResponse: any;
+  timestamp: number;
+}> = [];
+
+// Process transaction queue - ensures only one transaction at a time
+async function processTransactionQueue(): Promise<void> {
+  if (isTransactionProcessing || rawResponseQueue.length === 0) {
+    return;
+  }
+
+  isTransactionProcessing = true;
+
+  try {
+    const queueItem = rawResponseQueue.shift()!;
+    const { rawResponse, timestamp } = queueItem;
+
+    console.log(`Processing transaction (queue length: ${rawResponseQueue.length})`);
+
+    const transaction = new Transaction();
+
+    // Convert Surge update to Sui transaction
+    await emitSurgeQuote(switchboardClient, transaction, rawResponse);
+
+    const result = await suiClient.signAndExecuteTransaction({
+      transaction: transaction,
+      signer: suiKeypair!,
+      options: {
+        showEvents: true,
+        showEffects: true,
+      },
+    });
+
+    const processingTime = Date.now() - timestamp;
+    console.log(`Transaction completed in ${processingTime}ms`);
+    console.log('Transaction result:', result.digest);
+  } catch (error) {
+    console.error('Transaction failed:', error);
+  } finally {
+    isTransactionProcessing = false;
+
+    // Process next transaction in queue if any
+    if (rawResponseQueue.length > 0) {
+      setImmediate(() => processTransactionQueue());
+    }
+  }
+}
+
+// Fetch oracle mappings from Crossbar
+async function fetchOracleMappings(): Promise<Map<string, string>> {
+  const now = Date.now();
+
+  if (oracleMapping.size > 0 && now - lastOracleFetch < ORACLE_CACHE_TTL) {
+    return oracleMapping;
+  }
+
+  try {
+    const response = await fetch('https://crossbar.switchboard.xyz/oracles/sui');
+    const oracles = (await response.json()) as Array<{
+      oracle_id: string;
+      oracle_key: string;
+    }>;
+
+    oracleMapping.clear();
+    for (const oracle of oracles) {
+      const cleanKey = oracle.oracle_key.startsWith('0x')
+        ? oracle.oracle_key.slice(2)
+        : oracle.oracle_key;
+      oracleMapping.set(cleanKey, oracle.oracle_id);
+    }
+
+    lastOracleFetch = now;
+    console.log(`Loaded ${oracleMapping.size} oracle mappings`);
+    return oracleMapping;
+  } catch (error) {
+    console.error('Failed to fetch oracle mappings:', error);
+    return oracleMapping;
+  }
+}
+
+// Calculate latency statistics
+function calculateStatistics(latencies: number[]) {
+  const sorted = [...latencies].sort((a, b) => a - b);
+  const sum = sorted.reduce((a, b) => a + b, 0);
+
+  return {
+    min: sorted[0],
+    max: sorted[sorted.length - 1],
+    median: sorted[Math.floor(sorted.length / 2)],
+    mean: sum / sorted.length,
+    count: sorted.length,
+  };
+}
+
+// Load Sui keypair (for signing Sui transactions)
+let suiKeypair: Ed25519Keypair | null = null;
+
+try {
+  const keystorePath = path.join(os.homedir(), '.sui', 'sui_config', 'sui.keystore');
+  const keystore = JSON.parse(fs.readFileSync(keystorePath, 'utf-8'));
+  const secretKey = fromB64(keystore[0]);
+  suiKeypair = Ed25519Keypair.fromSecretKey(secretKey.slice(1));
+} catch (error) {
+  console.error('Error loading Sui keypair:', error);
+}
+
+// Load Solana keypair (subscription owner)
+let solanaKeypair: SolanaKeypair | null = null;
+
+try {
+  const solanaKeypairPath =
+    process.env.SOLANA_KEYPAIR_PATH ||
+    path.join(os.homedir(), '.config', 'solana', 'id.json');
+  const secretKey = Uint8Array.from(
+    JSON.parse(fs.readFileSync(solanaKeypairPath, 'utf-8'))
+  );
+  solanaKeypair = SolanaKeypair.fromSecretKey(secretKey);
+} catch (error) {
+  console.error('Error loading Solana keypair:', error);
+}
+
+if (!suiKeypair) {
+  throw new Error('Sui keypair not loaded');
+}
+
+if (!solanaKeypair) {
+  throw new Error('Solana keypair not loaded');
+}
+
+// Main function
+(async function main() {
+  console.log('Starting Surge streaming...');
+  console.log(`Using Sui keypair: ${suiKeypair!.toSuiAddress()}`);
+  console.log(`Using Solana keypair: ${solanaKeypair!.publicKey.toBase58()}`);
+
+  const latencies: number[] = [];
+
+  // Initialize Surge with Solana keypair (subscription owner)
+  const surge = new sb.Surge({
+    connection: suiClient,
+    keypair: solanaKeypair!,
+    signatureScheme: 'ed25519',
+  });
+
+  // Connect and subscribe to feeds
+  await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
+
+  // Pre-fetch oracle mappings
+  await fetchOracleMappings();
+
+  // Listen for price updates
+  surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+    const currentLatency = Date.now() - response.data.source_ts_ms;
+    latencies.push(currentLatency);
+
+    const rawResponse = response.getRawResponse();
+    const stats = calculateStatistics(latencies);
+    const formattedPrices = response.getFormattedPrices();
+    const currentPrice = Object.values(formattedPrices)[0] || 'N/A';
+
+    console.log(
+      `Update #${stats.count} | Price: ${currentPrice} | Latency: ${currentLatency}ms | Avg: ${stats.mean.toFixed(1)}ms`
+    );
+
+    // Queue the update for processing
+    rawResponseQueue.push({
+      rawResponse,
+      timestamp: Date.now(),
+    });
+
+    // Trigger queue processing
+    processTransactionQueue();
+  });
+
+  console.log('Listening for price updates...');
+})();
+```
+
+### Code Walkthrough
+
+#### Setup
+
+```typescript
+const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
+const switchboardClient = new SwitchboardClient(suiClient);
+```
+
+Initialize the Sui and Switchboard clients. For testnet, use `https://fullnode.testnet.sui.io:443`.
+
+#### Creating Surge Connection
+
+```typescript
+const surge = new sb.Surge({
+  connection: suiClient,
+  keypair: solanaKeypair!,
+  signatureScheme: 'ed25519',
+});
+
+await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
+```
+
+- `connection`: Your SuiClient instance
+- `keypair`: Your Solana keypair (must have an active Surge subscription)
+- `signatureScheme`: Use `'ed25519'` for Solana keypairs
+- `connectAndSubscribe()`: Connects and subscribes to specified feeds
+
+#### Handling Updates
+
+```typescript
+surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
+  const rawResponse = response.getRawResponse();
+  const formattedPrices = response.getFormattedPrices();
+  // ...
+});
+```
+
+The `signedPriceUpdate` event fires whenever new price data arrives. Key methods:
+- `getRawResponse()`: Returns the raw signed data for transaction submission
+- `getFormattedPrices()`: Returns human-readable prices
+
+#### Submitting to Sui
+
+```typescript
+const transaction = new Transaction();
+await emitSurgeQuote(switchboardClient, transaction, rawResponse);
+
+const result = await suiClient.signAndExecuteTransaction({
+  transaction,
+  signer: suiKeypair,
+});
+```
+
+The `emitSurgeQuote()` function handles converting the Surge response into a valid Sui transaction.
+
+## Mainnet vs Testnet
+
+The mainnet and testnet examples are nearly identical with these differences:
+
+| Setting | Mainnet | Testnet |
+|---------|---------|---------|
+| RPC URL | `https://fullnode.mainnet.sui.io:443` | `https://fullnode.testnet.sui.io:443` |
+| Oracle Mapping | `/oracles/sui` | `/oracles/sui/testnet` |
+
+### Testnet Configuration
+
+```typescript
+// Testnet setup
+const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
+
+const surge = new sb.Surge({
+  connection: suiClient,
+  keypair: solanaKeypair!,
+  signatureScheme: 'ed25519',
+});
+
+// Testnet oracle mapping endpoint
+const response = await fetch('https://crossbar.switchboard.xyz/oracles/sui/testnet');
+```
+
+## Running the Examples
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples
+cd sb-on-demand-examples/sui/surge/basic
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Ensure Active Subscription
+
+Your Solana keypair (default `~/.config/solana/id.json` or `SOLANA_KEYPAIR_PATH`) must have an active Surge subscription. The Sui keypair only signs Sui transactions. Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+
+### 4. Run the Examples
+
+```bash
+# Mainnet streaming
+npm run stream
+
+# Testnet streaming
+npm run stream:testnet
+```
+
+### Expected Output
+
+```
+Starting Surge streaming...
+Using Sui keypair: 0x...
+Using Solana keypair: 9k...
+Loaded 15 oracle mappings
+Listening for price updates...
+Update #1 | Price: 97234.50 | Latency: 85ms | Avg: 85.0ms
+Processing transaction (queue length: 0)
+Transaction completed in 1234ms
+Transaction result: 8Js7NsQ7...
+Update #2 | Price: 97235.10 | Latency: 92ms | Avg: 88.5ms
+...
+```
+
+## Adding to Your Project
+
+### Dependencies
+
+```bash
+npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk @mysten/sui @solana/web3.js
+```
+
+### Minimal Integration
+
+This example assumes you already loaded a `solanaKeypair` (with an active Surge subscription) and a `suiKeypair` (for signing Sui transactions).
+
+```typescript
+import * as sb from '@switchboard-xyz/on-demand';
+import { SuiClient } from '@mysten/sui/client';
+import { SwitchboardClient, emitSurgeQuote } from '@switchboard-xyz/sui-sdk';
+import { Transaction } from '@mysten/sui/transactions';
+
+const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
+const switchboardClient = new SwitchboardClient(suiClient);
+
+const surge = new sb.Surge({
+  connection: suiClient,
+  keypair: solanaKeypair, // Solana keypair with active Surge subscription
+  signatureScheme: 'ed25519',
+});
+
+await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
+
+surge.on('signedPriceUpdate', async (response) => {
+  const tx = new Transaction();
+  await emitSurgeQuote(switchboardClient, tx, response.getRawResponse());
+
+  // Sign and send transaction
+  await suiClient.signAndExecuteTransaction({
+    transaction: tx,
+    signer: suiKeypair,
+  });
+});
+```
+
+### Multiple Feeds
+
+```typescript
+await surge.connectAndSubscribe([
+  { symbol: 'BTC/USD' },
+  { symbol: 'ETH/USD' },
+  { symbol: 'SOL/USD' },
+]);
+```
+
+### Error Handling
+
+```typescript
+surge.on('error', (error) => {
+  console.error('Surge error:', error);
+});
+
+surge.on('close', () => {
+  console.log('Connection closed, attempting reconnect...');
+  // Implement reconnection logic
+});
+```
+
+## Performance Considerations
+
+### Transaction Queue
+
+The example uses a queue because:
+- Sui transactions are sequential per sender
+- Surge updates arrive faster than transactions complete
+- Queuing prevents transaction conflicts
+
+### Latency Optimization
+
+- Keep your Sui node geographically close
+- Use dedicated RPC endpoints for production
+- Consider batching updates if latency isn't critical
+
+### Oracle Mapping Cache
+
+The oracle mapping is cached for 10 minutes to avoid repeated API calls. Adjust `ORACLE_CACHE_TTL` based on your needs.
+
+## Troubleshooting
+
+### "Keypair not loaded"
+- Ensure you have a valid Sui keypair in `~/.sui/sui_config/sui.keystore`
+- Run `sui client new-address ed25519` to create one
+- Ensure you have a valid Solana keypair at `~/.config/solana/id.json` or `SOLANA_KEYPAIR_PATH`
+- Run `solana-keygen new` to create one
+
+### "Subscription not found" or connection rejected
+- Ensure your Solana keypair has an active Surge subscription
+- Subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions)
+
+### "Oracle ID not found for key"
+- The oracle mapping might be stale
+- Force refresh by clearing `oracleMapping` and calling `fetchOracleMappings()`
+- Check you're using the correct network (mainnet vs testnet)
+
+### Transaction Failures
+- Ensure your wallet has sufficient SUI for gas
+- Check network connectivity
+- Verify you're on the correct network
+
+### High Latency
+- Check your network connection
+- Consider using a dedicated RPC endpoint
+- Reduce logging if running in production
+
+## Next Steps
+
+- **Quote Verifier Pattern**: See the [Price Feeds](../price-feeds/README.md) tutorial for verified on-chain price storage
+- **Multiple Feeds**: Subscribe to multiple feeds for portfolio tracking
+- **Custom Integration**: Use the price data to trigger your own Move contract logic
