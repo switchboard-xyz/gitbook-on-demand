@@ -1,0 +1,3362 @@
+# Price Feeds (source: docs-by-chain/solana-svm/price-feeds/README.md)
+
+# Price Feeds
+
+Access to reliable, real-world data is essential for decentralised applications (dApps), particularly in Decentralised Finance (DeFi). Real-time asset prices, forming the backbone of any DeFi protocol, are among the most critical data points.
+
+This is where Data Feeds come in. Think of them as secure bridges connecting the off-chain world of financial markets to your on-chain smart contracts. They provide a continuous stream of verified, aggregated price data for a wide range of assets, enabling your dApp to react to market fluctuations and operate correctly.
+
+
+---
+
+# Basic Price Feed (source: docs-by-chain/solana-svm/price-feeds/basic-price-feed.md)
+
+# Basic Price Feed
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/feeds/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/feeds/basic)
+
+This tutorial walks you through the simplest way to integrate Switchboard oracle price feeds into your Solana program. You'll learn how to read verified price data using Switchboard's managed update system.
+
+## What You'll Build
+
+A minimal Anchor program that reads price feed data from a Switchboard oracle account, plus a TypeScript client that fetches fresh oracle data and calls your program.
+
+## Prerequisites
+
+- Rust and Cargo installed
+- Solana CLI installed and configured
+- Node.js 18+ and npm/pnpm
+- Basic understanding of Anchor framework
+- A Solana keypair with SOL (devnet or mainnet)
+
+## Key Concepts
+
+Before diving into the code, let's understand how Switchboard's managed update system works.
+
+### Managed Updates
+
+Switchboard uses a **managed update system** where oracle data is stored in canonical accounts derived deterministically from feed IDs. This means:
+
+- No manual account management needed
+- Same feed IDs always produce the same oracle account address
+- Accounts are created automatically if they don't exist
+
+### The Two-Instruction Pattern
+
+Every Switchboard oracle update requires two instructions in sequence:
+
+1. **Ed25519 Signature Verification** - Verifies the oracle operator's signature
+2. **Quote Program Storage** - Stores the verified data in the canonical oracle account
+
+Your program then reads from this oracle account as a third instruction in the same transaction.
+
+### Feed IDs
+
+Each price feed has a unique 32-byte hex identifier. You can find feed IDs in the [Switchboard Explorer](https://ondemand.switchboard.xyz/).
+
+Example: BTC/USD feed ID:
+```
+4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+```
+
+## The On-Chain Program
+
+Here's the complete Anchor program that reads oracle data:
+
+```rust
+use anchor_lang::prelude::*;
+use switchboard_on_demand::{
+    SlotHashes, Instructions, default_queue, SwitchboardQuoteExt, SwitchboardQuote
+};
+
+declare_id!("9kVBXoCrvZgKYWTJ74w3S8wAp7daEB7zpG7kwiXxkCVN");
+
+#[program]
+pub mod basic_oracle_example {
+    use super::*;
+
+    /// Read and verify oracle data from the managed oracle account
+    pub fn read_oracle_data(ctx: Context<ReadOracleData>) -> Result<()> {
+        // Access the oracle data directly
+        let feeds = &ctx.accounts.quote_account.feeds;
+
+        // Calculate staleness (how old is the data?)
+        let current_slot = ctx.accounts.sysvars.clock.slot;
+        let quote_slot = ctx.accounts.quote_account.slot;
+        let staleness = current_slot.saturating_sub(quote_slot);
+
+        msg!("Number of feeds: {}", feeds.len());
+        msg!("Quote slot: {}, Current slot: {}", quote_slot, current_slot);
+        msg!("Staleness: {} slots", staleness);
+
+        // Process each feed
+        for (i, feed) in feeds.iter().enumerate() {
+            msg!("Feed {}: ID = {}", i, feed.hex_id());
+            msg!("Feed {}: Value = {}", i, feed.value());
+
+            // Your business logic here!
+            // - Store the price in your program state
+            // - Trigger events based on price changes
+            // - Use the price for calculations
+        }
+
+        msg!("Successfully read {} oracle feeds!", feeds.len());
+        Ok(())
+    }
+}
+
+/// Account context for reading oracle data
+#[derive(Accounts)]
+pub struct ReadOracleData<'info> {
+    /// The canonical oracle account containing verified quote data
+    /// The address constraint ensures this is the correct canonical account
+    #[account(address = quote_account.canonical_key(&default_queue()))]
+    pub quote_account: Box<Account<'info, SwitchboardQuote>>,
+
+    /// System variables required for quote verification
+    pub sysvars: Sysvars<'info>,
+}
+
+/// System variables required for oracle verification
+#[derive(Accounts)]
+pub struct Sysvars<'info> {
+    pub clock: Sysvar<'info, Clock>,
+    pub slothashes: Sysvar<'info, SlotHashes>,
+    pub instructions: Sysvar<'info, Instructions>,
+}
+```
+
+### Code Walkthrough
+
+#### Imports
+
+```rust
+use switchboard_on_demand::{
+    SlotHashes, Instructions, default_queue, SwitchboardQuoteExt, SwitchboardQuote
+};
+```
+
+- `SwitchboardQuote` - The account type that holds oracle data
+- `SwitchboardQuoteExt` - Extension trait for accessing feed values
+- `default_queue()` - Returns the default Switchboard queue for the current network
+- `SlotHashes`, `Instructions` - Sysvar types needed for verification
+
+#### The Instruction
+
+The `read_oracle_data` instruction:
+
+1. **Accesses feed data** from `quote_account.feeds`
+2. **Calculates staleness** by comparing the quote slot to the current slot
+3. **Iterates through feeds** to extract values using `feed.hex_id()` and `feed.value()`
+
+#### Account Validation
+
+```rust
+#[account(address = quote_account.canonical_key(&default_queue()))]
+pub quote_account: Box<Account<'info, SwitchboardQuote>>,
+```
+
+This constraint ensures the passed account is the legitimate canonical oracle account for the contained feeds. It prevents malicious actors from passing fake oracle data.
+
+#### Sysvars
+
+The program requires three sysvars:
+- `Clock` - For checking the current slot
+- `SlotHashes` - For quote verification
+- `Instructions` - For verifying the Ed25519 instruction was included
+
+## The TypeScript Client
+
+Here's the complete client code that fetches oracle data and calls your program:
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { OracleQuote } from "@switchboard-xyz/on-demand";
+
+const FEED_ID = "4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
+
+async function main() {
+  // Step 1: Load environment (auto-detects network)
+  const { program, keypair, connection, crossbar, queue } =
+    await sb.AnchorUtils.loadEnv();
+
+  console.log("Queue:", queue.pubkey.toBase58());
+  console.log("Network:", crossbar.getNetwork());
+
+  // Step 2: Derive the canonical oracle account from feed ID
+  const [quoteAccount] = OracleQuote.getCanonicalPubkey(
+    queue.pubkey,
+    [FEED_ID]
+  );
+  console.log("Quote Account:", quoteAccount.toBase58());
+
+  // Step 3: Simulate the feed to see current value
+  const simResult = await crossbar.simulateFeed(FEED_ID);
+  console.log("Simulated feed result:", simResult);
+
+  // Step 4: Create managed update instructions
+  const updateInstructions = await queue.fetchManagedUpdateIxs(
+    crossbar,
+    [FEED_ID],
+    {
+      variableOverrides: {},
+      instructionIdx: 0,  // Ed25519 instruction index
+      payer: keypair.publicKey,
+    }
+  );
+
+  // Step 5: Create your program's instruction
+  const readOracleIx = await program.methods
+    .readOracleData()
+    .accounts({
+      quoteAccount: quoteAccount,
+      // Sysvars are added automatically by Anchor
+    })
+    .instruction();
+
+  // Step 6: Build and send the transaction
+  const tx = await sb.asV0Tx({
+    connection,
+    ixs: [...updateInstructions, readOracleIx],
+    signers: [keypair],
+    computeUnitPrice: 20_000,
+    computeUnitLimitMultiple: 1.1,
+  });
+
+  // Step 7: Simulate and send
+  const sim = await connection.simulateTransaction(tx);
+  console.log(sim.value.logs?.join("\n"));
+
+  if (!sim.value.err) {
+    const sig = await connection.sendTransaction(tx);
+    console.log("Transaction:", sig);
+  }
+}
+
+main();
+```
+
+### Client Code Walkthrough
+
+#### Step 1: Load Environment
+
+```typescript
+const { program, keypair, connection, crossbar, queue } =
+  await sb.AnchorUtils.loadEnv();
+```
+
+This auto-detects whether you're on mainnet or devnet based on your RPC endpoint and loads the appropriate Switchboard queue.
+
+#### Step 2: Derive Canonical Account
+
+```typescript
+const [quoteAccount] = OracleQuote.getCanonicalPubkey(queue.pubkey, [FEED_ID]);
+```
+
+The canonical account is a PDA derived from the queue public key and feed IDs. This ensures the same inputs always produce the same account address.
+
+#### Step 3: Simulate Feed (Optional)
+
+```typescript
+const simResult = await crossbar.simulateFeed(FEED_ID);
+```
+
+You can simulate a feed to see what value the oracle would return before submitting a transaction.
+
+#### Step 4: Create Update Instructions
+
+```typescript
+const updateInstructions = await queue.fetchManagedUpdateIxs(
+  crossbar,
+  [FEED_ID],
+  {
+    variableOverrides: {},
+    instructionIdx: 0,
+    payer: keypair.publicKey,
+  }
+);
+```
+
+This returns an array of instructions:
+1. Ed25519 signature verification instruction
+2. Quote program `verified_update` instruction
+
+#### Step 5-7: Build and Send Transaction
+
+The transaction includes:
+1. Ed25519 verification instruction
+2. Quote program update instruction
+3. Your program's instruction
+
+All three must be in the same transaction for the verification to work.
+
+## Running the Example
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples
+cd sb-on-demand-examples/solana
+```
+
+### 2. Install Dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Configure Your Environment
+
+Create or update your Solana CLI config to point to devnet:
+
+```bash
+solana config set --url devnet
+```
+
+Ensure your keypair has SOL:
+
+```bash
+solana airdrop 2
+```
+
+### 4. Build and Deploy the Program (Optional)
+
+If you want to deploy your own instance:
+
+```bash
+anchor build
+anchor deploy
+```
+
+### 5. Run the Example
+
+```bash
+# Using default BTC/USD feed
+npm run feeds:managed
+
+# Using a custom feed ID
+npm run feeds:managed -- --feedId=YOUR_FEED_ID_HERE
+```
+
+### Expected Output
+
+```
+Queue: FdRnYujMnYbAJp5P2rkEYZCbF2TKs2D2yXZ7MYq89Hms
+Network: devnet
+Quote Account: 8Js7NsQ7sF3WLJN3JC4LJQGz8kHiEJwZ7sdGTtJC5J7d
+Simulated feed result: { value: 97234.5, ... }
+Number of feeds: 1
+Quote slot: 123456789, Current slot: 123456790
+Staleness: 1 slots
+Feed 0: ID = 4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+Feed 0: Value = 97234.50
+Successfully read 1 oracle feeds!
+```
+
+## Adding to Your Program
+
+To integrate Switchboard into your own program:
+
+### 1. Add Dependencies
+
+In your `Cargo.toml`:
+
+```toml
+[dependencies]
+switchboard-on-demand = "0.1"
+```
+
+### 2. Add the Account Struct
+
+```rust
+use switchboard_on_demand::{
+    SlotHashes, Instructions, default_queue, SwitchboardQuoteExt, SwitchboardQuote
+};
+
+#[derive(Accounts)]
+pub struct YourInstruction<'info> {
+    #[account(address = quote_account.canonical_key(&default_queue()))]
+    pub quote_account: Box<Account<'info, SwitchboardQuote>>,
+
+    pub clock: Sysvar<'info, Clock>,
+    pub slothashes: Sysvar<'info, SlotHashes>,
+    pub instructions: Sysvar<'info, Instructions>,
+
+    // ... your other accounts
+}
+```
+
+### 3. Read the Price
+
+```rust
+pub fn your_instruction(ctx: Context<YourInstruction>) -> Result<()> {
+    let feeds = &ctx.accounts.quote_account.feeds;
+
+    // Get the first feed's value
+    let price = feeds[0].value();
+
+    // Use the price in your logic
+    // ...
+
+    Ok(())
+}
+```
+
+## Next Steps
+
+- **Multiple Feeds**: Pass multiple feed IDs to `fetchManagedUpdateIxs` to update several prices in one transaction
+- **Staleness Checks**: Add maximum staleness requirements for your use case
+- **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) section
+- **Advanced Patterns**: See the Advanced Price Feed tutorial for more complex integration patterns
+
+
+---
+
+# Advanced Price Feed (source: docs-by-chain/solana-svm/price-feeds/advanced-price-feed.md)
+
+# Advanced Price Feed
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/feeds/advanced](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/feeds/advanced)
+
+This tutorial demonstrates how to build an ultra-optimized Switchboard oracle integration using the Pinocchio framework, achieving **~90% reduction in compute units** compared to the basic Anchor implementation.
+
+## Why Optimize Compute Units?
+
+On Solana, **compute units directly impact transaction costs**. Every CU saved means lower fees for your users and operators. This matters especially for:
+
+- **High-frequency oracle updates**: If you're cranking prices every few seconds, those CUs add up fast
+- **Production DeFi protocols**: Lower costs improve margins and user experience
+- **MEV-sensitive operations**: Smaller, faster transactions have competitive advantages
+
+| Metric | Basic (Anchor) | Advanced (Pinocchio) | Savings |
+|--------|----------------|----------------------|---------|
+| Compute Units | ~2,000 CU | ~190 CU | **~90%** |
+| Framework Overhead | High | Minimal | - |
+| Transaction Size | Standard | Optimized with LUTs | ~90% |
+
+## What You'll Build
+
+An ultra-optimized oracle program with:
+- **Admin authorization** for trusted crankers
+- **Four modular instructions**: init_state, init_oracle, crank, read
+- **Direct oracle writes** bypassing expensive verification (for authorized users)
+- **QuoteVerifier** for secure reads with staleness checks
+
+## Prerequisites
+
+- Completed the [Basic Price Feed](basic-price-feed.md) tutorial
+- Rust and Cargo installed
+- Familiarity with Pinocchio framework concepts
+- Solana CLI installed and configured
+- A Solana keypair with SOL
+
+## Key Concepts
+
+### Pinocchio Framework
+
+[Pinocchio](https://github.com/febo/pinocchio) is a zero-abstraction Solana program framework that provides:
+- Direct syscall access without runtime overhead
+- Zero-allocation account parsing
+- `#[inline(always)]` instruction dispatch
+- ~100 CU framework overhead vs ~2,000 CU for Anchor
+
+### Admin Authorization Pattern
+
+Instead of verifying every oracle update cryptographically (expensive), this pattern:
+1. Stores an authorized signer in a **state account**
+2. Only allows that signer to write oracle data
+3. Uses `write_from_ix_unchecked` for direct writes
+
+This trades decentralization for efficiency—suitable when you control the cranker.
+
+### Modular Account Initialization
+
+The program separates account creation into dedicated instructions:
+- `init_state`: Creates the authorization state account
+- `init_oracle`: Creates the quote storage account
+
+This allows conditional initialization only when needed.
+
+## The On-Chain Program
+
+### Program Structure
+
+```rust
+use pinocchio::{entrypoint, msg, ProgramResult};
+use switchboard_on_demand::{
+    QuoteVerifier, check_pubkey_eq, OracleQuote, Instructions, get_slot
+};
+use pinocchio::account_info::AccountInfo;
+use pinocchio::program_error::ProgramError;
+use pinocchio::pubkey::Pubkey;
+
+mod utils;
+use utils::{init_quote_account_if_needed, init_state_account_if_needed};
+
+entrypoint!(process_instruction);
+
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
+) -> ProgramResult {
+    match instruction_data[0] {
+        0 => crank(program_id, accounts)?,    // Write oracle data
+        1 => read(program_id, accounts)?,     // Read and verify
+        2 => init_state(program_id, accounts)?, // Initialize state
+        3 => init_oracle(program_id, accounts)?, // Initialize oracle account
+        _ => return Err(ProgramError::InvalidInstructionData),
+    }
+    Ok(())
+}
+```
+
+The instruction discriminator is a single byte—no Anchor discriminator overhead.
+
+### Instruction 0: `crank`
+
+The crank instruction writes oracle data for authorized signers:
+
+```rust
+pub fn crank(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    let [quote, queue, state, payer, instructions_sysvar, _clock_sysvar]: &[AccountInfo; 6] =
+        accounts.try_into().map_err(|_| ProgramError::NotEnoughAccountKeys)?;
+
+    // Validate state account belongs to this program
+    if !is_state_account(state, program_id) {
+        msg!("Invalid state account");
+        return Err(ProgramError::Custom(2));
+    }
+
+    // Check payer matches authorized signer stored in state
+    let state_data = unsafe { state.borrow_data_unchecked() };
+    if !check_pubkey_eq(&state_data, payer.key()) {
+        return Err(ProgramError::Custom(1)); // UnauthorizedSigner
+    }
+
+    // DANGER: Only use this if you trust the signer!
+    // Bypasses cryptographic verification for speed
+    OracleQuote::write_from_ix_unchecked(instructions_sysvar, quote, queue.key(), 0);
+
+    Ok(())
+}
+```
+
+**Key points:**
+- Uses `borrow_data_unchecked` for zero-copy state access
+- `write_from_ix_unchecked` directly writes oracle data without Ed25519 verification
+- Only ~90 CU for the entire operation
+
+### Instruction 1: `read`
+
+The read instruction verifies and displays oracle data:
+
+```rust
+pub fn read(_program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    let [quote, queue, clock_sysvar, slothashes_sysvar, instructions_sysvar]: &[AccountInfo; 5] =
+        accounts.try_into().map_err(|_| ProgramError::NotEnoughAccountKeys)?;
+
+    let slot = get_slot(clock_sysvar);
+
+    // Verify the oracle data with staleness check
+    let quote_data = QuoteVerifier::new()
+        .slothash_sysvar(slothashes_sysvar)
+        .ix_sysvar(instructions_sysvar)
+        .clock_slot(slot)
+        .queue(queue)
+        .max_age(30)  // Reject data older than 30 slots (~12 seconds)
+        .verify_account(quote)
+        .unwrap();
+
+    msg!("Quote slot: {}", quote_data.slot());
+
+    // Display each feed's data
+    for (index, feed_info) in quote_data.feeds().iter().enumerate() {
+        msg!("Feed #{}: {}", index + 1, feed_info.hex_id());
+        msg!("Value: {}", feed_info.value());
+    }
+
+    Ok(())
+}
+```
+
+**Key points:**
+- Uses `QuoteVerifier` for secure verification
+- `max_age(30)` ensures data freshness (30 slots ≈ 12 seconds)
+- Iterates through all feeds in the quote
+
+### Instruction 2: `init_state`
+
+Initializes the authorization state account:
+
+```rust
+pub fn init_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    let [state, payer, system_program]: &[AccountInfo; 3] =
+        accounts.try_into().map_err(|_| ProgramError::NotEnoughAccountKeys)?;
+
+    // Create the state account PDA
+    init_state_account_if_needed(program_id, state, payer, system_program)?;
+
+    // Store the authorized signer (payer becomes the admin)
+    state.try_borrow_mut_data()?[..32].copy_from_slice(payer.key().as_ref());
+
+    Ok(())
+}
+```
+
+The state account stores a single 32-byte pubkey—the authorized cranker.
+
+### Instruction 3: `init_oracle`
+
+Initializes the oracle quote account:
+
+```rust
+pub fn init_oracle(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    let [quote, queue, payer, system_program, instructions_sysvar]: &[AccountInfo; 5] =
+        accounts.try_into().map_err(|_| ProgramError::NotEnoughAccountKeys)?;
+
+    // Parse feed info from the Ed25519 instruction data
+    let quote_data = Instructions::parse_ix_data_unverified(instructions_sysvar, 0)
+        .map_err(|_| ProgramError::InvalidInstructionData)?;
+
+    // Create the quote account as a PDA derived from queue + feed IDs
+    init_quote_account_if_needed(
+        program_id,
+        quote,
+        queue,
+        payer,
+        system_program,
+        &quote_data,
+    )?;
+
+    Ok(())
+}
+```
+
+## Account Initialization Helpers
+
+The `utils.rs` module handles PDA derivation and account creation:
+
+### Quote Account Initialization
+
+```rust
+pub const ORACLE_ACCOUNT_SIZE: usize = 8 + 32 + 1024; // discriminator + queue + data
+
+pub fn init_quote_account_if_needed(
+    program_id: &Pubkey,
+    oracle_account: &AccountInfo,
+    queue_account: &AccountInfo,
+    payer: &AccountInfo,
+    system_program: &AccountInfo,
+    oracle_quote: &OracleQuote,
+) -> Result<(), ProgramError> {
+    // Skip if already initialized
+    if oracle_account.lamports() != 0 {
+        msg!("Oracle account already initialized");
+        return Ok(());
+    }
+
+    // Derive PDA from queue + feed IDs
+    let feed_ids = oracle_quote.feed_ids();
+    let mut seeds: Vec<&[u8]> = Vec::with_capacity(feed_ids.len() + 1);
+    seeds.push(queue_account.key().as_ref());
+    for feed_id in &feed_ids {
+        seeds.push(feed_id.as_ref());
+    }
+
+    let (canonical_address, bump) =
+        pinocchio::pubkey::find_program_address(&seeds, program_id);
+
+    if canonical_address != *oracle_account.key() {
+        return Err(ProgramError::InvalidArgument);
+    }
+
+    // Create account via CPI to system program
+    // ... (invoke_signed with seeds)
+}
+```
+
+### State Account Initialization
+
+```rust
+pub const STATE_ACCOUNT_SIZE: usize = 32; // Single pubkey
+
+pub fn init_state_account_if_needed(
+    program_id: &Pubkey,
+    state_account: &AccountInfo,
+    payer: &AccountInfo,
+    system_program: &AccountInfo,
+) -> Result<(), ProgramError> {
+    if state_account.lamports() != 0 {
+        return Ok(());
+    }
+
+    // Derive PDA from "state" seed
+    let (expected_key, bump) =
+        pinocchio::pubkey::find_program_address(&[b"state"], program_id);
+
+    if state_account.key() != &expected_key {
+        return Err(ProgramError::InvalidArgument);
+    }
+
+    // Create account via CPI
+    // ... (invoke_signed with ["state", bump] seeds)
+}
+```
+
+## The TypeScript Client
+
+The client handles initialization, quote fetching, and transaction building:
+
+```typescript
+import * as sb from "@switchboard-xyz/on-demand";
+import { OracleQuote } from "@switchboard-xyz/on-demand";
+import { PublicKey } from "@solana/web3.js";
+
+const FEED_ID = "4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
+
+async function main() {
+  // Step 1: Load environment (auto-detects network)
+  const { keypair, connection, crossbar, queue } = await sb.AnchorUtils.loadEnv();
+
+  // Load your deployed program ID
+  const advancedProgramId = new PublicKey("YOUR_PROGRAM_ID");
+
+  // Step 2: Derive the canonical quote account
+  // Note: includes program ID for program-owned accounts
+  const [quoteAccount] = OracleQuote.getCanonicalPubkey(
+    queue.pubkey,
+    [FEED_ID],
+    advancedProgramId  // Program ID for custom derivation
+  );
+
+  // Step 3: Fetch the Ed25519 quote instruction
+  const quoteIx = await queue.fetchQuoteIx(crossbar, [FEED_ID], {
+    variableOverrides: {},
+    instructionIdx: 0,
+  });
+
+  // Step 4: Decode and inspect the quote
+  const decodedQuote = OracleQuote.decode(quoteIx.data);
+  console.log("Quote slot:", decodedQuote.slot.toString());
+  console.log("Feeds:", decodedQuote.feeds.length);
+  decodedQuote.feeds.forEach((feed, idx) => {
+    console.log(`  Feed ${idx}: ${feed.value}`);
+  });
+
+  // Step 5: Check if accounts need initialization
+  const [stateAccount] = PublicKey.findProgramAddressSync(
+    [Buffer.from("state")],
+    advancedProgramId
+  );
+
+  const instructions = [quoteIx];
+
+  // Add init_state if needed
+  const stateInfo = await connection.getAccountInfo(stateAccount);
+  if (!stateInfo) {
+    instructions.push(createInitStateIx(advancedProgramId, keypair.publicKey));
+  }
+
+  // Add init_oracle if needed
+  const quoteInfo = await connection.getAccountInfo(quoteAccount);
+  if (!quoteInfo) {
+    instructions.push(createInitOracleIx(
+      advancedProgramId, quoteAccount, queue.pubkey, keypair.publicKey
+    ));
+  }
+
+  // Step 6: Add crank and read instructions
+  instructions.push(createCrankIx(
+    advancedProgramId, quoteAccount, queue.pubkey, stateAccount, keypair.publicKey
+  ));
+  instructions.push(createReadIx(advancedProgramId, quoteAccount, queue.pubkey));
+
+  // Step 7: Build V0 transaction with priority fees
+  const tx = await sb.asV0Tx({
+    connection,
+    ixs: instructions,
+    signers: [keypair],
+    computeUnitPrice: 10_000,
+    computeUnitLimitMultiple: 1.1,
+  });
+
+  // Step 8: Simulate and send
+  const sim = await connection.simulateTransaction(tx);
+  console.log(sim.value.logs?.join("\n"));
+
+  if (!sim.value.err) {
+    const sig = await connection.sendTransaction(tx);
+    console.log("Transaction:", sig);
+  }
+}
+```
+
+## Running the Example
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples
+cd sb-on-demand-examples/solana
+```
+
+### 2. Install Dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Build and Deploy the Program
+
+Unlike the basic example, the advanced program must be deployed:
+
+```bash
+# Build the Pinocchio program
+cargo build-sbf --manifest-path programs/advanced-oracle-example/Cargo.toml
+
+# Deploy to devnet
+solana program deploy target/deploy/advanced_oracle_example.so
+```
+
+### 4. Run the Example
+
+```bash
+# Using default BTC/USD feed
+npm run feeds:advanced
+
+# Using a custom feed ID
+npm run feeds:advanced -- --feedId=YOUR_FEED_ID
+```
+
+### Expected Output
+
+```
+Network detected: devnet
+Queue selected: FdRnYujMnYbAJp5P2rkEYZCbF2TKs2D2yXZ7MYq89Hms
+Quote Account (derived): 8Js7NsQ7sF3WLJN3JC4LJQGz8kHiEJwZ7sdGTtJC5J7d
+
+Decoded Oracle Quote:
+  Version: 1
+  Slot: 298234567
+  Feeds:
+    Feed 0:
+      Feed Hash: 4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+      Value: 97234.5
+      Min Oracle Samples: 3
+
+State account already initialized
+Quote account already initialized
+Transaction instruction count: 3
+  - Ed25519 verification
+  - crank
+  - read
+
+Performance Stats - Min: 45ms | Median: 52ms | Mean: 54.3ms | Count: 1
+Quote slot: 298234567
+Feed #1: 4cd1cad...
+Value: 97234.5
+```
+
+## When to Use This Pattern
+
+Use the advanced pattern when:
+
+| Scenario | Recommendation |
+|----------|----------------|
+| High-frequency cranking (sub-second) | Advanced |
+| Compute-sensitive DeFi protocols | Advanced |
+| You control the cranker infrastructure | Advanced |
+| Learning / prototyping | Basic |
+| Decentralized, trustless updates | Basic |
+| Simple integrations | Basic |
+
+## Security Considerations
+
+### `write_from_ix_unchecked` Risks
+
+This function bypasses cryptographic verification. Only use it when:
+
+1. **You control the signer**: The authorized cranker is your infrastructure
+2. **You trust all transaction accounts**: Malicious accounts could corrupt data
+3. **You have external monitoring**: Detect and respond to anomalies
+
+### Admin Authorization Trade-offs
+
+| Aspect | Managed Updates (Basic) | Admin Auth (Advanced) |
+|--------|-------------------------|----------------------|
+| Trust Model | Trustless (cryptographic) | Trusted admin |
+| Cost | Higher CU | ~90% lower CU |
+| Decentralization | Anyone can update | Only admin |
+| Security | Ed25519 verified | Admin key security |
+
+### Recommendations
+
+1. **Rotate admin keys** periodically
+2. **Use multisig** for production admin accounts
+3. **Monitor for anomalies** in oracle values
+4. **Consider hybrid approaches**: Admin writes + periodic cryptographic verification
+
+## Next Steps
+
+- **Custom Feeds**: Learn to create custom data feeds in [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md)
+- **Multiple Feeds**: Batch multiple price feeds in a single transaction
+- **Randomness**: Explore verifiable randomness in the [Randomness Tutorial](../randomness/README.md)
+
+
+---
+
+# Price Feeds (source: docs-by-chain/evm/price-feeds/README.md)
+
+# Price Feeds
+
+Access to reliable, real-world data is essential for decentralised applications (dApps), particularly in Decentralised Finance (DeFi). Real-time asset prices, forming the backbone of any DeFi protocol, are among the most critical data points.
+
+This is where Data Feeds come in. Think of them as secure bridges connecting the off-chain world of financial markets to your on-chain smart contracts. They provide a continuous stream of verified, aggregated price data for a wide range of assets, enabling your dApp to react to market fluctuations and operate correctly.
+
+
+---
+
+# Price Feeds Tutorial (source: docs-by-chain/evm/price-feeds/price-feeds-tutorial.md)
+
+# Price Feeds Tutorial
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/evm/price-feeds](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/evm/price-feeds)
+
+This tutorial walks you through integrating Switchboard oracle price feeds into your EVM smart contracts. You'll learn how to fetch oracle data, submit updates to your contract, and read verified prices.
+
+## What You'll Build
+
+A Solidity smart contract that:
+- Receives and stores verified oracle price updates
+- Validates price freshness and deviation
+- Provides helper functions for DeFi use cases (collateral ratios, liquidations)
+
+Plus a TypeScript client that fetches oracle data and submits it to your contract.
+
+## Prerequisites
+
+- **Foundry** for Solidity development (`forge`, `cast`)
+- **Bun** or Node.js 18+
+- Native tokens for gas (MON, ETH, etc.)
+- Basic understanding of Solidity and ethers.js
+
+## Key Concepts
+
+### How Switchboard On-Demand Works on EVM
+
+Switchboard uses an **on-demand** model where:
+
+1. **Your client** fetches signed price data from Crossbar (Switchboard's gateway)
+2. **Your contract** submits the signed data to the Switchboard contract for verification
+3. **Switchboard verifies** the oracle signatures and stores the data
+4. **Your contract** reads the verified data via `latestUpdate()`
+
+This pattern ensures prices are cryptographically verified on-chain while keeping gas costs low.
+
+### The CrossbarClient
+
+The `CrossbarClient` from `@switchboard-xyz/common` is your interface to fetch oracle data:
+
+```typescript
+import { CrossbarClient } from "@switchboard-xyz/common";
+
+const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+const { encoded } = await crossbar.fetchEVMResults({
+  chainId: 999,  // Your chain ID
+  aggregatorIds: [feedId],
+});
+```
+
+### Fee Handling
+
+Some networks require a fee for oracle updates. Always check before submitting:
+
+```typescript
+const fee = await switchboard.getFee(encoded);
+await contract.updatePrices(encoded, { value: fee });
+```
+
+## The Smart Contract
+
+Here's a complete example contract that integrates Switchboard price feeds:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import { ISwitchboard } from "./switchboard/interfaces/ISwitchboard.sol";
+import { SwitchboardTypes } from "./switchboard/libraries/SwitchboardTypes.sol";
+
+/**
+ * @title SwitchboardPriceConsumer
+ * @notice Example contract demonstrating Switchboard On-Demand oracle integration
+ *
+ * Key Features:
+ * - Secure price updates with signature verification
+ * - Staleness checks to prevent old data usage
+ * - Price deviation validation
+ * - Multi-feed support
+ */
+contract SwitchboardPriceConsumer {
+    // ========== State Variables ==========
+
+    /// @notice The Switchboard contract interface
+    ISwitchboard public immutable switchboard;
+
+    /// @notice Stored price data for each feed
+    mapping(bytes32 => PriceData) public prices;
+
+    /// @notice Maximum age for price data (default: 5 minutes)
+    uint256 public maxPriceAge = 300;
+
+    /// @notice Maximum price deviation in basis points (default: 10% = 1000 bps)
+    uint256 public maxDeviationBps = 1000;
+
+    /// @notice Contract owner
+    address public owner;
+
+    // ========== Structs ==========
+
+    /**
+     * @notice Stored price information for a feed
+     * @param value The price value (18 decimals)
+     * @param timestamp When the price was last updated
+     * @param slotNumber Solana slot number of the update
+     */
+    struct PriceData {
+        int128 value;
+        uint256 timestamp;
+        uint64 slotNumber;
+    }
+
+    // ========== Events ==========
+
+    event PriceUpdated(
+        bytes32 indexed feedId,
+        int128 oldPrice,
+        int128 newPrice,
+        uint256 timestamp,
+        uint64 slotNumber
+    );
+
+    event PriceValidationFailed(bytes32 indexed feedId, string reason);
+
+    // ========== Errors ==========
+
+    error InsufficientFee(uint256 expected, uint256 received);
+    error PriceTooOld(uint256 age, uint256 maxAge);
+    error PriceDeviationTooHigh(uint256 deviation, uint256 maxDeviation);
+    error InvalidFeedId();
+    error Unauthorized();
+
+    // ========== Constructor ==========
+
+    constructor(address _switchboard) {
+        switchboard = ISwitchboard(_switchboard);
+        owner = msg.sender;
+    }
+
+    // ========== External Functions ==========
+
+    /**
+     * @notice Update price feeds with oracle data
+     * @param updates Encoded Switchboard updates with signatures
+     * @param feedIds Array of feed IDs to process from the update
+     */
+    function updatePrices(
+        bytes[] calldata updates,
+        bytes32[] calldata feedIds
+    ) external payable {
+        // Get the required fee
+        uint256 fee = switchboard.getFee(updates);
+        if (msg.value < fee) {
+            revert InsufficientFee(fee, msg.value);
+        }
+
+        // Submit updates to Switchboard (verifies signatures)
+        switchboard.updateFeeds{ value: fee }(updates);
+
+        // Process each feed ID
+        for (uint256 i = 0; i < feedIds.length; i++) {
+            bytes32 feedId = feedIds[i];
+
+            // Get the latest verified update from Switchboard
+            SwitchboardTypes.LegacyUpdate memory update = switchboard.latestUpdate(feedId);
+
+            // Store the price with validation
+            _processFeedUpdate(
+                feedId,
+                update.result,
+                uint64(update.timestamp),
+                update.slotNumber
+            );
+        }
+
+        // Refund excess payment
+        if (msg.value > fee) {
+            (bool success, ) = msg.sender.call{ value: msg.value - fee }("");
+            require(success, "Refund failed");
+        }
+    }
+
+    /**
+     * @notice Get the current price for a feed
+     * @param feedId The feed identifier
+     * @return value The price value
+     * @return timestamp The update timestamp
+     * @return slotNumber The Solana slot number
+     */
+    function getPrice(
+        bytes32 feedId
+    ) external view returns (int128 value, uint256 timestamp, uint64 slotNumber) {
+        PriceData memory priceData = prices[feedId];
+        if (priceData.timestamp == 0) revert InvalidFeedId();
+        return (priceData.value, priceData.timestamp, priceData.slotNumber);
+    }
+
+    /**
+     * @notice Check if a price is fresh (within maxPriceAge)
+     */
+    function isPriceFresh(bytes32 feedId) public view returns (bool) {
+        PriceData memory priceData = prices[feedId];
+        if (priceData.timestamp == 0) return false;
+        return block.timestamp - priceData.timestamp <= maxPriceAge;
+    }
+
+    // ========== Internal Functions ==========
+
+    function _processFeedUpdate(
+        bytes32 feedId,
+        int128 newValue,
+        uint64 timestamp,
+        uint64 slotNumber
+    ) internal {
+        PriceData memory oldPrice = prices[feedId];
+
+        // Validate price deviation if we have a previous price
+        if (oldPrice.timestamp != 0) {
+            uint256 deviation = _calculateDeviation(oldPrice.value, newValue);
+            if (deviation > maxDeviationBps) {
+                emit PriceValidationFailed(feedId, "Deviation too high");
+                revert PriceDeviationTooHigh(deviation, maxDeviationBps);
+            }
+        }
+
+        // Store the new price
+        prices[feedId] = PriceData({
+            value: newValue,
+            timestamp: timestamp,
+            slotNumber: slotNumber
+        });
+
+        emit PriceUpdated(feedId, oldPrice.value, newValue, timestamp, slotNumber);
+    }
+
+    function _calculateDeviation(
+        int128 oldValue,
+        int128 newValue
+    ) internal pure returns (uint256) {
+        if (oldValue == 0) return 0;
+
+        uint128 absOld = oldValue < 0 ? uint128(-oldValue) : uint128(oldValue);
+        uint128 absNew = newValue < 0 ? uint128(-newValue) : uint128(newValue);
+
+        uint128 diff = absNew > absOld ? absNew - absOld : absOld - absNew;
+        return (uint256(diff) * 10000) / uint256(absOld);
+    }
+}
+```
+
+### Contract Walkthrough
+
+#### State Variables
+
+```solidity
+ISwitchboard public immutable switchboard;
+mapping(bytes32 => PriceData) public prices;
+uint256 public maxPriceAge = 300;
+uint256 public maxDeviationBps = 1000;
+```
+
+- `switchboard` - Reference to the deployed Switchboard contract
+- `prices` - Maps feed IDs to their latest price data
+- `maxPriceAge` - Maximum acceptable age for price data (5 minutes default)
+- `maxDeviationBps` - Maximum price change allowed (10% default, prevents manipulation)
+
+#### The updatePrices Function
+
+This is the main entry point for updating prices:
+
+1. **Check fee** - Ensure caller sent enough to cover the oracle update fee
+2. **Submit to Switchboard** - Call `updateFeeds()` which verifies oracle signatures
+3. **Read verified data** - Call `latestUpdate()` to get the verified price
+4. **Store locally** - Save the price in your contract's storage
+5. **Refund excess** - Return any overpayment to the caller
+
+#### Reading Prices
+
+```solidity
+(int128 value, uint256 timestamp, uint64 slotNumber) = consumer.getPrice(feedId);
+```
+
+Always check freshness before using a price:
+
+```solidity
+require(consumer.isPriceFresh(feedId), "Price is stale");
+```
+
+## The TypeScript Client
+
+Here's a complete client that fetches oracle data and submits it to your contract:
+
+```typescript
+import * as ethers from "ethers";
+import { CrossbarClient, SWITCHBOARD_ABI } from "@switchboard-xyz/common";
+
+async function main() {
+  // Setup
+  const privateKey = process.env.PRIVATE_KEY!;
+  const contractAddress = process.env.CONTRACT_ADDRESS!;
+
+  const provider = new ethers.JsonRpcProvider("https://rpc.hyperliquid.xyz/evm");
+  const signer = new ethers.Wallet(privateKey, provider);
+
+  const contract = new ethers.Contract(contractAddress, SWITCHBOARD_ABI, signer);
+  const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+
+  // The feed ID you want to update (e.g., BTC/USD)
+  const feedId = "0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
+
+  // Step 1: Fetch signed oracle data from Crossbar
+  const { encoded } = await crossbar.fetchEVMResults({
+    chainId: 999,  // HyperEVM mainnet
+    aggregatorIds: [feedId],
+  });
+
+  console.log("Fetched", encoded.length, "encoded updates");
+
+  // Step 2: Submit to your contract
+  const tx = await contract.updatePrices(encoded, [feedId]);
+  console.log("Transaction hash:", tx.hash);
+
+  // Step 3: Wait for confirmation
+  const receipt = await tx.wait();
+  console.log("Confirmed in block:", receipt.blockNumber);
+
+  // Step 4: Parse events
+  const iface = new ethers.Interface(SWITCHBOARD_ABI);
+  for (const log of receipt.logs) {
+    try {
+      const parsed = iface.parseLog({ topics: log.topics, data: log.data });
+      if (parsed?.name === "PriceUpdated") {
+        console.log("\n=== Price Updated ===");
+        console.log("Feed ID:", parsed.args.feedId);
+        console.log("New Price:", ethers.formatUnits(parsed.args.newPrice, 18));
+        console.log("Timestamp:", new Date(Number(parsed.args.timestamp) * 1000).toISOString());
+      }
+    } catch (e) {
+      // Skip non-matching logs
+    }
+  }
+
+  // Step 5: Read the stored price
+  const [value, timestamp, slotNumber] = await contract.getPrice(feedId);
+  console.log("\n=== Current Price ===");
+  console.log("Value:", ethers.formatUnits(value, 18));
+  console.log("Timestamp:", new Date(Number(timestamp) * 1000).toISOString());
+  console.log("Slot:", slotNumber.toString());
+}
+
+main().catch(console.error);
+```
+
+### Client Walkthrough
+
+#### Step 1: Fetch Oracle Data
+
+```typescript
+const { encoded } = await crossbar.fetchEVMResults({
+  chainId: 999,
+  aggregatorIds: [feedId],
+});
+```
+
+The `fetchEVMResults` call returns encoded oracle data signed by Switchboard oracles. This data includes:
+- The price value
+- Timestamp
+- Oracle signatures
+
+#### Step 2: Submit to Contract
+
+```typescript
+const tx = await contract.updatePrices(encoded, [feedId]);
+```
+
+Your contract receives the encoded data, submits it to Switchboard for verification, then stores the result.
+
+#### Step 3-5: Confirm and Read
+
+After confirmation, you can:
+- Parse `PriceUpdated` events from the receipt
+- Read the stored price directly from your contract
+
+## Deployment
+
+### Using Foundry
+
+Create a deploy script `script/Deploy.s.sol`:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.22;
+
+import "forge-std/Script.sol";
+import "../src/SwitchboardPriceConsumer.sol";
+
+contract Deploy is Script {
+    // Switchboard addresses by network
+    address constant MONAD_TESTNET = 0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33;
+    address constant MONAD_MAINNET = 0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67;
+    address constant HYPERLIQUID_MAINNET = 0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347;
+
+    function run() external {
+        address switchboardAddress = MONAD_TESTNET; // Change as needed
+
+        vm.startBroadcast();
+        SwitchboardPriceConsumer consumer = new SwitchboardPriceConsumer(switchboardAddress);
+        vm.stopBroadcast();
+
+        console.log("Deployed at:", address(consumer));
+    }
+}
+```
+
+### Deploy Commands
+
+```bash
+# Monad Testnet
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --broadcast \
+  -vvvv
+
+# Monad Mainnet
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_KEY \
+  --broadcast \
+  -vvvv
+
+# HyperEVM Mainnet
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url https://rpc.hyperliquid.xyz/evm \
+  --broadcast \
+  -vvvv
+```
+
+## Running the Example
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples
+cd sb-on-demand-examples/evm
+```
+
+### 2. Install Dependencies
+
+```bash
+bun install
+forge install
+```
+
+### 3. Configure Environment
+
+> **Security:** Never use `export PRIVATE_KEY=...`—it appears in shell history. Use a `.env` file instead.
+
+Create a `.env` file (add to `.gitignore`):
+
+```bash
+PRIVATE_KEY=0x...
+EXAMPLE_ADDRESS=0x...  # Your deployed contract
+```
+
+### 4. Run the Example
+
+```bash
+bun run examples/updateFeed.ts
+```
+
+### Expected Output
+
+```
+Aggregator ID: 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+Encoded updates length: 1
+Transaction hash: 0x...
+Transaction confirmed in block: 12345678
+
+=== Feed Update Event ===
+Price: 97234500000000000000000
+Timestamp: 2024-12-18T10:30:00.000Z
+Oracle ID: 0x...
+
+=== Latest Update Details ===
+Result: 97234500000000000000000
+Timestamp: 2024-12-18T10:30:00.000Z
+```
+
+## Adding to Your Project
+
+### 1. Install the Switchboard Interfaces
+
+Copy the interface files from the examples repo:
+
+```bash
+cp -r sb-on-demand-examples/evm/src/switchboard your-project/src/
+```
+
+Or install via npm:
+
+```bash
+npm install @switchboard-xyz/on-demand-solidity
+```
+
+### 2. Import and Use
+
+```solidity
+import { ISwitchboard } from "./switchboard/interfaces/ISwitchboard.sol";
+import { SwitchboardTypes } from "./switchboard/libraries/SwitchboardTypes.sol";
+
+contract YourContract {
+    ISwitchboard public switchboard;
+
+    constructor(address _switchboard) {
+        switchboard = ISwitchboard(_switchboard);
+    }
+
+    function yourFunction(bytes[] calldata updates, bytes32 feedId) external payable {
+        // Submit to Switchboard
+        uint256 fee = switchboard.getFee(updates);
+        switchboard.updateFeeds{ value: fee }(updates);
+
+        // Read verified data
+        SwitchboardTypes.LegacyUpdate memory update = switchboard.latestUpdate(feedId);
+
+        // Use update.result (the price)
+        int128 price = update.result;
+        // ... your logic here
+    }
+}
+```
+
+## Example: DeFi Business Logic
+
+The example contract includes helper functions for common DeFi patterns:
+
+### Calculate Collateral Ratio
+
+```solidity
+function calculateCollateralRatio(
+    bytes32 feedId,
+    uint256 collateralAmount,
+    uint256 debtAmount
+) external view returns (uint256 ratio) {
+    require(isPriceFresh(feedId), "Price is stale");
+
+    PriceData memory priceData = prices[feedId];
+
+    // Calculate collateral value in USD
+    uint256 collateralValue = (collateralAmount * uint128(priceData.value)) / 1e18;
+
+    // Return ratio in basis points (15000 = 150%)
+    ratio = (collateralValue * 10000) / debtAmount;
+}
+```
+
+### Check Liquidation
+
+```solidity
+function shouldLiquidate(
+    bytes32 feedId,
+    uint256 collateralAmount,
+    uint256 debtAmount,
+    uint256 liquidationThreshold  // e.g., 11000 = 110%
+) external view returns (bool) {
+    if (!isPriceFresh(feedId)) return false;
+
+    PriceData memory priceData = prices[feedId];
+    uint256 collateralValue = (collateralAmount * uint128(priceData.value)) / 1e18;
+    uint256 ratio = (collateralValue * 10000) / debtAmount;
+
+    return ratio < liquidationThreshold;
+}
+```
+
+## Switchboard Contract Addresses
+
+| Network | Chain ID | Switchboard Contract |
+|---------|----------|---------------------|
+| Monad Testnet | 10143 | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| Monad Mainnet | 143 | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
+| HyperEVM Mainnet | 999 | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
+| Arbitrum One | 42161 | `0xAd9b8604b6B97187CDe9E826cDeB7033C8C37198` |
+| Arbitrum Sepolia | 421614 | `0xA2a0425fA3C5669d384f4e6c8068dfCf64485b3b` |
+| Core Mainnet | 1116 | `0x33A5066f65f66161bEb3f827A3e40fce7d7A2e6C` |
+
+## Available Feeds
+
+Find available price feeds at the [Switchboard Explorer](https://explorer.switchboardlabs.xyz).
+
+Popular feeds include:
+- **BTC/USD**: `0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812`
+- **ETH/USD**: `0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea`
+- **SOL/USD**: `0x822512ee9add93518eca1c105a38422841a76c590db079eebb283deb2c14caa9`
+
+## Troubleshooting
+
+| Error | Solution |
+|-------|----------|
+| `InsufficientFee` | Query `switchboard.getFee(updates)` and send that amount as `msg.value` |
+| `PriceDeviationTooHigh` | Normal during high volatility; adjust `maxDeviationBps` if needed |
+| `PriceTooOld` | Fetch fresh data from Crossbar; adjust `maxPriceAge` if needed |
+| `InvalidFeedId` | Ensure the feed ID exists and has been updated at least once |
+| Build errors | Run `forge clean && forge build` |
+
+## Next Steps
+
+- Explore [randomness integration](../randomness.md) for gaming and NFTs
+- Learn about [custom feeds](../../../custom-feeds/build-and-deploy-feed/README.md) for specialized data
+- Join the [Switchboard Discord](https://discord.gg/TJAv6ZYvPC) for support
+
+
+---
+
+# Price Feeds (source: docs-by-chain/sui/price-feeds/README.md)
+
+# Price Feeds
+
+Access to reliable, real-world data is essential for decentralised applications (dApps), particularly in Decentralised Finance (DeFi). Real-time asset prices, forming the backbone of any DeFi protocol, are among the most critical data points.
+
+This is where Data Feeds come in. Think of them as secure bridges connecting the off-chain world of financial markets to your on-chain smart contracts. They provide a continuous stream of verified, aggregated price data for a wide range of assets, enabling your dApp to react to market fluctuations and operate correctly.
+
+
+---
+
+# Price Feeds Tutorial (source: docs-by-chain/sui/price-feeds/price-feeds-tutorial.md)
+
+# Price Feeds Tutorial
+
+> **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/sui/feeds/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sui/feeds/basic)
+
+This tutorial walks you through integrating Switchboard oracle price feeds into your Sui Move contracts using the Quote Verifier pattern. You'll learn how to securely fetch, verify, and use real-time price data.
+
+## What You'll Build
+
+A Move contract that:
+- Fetches real-time price data from multiple Switchboard oracles
+- Verifies oracle signatures cryptographically
+- Validates data freshness and price deviation
+- Stores verified prices for your DeFi logic
+
+Plus a TypeScript client that fetches oracle data and submits it to your contract.
+
+## Prerequisites
+
+- Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
+- Node.js 18+ and npm/pnpm
+- A Sui keypair with SUI tokens (testnet or mainnet)
+- Basic understanding of Move and TypeScript
+
+## Key Concepts
+
+### The Quote Verifier Pattern
+
+Switchboard uses a **Quote Verifier** pattern to ensure oracle data is legitimate. The verifier:
+
+- Checks that data comes from authorized oracles on the correct queue
+- Tracks timestamps and slots to prevent replay attacks
+- Enables custom validation logic (freshness, deviation limits)
+
+### Why Use Quote Verifier?
+
+Without verification:
+- Anyone could submit fake prices if you don't check the queue ID
+- You'd have to track last update timestamps yourself
+- Stale data could be replayed to manipulate prices
+
+With verification:
+- Only data from the authorized oracle queue is accepted
+- Automatic freshness checks prevent stale data
+- Replay attacks are prevented
+- You don't need to manually track update timestamps
+
+### Feed Hashes
+
+Each price feed has a unique 32-byte hex identifier. You can find feed hashes in the [Switchboard Explorer](https://ondemand.switchboard.xyz/).
+
+Example: BTC/USD feed hash:
+```
+0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+```
+
+## The Move Contract
+
+Here's the complete Move contract that consumes oracle data with built-in verification:
+
+```move
+module example::example;
+
+use sui::clock::Clock;
+use sui::event;
+use switchboard::quote::{QuoteVerifier, Quotes};
+use switchboard::decimal::Decimal;
+
+// ========== Error Codes ==========
+
+#[error]
+const EInvalidQuote: vector<u8> = b"Invalid quote data";
+
+#[error]
+const EQuoteExpired: vector<u8> = b"Quote data is expired";
+
+#[error]
+const EPriceDeviationTooHigh: vector<u8> = b"Price deviation exceeds threshold";
+
+// ========== Structs ==========
+
+/// QuoteConsumer - Your Oracle Data Consumer
+///
+/// This struct manages oracle price data with built-in security features:
+/// - `quote_verifier`: Verifies oracle signatures and manages quote storage
+/// - `last_price`: The most recent verified price
+/// - `last_update_time`: Timestamp of the last update
+/// - `max_age_ms`: Maximum age for valid quotes
+/// - `max_deviation_bps`: Maximum price deviation allowed (basis points)
+public struct QuoteConsumer has key {
+    id: UID,
+    quote_verifier: QuoteVerifier,
+    last_price: Option<Decimal>,
+    last_update_time: u64,
+    max_age_ms: u64,
+    max_deviation_bps: u64,
+}
+
+/// Event emitted when price is updated
+public struct PriceUpdated has copy, drop {
+    feed_hash: vector<u8>,
+    old_price: Option<u128>,
+    new_price: u128,
+    timestamp: u64,
+    num_oracles: u64,
+}
+
+// ========== Public Functions ==========
+
+/// Initialize a QuoteConsumer with a Quote Verifier
+public fun init_quote_consumer(
+    queue: ID,
+    max_age_ms: u64,
+    max_deviation_bps: u64,
+    ctx: &mut TxContext
+): QuoteConsumer {
+    let verifier = switchboard::quote::new_verifier(ctx, queue);
+
+    QuoteConsumer {
+        id: object::new(ctx),
+        quote_verifier: verifier,
+        last_price: option::none(),
+        last_update_time: 0,
+        max_age_ms,
+        max_deviation_bps,
+    }
+}
+
+/// Create and share a QuoteConsumer
+public fun create_quote_consumer(
+    queue: ID,
+    max_age_ms: u64,
+    max_deviation_bps: u64,
+    ctx: &mut TxContext
+) {
+    let consumer = init_quote_consumer(queue, max_age_ms, max_deviation_bps, ctx);
+    transfer::share_object(consumer);
+}
+
+/// Update price using Switchboard oracle quotes
+public fun update_price(
+    consumer: &mut QuoteConsumer,
+    quotes: Quotes,
+    feed_hash: vector<u8>,
+    clock: &Clock,
+) {
+    // STEP 1: Verify oracle signatures and queue membership
+    consumer.quote_verifier.verify_quotes(&quotes, clock);
+
+    // STEP 2: Check if the feed exists in the verified quotes
+    assert!(consumer.quote_verifier.quote_exists(*& feed_hash), EInvalidQuote);
+
+    // STEP 3: Get the verified quote
+    let quote = consumer.quote_verifier.get_quote(*& feed_hash);
+
+    // STEP 4: Ensure the quote is fresh (within 10 seconds)
+    assert!(quote.timestamp_ms() + 10000 > clock.timestamp_ms(), EQuoteExpired);
+
+    // STEP 5: Extract the price value
+    let new_price = quote.result();
+
+    // STEP 6: Validate price deviation (if we have a previous price)
+    if (consumer.last_price.is_some()) {
+        let last_price = *consumer.last_price.borrow();
+        validate_price_deviation(&last_price, &new_price, consumer.max_deviation_bps);
+    };
+
+    // Store the old price for the event
+    let old_price_value = if (consumer.last_price.is_some()) {
+        option::some(consumer.last_price.borrow().value())
+    } else {
+        option::none()
+    };
+
+    // STEP 7: Update the stored price and timestamp
+    consumer.last_price = option::some(new_price);
+    consumer.last_update_time = quote.timestamp_ms();
+
+    // STEP 8: Emit event for transparency
+    event::emit(PriceUpdated {
+        feed_hash,
+        old_price: old_price_value,
+        new_price: new_price.value(),
+        timestamp: quote.timestamp_ms(),
+        num_oracles: quotes.oracles().length(),
+    });
+}
+
+/// Get the current price (if available)
+public fun get_current_price(consumer: &QuoteConsumer): Option<Decimal> {
+    consumer.last_price
+}
+
+/// Check if the current price is fresh (within max age)
+public fun is_price_fresh(consumer: &QuoteConsumer, clock: &Clock): bool {
+    if (consumer.last_update_time == 0) {
+        return false
+    };
+
+    let current_time = clock.timestamp_ms();
+    current_time - consumer.last_update_time <= consumer.max_age_ms
+}
+
+// ========== Private Helper Functions ==========
+
+/// Validate that price deviation is within acceptable bounds
+fun validate_price_deviation(
+    old_price: &Decimal,
+    new_price: &Decimal,
+    max_deviation_bps: u64
+) {
+    let old_value = old_price.value();
+    let new_value = new_price.value();
+
+    let change = if (new_value > old_value) {
+        ((new_value - old_value) * 10000) / old_value
+    } else {
+        ((old_value - new_value) * 10000) / old_value
+    };
+
+    assert!(change <= (max_deviation_bps as u128), EPriceDeviationTooHigh);
+}
+```
+
+### Contract Walkthrough
+
+#### Imports
+
+```move
+use switchboard::quote::{QuoteVerifier, Quotes};
+use switchboard::decimal::Decimal;
+```
+
+- `QuoteVerifier` - Manages quote verification and storage
+- `Quotes` - The signed oracle data structure
+- `Decimal` - Switchboard's decimal type for price values
+
+#### QuoteConsumer Struct
+
+The `QuoteConsumer` is a shared object that stores:
+- `quote_verifier`: Handles signature verification and prevents replay attacks
+- `last_price`: Most recent verified price
+- `last_update_time`: Timestamp for freshness checks
+- `max_age_ms`: Maximum acceptable quote age (e.g., 300000 = 5 minutes)
+- `max_deviation_bps`: Maximum price change in basis points (e.g., 1000 = 10%)
+
+#### The update_price Function
+
+This is the core function that processes oracle data:
+
+1. **`verify_quotes()`** - Verifies all oracle signatures and ensures they're from the correct queue
+2. **`quote_exists()`** - Confirms the requested feed is in the quotes
+3. **`get_quote()`** - Retrieves the verified quote data
+4. **Freshness check** - Rejects data older than 10 seconds
+5. **Deviation check** - Prevents sudden price jumps that might indicate manipulation
+6. **Store and emit** - Updates state and emits a `PriceUpdated` event
+
+#### Business Logic Examples
+
+The contract includes example functions for common DeFi use cases:
+
+```move
+/// Calculate collateral ratio using fresh price
+public fun calculate_collateral_ratio(
+    consumer: &QuoteConsumer,
+    collateral_amount: u64,
+    debt_amount: u64,
+    clock: &Clock
+): u64 {
+    assert!(is_price_fresh(consumer, clock), EQuoteExpired);
+
+    let price = consumer.last_price.borrow();
+    let collateral_value = (collateral_amount as u128) * price.value();
+    let debt_value = (debt_amount as u128) * 1_000_000_000;
+
+    ((collateral_value * 100) / debt_value as u64)
+}
+
+/// Check if liquidation is needed
+public fun should_liquidate(
+    consumer: &QuoteConsumer,
+    collateral_amount: u64,
+    debt_amount: u64,
+    liquidation_threshold: u64,
+    clock: &Clock
+): bool {
+    if (!is_price_fresh(consumer, clock)) {
+        return false // Don't liquidate with stale data
+    };
+
+    let ratio = calculate_collateral_ratio(consumer, collateral_amount, debt_amount, clock);
+    ratio < liquidation_threshold
+}
+```
+
+## The TypeScript Client
+
+Here's the complete TypeScript client that creates a QuoteConsumer and updates prices:
+
+```typescript
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { Transaction } from "@mysten/sui/transactions";
+import { fromBase64 as fromB64 } from "@mysten/sui/utils";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { SwitchboardClient, Quote } from "@switchboard-xyz/sui-sdk";
+
+// Configuration
+const config = {
+  network: (process.env.SUI_NETWORK || "mainnet") as "mainnet" | "testnet",
+  rpcUrl: process.env.SUI_RPC_URL || undefined,
+  keystoreIndex: parseInt(process.env.KEYSTORE_INDEX || "0"),
+  examplePackageId: process.env.EXAMPLE_PACKAGE_ID || "",
+  feedHash: process.env.FEED_HASH || "0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812",
+  numOracles: parseInt(process.env.NUM_ORACLES || "3"),
+  maxAgeMs: parseInt(process.env.MAX_AGE_MS || "300000"),
+  maxDeviationBps: parseInt(process.env.MAX_DEVIATION_BPS || "1000"),
+};
+
+// Load keypair from Sui keystore
+function loadKeypair(): Ed25519Keypair {
+  const keystorePath = path.join(os.homedir(), ".sui", "sui_config", "sui.keystore");
+  const keystore = JSON.parse(fs.readFileSync(keystorePath, "utf-8"));
+  const secretKey = fromB64(keystore[config.keystoreIndex]);
+  return Ed25519Keypair.fromSecretKey(secretKey.slice(1));
+}
+
+async function main() {
+  console.log("Switchboard Oracle Quote Verifier Example\n");
+
+  const rpcUrl = config.rpcUrl || getFullnodeUrl(config.network);
+  console.log("Configuration:");
+  console.log(`  Network: ${config.network}`);
+  console.log(`  Package: ${config.examplePackageId}`);
+  console.log(`  Feed: ${config.feedHash}`);
+  console.log(`  Oracles: ${config.numOracles}\n`);
+
+  // Initialize clients
+  const client = new SuiClient({ url: rpcUrl });
+  const sb = new SwitchboardClient(client);
+  const state = await sb.fetchState();
+
+  console.log("Switchboard Connected:");
+  console.log(`  Oracle Queue: ${state.oracleQueueId}`);
+  console.log(`  Network: ${state.mainnet ? 'Mainnet' : 'Testnet'}\n`);
+
+  const keypair = loadKeypair();
+  const userAddress = keypair.getPublicKey().toSuiAddress();
+  console.log(`User Address: ${userAddress}\n`);
+
+  // Step 1: Create QuoteConsumer
+  console.log("Step 1: Creating QuoteConsumer...");
+
+  const createTx = new Transaction();
+  createTx.moveCall({
+    target: `${config.examplePackageId}::example::create_quote_consumer`,
+    arguments: [
+      createTx.pure.id(state.oracleQueueId),
+      createTx.pure.u64(config.maxAgeMs),
+      createTx.pure.u64(config.maxDeviationBps),
+    ],
+  });
+
+  const createRes = await client.signAndExecuteTransaction({
+    signer: keypair,
+    transaction: createTx,
+    options: { showEffects: true, showObjectChanges: true, showEvents: true },
+  });
+
+  // Extract QuoteConsumer ID
+  let quoteConsumerId: string | null = null;
+  for (const change of createRes.objectChanges ?? []) {
+    if (change.type === "created" && change.objectType?.includes("::example::QuoteConsumer")) {
+      quoteConsumerId = change.objectId;
+      console.log(`QuoteConsumer Created: ${quoteConsumerId}\n`);
+      break;
+    }
+  }
+
+  if (!quoteConsumerId) {
+    throw new Error("Failed to create QuoteConsumer");
+  }
+
+  // Wait for object availability
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  // Step 2: Fetch Oracle Data
+  console.log("Step 2: Fetching Oracle Data...");
+
+  const updateTx = new Transaction();
+  const quotes = await Quote.fetchUpdateQuote(sb, updateTx, {
+    feedHashes: [config.feedHash],
+    numOracles: config.numOracles,
+  });
+
+  console.log("Oracle data fetched successfully\n");
+
+  // Step 3: Verify and Update Price
+  console.log("Step 3: Verifying and Updating Price...");
+
+  updateTx.moveCall({
+    target: `${config.examplePackageId}::example::update_price`,
+    arguments: [
+      updateTx.object(quoteConsumerId),
+      quotes,
+      updateTx.pure.vector("u8", Array.from(Buffer.from(config.feedHash.replace("0x", ""), "hex"))),
+      updateTx.object("0x6"), // Sui Clock
+    ],
+  });
+
+  const updateRes = await client.signAndExecuteTransaction({
+    signer: keypair,
+    transaction: updateTx,
+    options: { showEffects: true, showEvents: true },
+  });
+
+  // Display results
+  if (updateRes.effects?.status.status === "success") {
+    console.log("Price Update Successful!\n");
+  }
+
+  // Parse events
+  for (const event of updateRes.events ?? []) {
+    if (event.type.includes("PriceUpdated")) {
+      const data = event.parsedJson as any;
+      console.log("PriceUpdated Event:");
+      console.log(`  Feed Hash: ${Buffer.from(data.feed_hash).toString('hex')}`);
+      console.log(`  New Price: ${data.new_price}`);
+      console.log(`  Timestamp: ${new Date(parseInt(data.timestamp)).toISOString()}`);
+      console.log(`  Oracles: ${data.num_oracles}`);
+    }
+  }
+}
+
+main().catch(console.error);
+```
+
+### Client Walkthrough
+
+#### Step 1: Create QuoteConsumer
+
+```typescript
+const createTx = new Transaction();
+createTx.moveCall({
+  target: `${config.examplePackageId}::example::create_quote_consumer`,
+  arguments: [
+    createTx.pure.id(state.oracleQueueId),  // Oracle queue from Switchboard state
+    createTx.pure.u64(config.maxAgeMs),      // Max quote age (5 minutes)
+    createTx.pure.u64(config.maxDeviationBps), // Max deviation (10%)
+  ],
+});
+```
+
+This creates a shared QuoteConsumer object tied to Switchboard's oracle queue.
+
+#### Step 2: Fetch Oracle Quotes
+
+```typescript
+const quotes = await Quote.fetchUpdateQuote(sb, updateTx, {
+  feedHashes: [config.feedHash],
+  numOracles: config.numOracles,
+});
+```
+
+`Quote.fetchUpdateQuote()` contacts Crossbar to get signed price data from multiple oracles. The `quotes` object is added to the transaction automatically.
+
+#### Step 3: Update Price
+
+```typescript
+updateTx.moveCall({
+  target: `${config.examplePackageId}::example::update_price`,
+  arguments: [
+    updateTx.object(quoteConsumerId),
+    quotes,
+    updateTx.pure.vector("u8", feedHashBytes),
+    updateTx.object("0x6"), // Sui Clock
+  ],
+});
+```
+
+This calls your contract's `update_price` function with the fetched quotes. The Move contract will verify signatures and update the stored price.
+
+## Project Structure
+
+```
+sui/
+├── Move.toml              # Mainnet configuration
+├── Move.testnet.toml      # Testnet configuration
+├── sources/
+│   └── example.move       # Quote Consumer contract with verifier
+├── scripts/
+│   └── run.ts             # Complete TypeScript example
+├── examples/
+│   ├── quotes.ts                # Simple quote fetching example
+│   ├── mainnet_surge_stream.ts  # Mainnet streaming with Sui integration
+│   └── testnet_surge_stream.ts  # Testnet streaming with Sui integration
+└── package.json
+```
+
+## Available Scripts
+
+```bash
+# Build the Move contract
+npm run build
+
+# Build for testnet
+npm run build:testnet
+
+# Run Move tests
+npm run test
+
+# Deploy to mainnet
+npm run deploy
+
+# Deploy to testnet
+npm run deploy:testnet
+
+# Run the complete example with Move integration
+npm run example
+
+# Run simple quote fetching example
+npm run quotes
+```
+
+## Running the Example
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples
+cd sb-on-demand-examples/sui
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+# or
+pnpm install
+```
+
+### 3. Build the Move Contract
+
+```bash
+# For mainnet
+npm run build
+
+# For testnet
+npm run build:testnet
+```
+
+### 4. Deploy the Contract
+
+```bash
+# For mainnet
+npm run deploy
+
+# For testnet
+npm run deploy:testnet
+```
+
+Save the package ID from the deployment output.
+
+### 5. Run the Example
+
+```bash
+# Set your package ID
+export EXAMPLE_PACKAGE_ID=0xYOUR_PACKAGE_ID
+
+# Run the example
+npm run example
+
+# Or with custom parameters
+export FEED_HASH=0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+export NUM_ORACLES=5
+npm run example
+```
+
+### Expected Output
+
+```
+Switchboard Oracle Quote Verifier Example
+
+Configuration:
+  Network: mainnet
+  Package: 0xYOUR_PACKAGE_ID
+  Feed: 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+  Oracles: 3
+
+Switchboard Connected:
+  Oracle Queue: 0xe9324b82374f18d17de601ae5a19cd72e8c9f57f54661bf9e41a76f8948e80b5
+  Network: Mainnet
+
+User Address: 0x...
+
+Step 1: Creating QuoteConsumer...
+QuoteConsumer Created: 0x...
+
+Step 2: Fetching Oracle Data...
+Oracle data fetched successfully
+
+Step 3: Verifying and Updating Price...
+Price Update Successful!
+
+PriceUpdated Event:
+  Feed Hash: 4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+  New Price: 98765432100
+  Timestamp: 2025-12-18T10:30:00.000Z
+  Oracles: 3
+```
+
+## Adding to Your Project
+
+### 1. Add Switchboard to Move.toml
+
+```toml
+[dependencies.Switchboard]
+git = "https://github.com/switchboard-xyz/sui.git"
+subdir = "on_demand/"
+rev = "mainnet"  # or "testnet"
+
+[dependencies.Sui]
+git = "https://github.com/MystenLabs/sui.git"
+subdir = "crates/sui-framework/packages/sui-framework"
+rev = "framework/mainnet"  # or "framework/testnet"
+```
+
+### 2. Import in Your Move Module
+
+```move
+use switchboard::quote::{QuoteVerifier, Quotes};
+use switchboard::decimal::Decimal;
+```
+
+### 3. Add Quote Verifier to Your Struct
+
+```move
+public struct MyProtocol has key {
+    id: UID,
+    quote_verifier: QuoteVerifier,
+    // ... your other fields
+}
+```
+
+### 4. TypeScript Dependencies
+
+```bash
+npm install @switchboard-xyz/sui-sdk @mysten/sui
+```
+
+## Available Feeds
+
+| Asset | Feed Hash |
+|-------|-----------|
+| BTC/USD | `0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812` |
+| ETH/USD | `0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea` |
+| SOL/USD | `0x822512ee9add93518eca1c105a38422841a76c590db079eebb283deb2c14caa9` |
+| SUI/USD | `0x7ceef94f404e660925ea4b33353ff303effaf901f224bdee50df3a714c1299e9` |
+
+Find more feeds at the [Switchboard Explorer](https://ondemand.switchboard.xyz/).
+
+## Deployments
+
+| Network | Package ID |
+|---------|------------|
+| Mainnet | `0xa81086572822d67a1559942f23481de9a60c7709c08defafbb1ca8dffc44e210` |
+| Testnet | `0x28005599a66e977bff26aeb1905a02cda5272fd45bb16a5a9eb38e8659658cff` |
+
+## Troubleshooting
+
+### "EInvalidQuote"
+- The requested feed hash is not in the quotes
+- Verify the feed hash is correct and included in `fetchUpdateQuote()`
+
+### "EQuoteExpired"
+- Quote data is older than 10 seconds
+- Fetch fresh data before calling `update_price()`
+- Check network latency
+
+### "EPriceDeviationTooHigh"
+- Price changed more than the configured `max_deviation_bps`
+- This can happen during high volatility
+- Adjust the threshold if needed for your use case
+
+### "EInvalidQueue"
+- The quotes are from a different oracle queue
+- Verify you're using the correct queue ID for your network (mainnet vs testnet)
+
+### Build Errors
+
+```bash
+# Clean and rebuild
+rm -rf build/
+npm run build
+
+# For testnet
+npm run build:testnet
+```
+
+## Next Steps
+
+- **Multiple Feeds**: Pass multiple feed hashes to `fetchUpdateQuote()` to update several prices in one transaction
+- **Real-time Streaming**: See the [Surge Price Stream](surge-price-stream.md) tutorial for WebSocket-based streaming
+- **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) section
+
+
+---
+
+# Aptos (source: docs-by-chain/aptos/aptos.md)
+
+# Aptos
+
+This guide covers the setup and use of Switchboard data feeds within your project, using the `Aggregator` module for updating feeds and integrating `Switchboard` in Move.
+
+**Active Deployments**
+
+Switchboard is currently deployed on the following networks:
+
+* Mainnet:
+  * [`0xfea54925b5ac1912331e2e62049849b37842efaea298118b66f85a59057752b8`](https://explorer.aptoslabs.com/object/0xfea54925b5ac1912331e2e62049849b37842efaea298118b66f85a59057752b8/modules/code/aggregator?network=mainnet)
+* Testnet:
+  * [`0x4fc1809ffb3c5ada6b4e885d4dbdbeb70cbdd99cbc0c8485965d95c2eab90935`](https://explorer.aptoslabs.com/object/0x4fc1809ffb3c5ada6b4e885d4dbdbeb70cbdd99cbc0c8485965d95c2eab90935/modules/code/aggregator?network=testnet)
+
+**Typescript-SDK Installation**
+
+To use Switchboard On-Demand, add the following dependencies to your project:
+
+**NPM**
+
+```bash
+npm install @switchboard-xyz/aptos-sdk --save
+npm install @aptos-labs/ts-sdk
+```
+
+**Adding Switchboard to Move Code**
+
+To integrate Switchboard with Move, add the following dependencies to Move.toml:
+
+```bash
+[dependencies.Switchboard]
+git = "https://github.com/switchboard-xyz/aptos.git" subdir = "on_demand/" rev = "mainnet" # testnet or mainnet
+```
+
+**Example Move Code for Using Switchboard Values**
+
+In the example.move module, use the Aggregator and CurrentResult types to access the latest feed data.
+
+```rust
+module example::switchboard_example {
+    use aptos_framework::aptos_coin::AptosCoin;
+    use aptos_framework::object::{Self, Object};
+    use switchboard::aggregator::{Self, Aggregator, CurrentResult};
+    use switchboard::decimal::Decimal;
+    use switchboard::update_action;
+
+    public entry fun my_function(account: &signer, update_data: vector<vector<u8>>) {
+
+        // Update the feed with the provided data
+        update_action::run<AptosCoin>(account, update_data);
+
+        /**
+         * You can use the following code to remove and run switchboard updates from the update_data vector,
+         * keeping only non-switchboard byte vectors:
+         *
+         * update_action::extract_and_run<AptosCoin>(account, &mut update_data);
+         */
+
+        // Get the feed object
+        let aggregator: address = @0xSomeFeedAddress;
+        let aggregator: Object<Aggregator> = object::address_to_object<Aggregator>(aggregator);
+
+        // Get the latest update info for the feed
+        let current_result: CurrentResult = aggregator::current_result(aggregator);
+
+        // Access various result properties
+        let result: Decimal = aggregator::result(&current_result);              // Update result
+        let (result_u128, result_neg) = decimal::unpack(result);                // Unpack result
+        let timestamp_seconds = aggregator::timestamp(&current_result);         // Timestamp in seconds
+
+        // Other properties you can use from the current result
+        let min_timestamp: u64 = aggregator::min_timestamp(&current_result);    // Oldest valid timestamp used
+        let max_timestamp: u64 = aggregator::max_timestamp(&current_result);    // Latest valid timestamp used
+        let range: Decimal = aggregator::range(&current_result);                // Range of results
+        let mean: Decimal = aggregator::mean(&current_result);                  // Average (mean)
+        let stdev: Decimal = aggregator::stdev(&current_result);                // Standard deviation
+
+        // Use the computed result as needed...
+    }
+}
+```
+
+Once dependencies are configured, updated aggregators can be referenced easily.
+
+This implementation allows you to read and utilize Switchboard data feeds within Move. If you have any questions or need further assistance, please contact the Switchboard team.
+
+**Creating an Aggregator and Sending Transactions**
+
+Building a feed in Switchboard can be done using the Typescript SDK, or it can be done with the [Switchboard Web App](https://ondemand.switchboard.xyz/aptos/mainnet). Visit the [custom feeds section](../../custom-feeds/build-and-deploy-feed/README.md) for more on designing and creating feeds.
+
+**Building Feeds in Typescript \[optional]**
+
+```tsx
+import {
+  CrossbarClient,
+  SwitchboardClient,
+  Aggregator,
+  ON_DEMAND_MAINNET_QUEUE,
+  ON_DEMAND_TESTNET_QUEUE,
+} from "@switchboard-xyz/aptos-sdk";
+import { OracleJob } from "@switchboard-xyz/common";
+import { Aptos, Account, AptosConfig, Network } from "@aptos-labs/ts-sdk"
+
+// get the aptos client
+const config = new AptosConfig({
+  network: Network.MAINNET, // network a necessary param / if not passed in, full node url is required
+});
+// create a SwitchboardClient using the aptos client
+const aptos = new Aptos(config);
+const client = new SwitchboardClient(aptos);
+
+const crossbarClient = new CrossbarClient("http://myCrossbarDeployment.com");
+
+// ... define some jobs ...
+const jobs: OracleJob[] = [
+  OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          url: "https://binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+        }
+      },
+      {
+        jsonParseTask: {
+          path: "$.price"
+        }
+      }
+    ],
+  }),
+];
+
+const isMainnet = true; // set to false for testnet
+const queue = isMainnet
+  ? ON_DEMAND_MAINNET_QUEUE
+  : ON_DEMAND_TESTNET_QUEUE;
+
+// Store some job definition
+const { feedHash } = await crossbarClient.store(queue, jobs);
+
+// try creating a feed
+const feedName = "BTC/USDT";
+
+// Require only one oracle response needed
+const minSampleSize = 1;
+
+// Allow update data to be up to 60 seconds old
+const maxStalenessSeconds = 60;
+
+// If jobs diverge more than 1%, don't allow the feed to produce a valid update
+const maxVariance = 1e9;
+
+// Require only 1 job response
+const minResponses = 1;
+
+//==========================================================
+// Feed Initialization On-Chain
+//==========================================================
+
+// ... get the account object for your signer with relevant key / address ...
+
+// get the signer address
+const account = Account.generate(); // Or plug in your account
+const signerAddress = account.accountAddress.toString();
+
+const aggregatorInitTx = await Aggregator.initTx(client, signerAddress, {
+  name: feedName,
+  minSampleSize,
+  maxStalenessSeconds,
+  maxVariance,
+  feedHash,
+  minResponses,
+});
+
+const res = await aptos.signAndSubmitTransaction({
+  signer: account,
+  transaction: aggregatorInitTx,
+});
+
+const result = await aptos.waitForTransaction({
+  transactionHash: res.hash,
+  options: {
+    timeoutSecs: 30,
+    checkSuccess: true,
+  },
+});
+
+// Log the transaction results
+console.log(result);
+
+```
+
+**Updating Feeds**
+
+```tsx
+// Replace with your feed ID
+const aggregatorId = "0x1234567890abcdef1234567890abcdef12345678";D
+const aggregator = new Aggregator(client, aggregatorId);
+
+// Fetch and log the oracle responses
+const { updates } = await aggregator.fetchUpdate();
+
+// Create a transaction to run the feed update
+const exampleAddress = "YOUR_CONTRACT_ADDRESS";
+const updateTx = await client.aptos.transaction.build.simple({
+  sender: signerAddress,
+  data: {
+    function: `${exampleAddress}::switchboard_example::my_function`,
+    functionArguments: [updates],
+  },
+});
+
+// Sign and submit the transaction
+const res = await aptos.signAndSubmitTransaction({
+  signer: account,
+  transaction: updateTx!,
+});
+
+// Wait for the transaction to complete
+const result = await aptos.waitForTransaction({
+  transactionHash: res.hash,
+  options: {
+    timeoutSecs: 30,
+    checkSuccess: true,
+  },
+});
+
+// Log the transaction results
+console.log(result);
+```
+
+### (optional) Migrating existing code to On-Demand from V2 without updating logic
+
+#### 1. Update Move.toml
+
+You'll need to update your `Move.toml` to include the new `switchboard_adapter` module and address. Replace the `switchboard` named address with the new `switchboard_adapter` address.
+
+```toml
+[addresses]
+
+# remove the switchboard address
+- switchboard = "0xb91d3fef0eeb4e685dc85e739c7d3e2968784945be4424e92e2f86e2418bf271"
+
+# add the switchboard_adapter address
++ switchboard_adapter = "0x890fd4ed8a26198011e7923f53f5f1e5eeb2cc389dd50b938f16cb95164dc81c"
+
+[dependencies]
+
+# remove the switchboard v2 dependency
+- [dependencies.Switchboard]
+- git = "https://github.com/switchboard-xyz/sbv2-aptos.git"
+- subdir = "move/switchboard/testnet/" # change to /mainnet/ if on mainnet - or fork and change deps for a specific commit hash
+- rev = "main"
+
+# add the on-demand adapter dependency
++ [dependencies.SwitchboardAdapter]
++ git = "https://github.com/switchboard-xyz/aptos.git"
++ subdir = "adapter/mainnet"
++ rev = "main"
+```
+
+#### 2. Update your Move Modules
+
+You'll need to update named address `switchboard` to `switchboard_adapter` in dependencies.
+
+```rust
+module example::module {
+-    use switchboard::aggregator;
+-    use switchboard::math;
++    use switchboard_adapter::aggregator;
++    use switchboard_adapter::math;
+    ...
+}
+```
+
+The aggregator addresses you use will have to be updated to new On-Demand Aggregators that can be created from your V2 Aggregators on the Switchboard On-Demand App. Update references in your application to on-demand aggregators accordingly.
+
+#### 3. Cranking
+
+On-demand works on a pull-based mechanism, so you will have to crank feeds with your client-side code in order to get the latest data. This can be done using the Typescript SDK.
+
+```typescript
+import {
+  Aggregator,
+  SwitchboardClient,
+  waitForTx,
+} from "@switchboard-xyz/aptos-sdk";
+import { Account, Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
+
+// get the aptos client
+const config = new AptosConfig({
+  network: Network.MAINNET, // network a necessary param / if not passed in, full node url is required
+});
+const aptos = new Aptos(config);
+
+// create a SwitchboardClient using the aptos client
+const client = new SwitchboardClient(aptos);
+
+const aggregator = new Aggregator(sb, aggregatorId);
+
+// update the aggregator every 10 seconds
+setInterval(async () => {
+  try {
+    // fetch the latest update and tx to update the aggregator
+    const { updateTx } = await aggregator.fetchUpdate({
+      sender: signerAddress,
+    });
+
+    // send the tx to update the aggregator
+    const tx = await aptos.signAndSubmitTransaction({
+      signer: account,
+      transaction: updateTx!,
+    });
+    const resultTx = await waitForTx(aptos, tx.hash);
+    console.log(`Aggregator ${aggregatorId} updated!`);
+  } catch (e) {
+    console.error(`Error updating aggregator ${aggregatorId}: ${e}`);
+  }
+}, 10000);
+```
+
+
+---
+
+# Iota (source: docs-by-chain/iota/iota.md)
+
+# Iota
+
+### Active Deployments
+
+The Switchboard On-Demand service is currently deployed on the following networks:
+
+* Mainnet: [0x8650249db8ffcffe8eb08b0696a8cb71e325f2afb9abc646f45344077b073ba1](https://explorer.iota.org/object/0x8650249db8ffcffe8eb08b0696a8cb71e325f2afb9abc646f45344077b073ba1)
+* Testnet: [0xad9557529ba97ccf94a6a89d759fc8c8a6da5f0b98630c0fb53fe3b6d6a8e97a](https://explorer.iota.org/object/0xad9557529ba97ccf94a6a89d759fc8c8a6da5f0b98630c0fb53fe3b6d6a8e97a?network=testnet)
+
+### Typescript-SDK Installation
+
+To use Switchboard On-Demand, add the following dependencies to your project:
+
+#### NPM
+
+```bash
+npm install @switchboard-xyz/iota-sdk @iota/iota-sdk --save
+```
+
+#### Bun
+
+```bash
+bun add @switchboard-xyz/iota-sdk @iota/iota-sdk
+```
+
+#### PNPM
+
+```bash
+pnpm add @switchboard-xyz/iota-sdk @iota/iota-sdk
+```
+
+### Creating an Aggregator and Sending Transactions
+
+Building a feed in Switchboard can be done using the Typescript SDK, or it can be done with the [Switchboard Web App](https://ondemand.switchboard.xyz/iota/mainnet). Visit our [docs](https://docs.switchboard.xyz/) for more on designing and creating feeds.
+
+#### Building Feeds
+
+```typescript
+import {
+  SwitchboardClient,
+  Aggregator,
+} from "@switchboard-xyz/iota-sdk";
+import { CrossbarClient, OracleJob } from "@switchboard-xyz/common";
+import { getFullnodeUrl, IotaClient } from "@iota/iota-sdk/client";
+import { Ed25519Keypair } from '@iota/iota-sdk/keypairs/ed25519';
+import { Transaction } from '@iota/iota-sdk/transactions';
+
+// Add your Iota signer here
+const keypair = new Ed25519Keypair();
+const userAddress = keypair.getPublicKey().toIotaAddress();
+const iotaClient = new IotaClient({
+    url: getFullnodeUrl('testnet'),
+});
+
+// for initial testing and development, you can use the public
+// https://crossbar.switchboard.xyz instance of crossbar
+const crossbarClient = new CrossbarClient("https://crossbar.switchboard.xyz");
+
+// ... define some jobs ...
+const jobs: OracleJob[] = [
+  OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          url: "https://binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+        }
+      },
+      {
+        jsonParseTask: {
+          path: "$.price"
+        }
+      }
+    ],
+  }),
+];
+
+
+// Create a SwitchboardClient using the IotaClient configured with your favorite RPC on testnet or mainnet
+const sb = new SwitchboardClient(iotaClient);
+const state = await sb.fetchState();
+const queue = state.oracleQueueId;
+
+const { feedHash } = await crossbarClient.store(queue, jobs);
+
+// try creating a feed
+const feedName = "BTC/USDT";
+
+// Require only one oracle response needed
+const minSampleSize = 1;
+
+// Allow update data to be up to 60 seconds old
+const maxStalenessSeconds = 60;
+
+// If jobs diverge more than 1%, don't allow the feed to produce a valid update
+const maxVariance = 1e9;
+
+// Require only 1 job response
+const minJobResponses = 1;
+
+//==========================================================
+// Feed Initialization On-Chain
+//==========================================================
+
+let transaction = new Transaction();
+
+// add the tx to the PTB
+await Aggregator.initTx(sb, transaction, {
+  feedHash,
+  name: feedName,
+  authority: userAddress,
+  minSampleSize,
+  maxStalenessSeconds,
+  maxVariance,
+  minResponses: minJobResponses,
+});
+
+// Send the transaction
+const res = await iotaClient.signAndExecuteTransaction({
+  signer: keypair,
+  transaction,
+  options: {
+    showEffects: true,
+  },
+});
+
+// Capture the created aggregator ID
+let aggregatorId;
+res.effects?.created?.forEach((c: any) => {
+  if (c.reference.objectId) {
+    aggregatorId = c.reference.objectId;
+  }
+});
+
+// Wait for transaction confirmation
+await iotaClient.waitForTransaction({
+  digest: res.digest,
+});
+
+// Log the transaction effects
+console.log(res);
+
+```
+
+### Updating Feeds
+
+With Switchboard On-Demand, passing the PTB into the feed update method handles the update automatically.
+
+```typescript
+const aggregator = new Aggregator(sb, aggregatorId);
+
+// Create the PTB transaction
+let feedTx = new Transaction();
+
+// Fetch and log the oracle responses
+const response = await aggregator.fetchUpdateTx(feedTx);
+console.log("Fetch Update Oracle Response: ", response);
+
+// Send the transaction
+const res = await iotaClient.signAndExecuteTransaction({
+  signer: keypair,
+  transaction: feedTx,
+  options: {
+    showEffects: true,
+  },
+});
+
+// Wait for transaction confirmation
+await iotaClient.waitForTransaction({
+  digest: res.digest,
+});
+
+// Log the transaction effects
+console.log({ aggregatorId, res });
+```
+
+Note: Ensure the Switchboard Aggregator update is the first action in your PTB or occurs before referencing the feed update.
+
+### Adding Switchboard to Move Code
+
+To integrate Switchboard with Move, add the following dependencies to Move.toml:
+
+```toml
+[dependencies.Switchboard]
+git = "https://github.com/switchboard-xyz/iota.git"
+subdir = "on_demand/"
+rev = "main" 
+
+[dependencies.Iota]
+override = true
+git = "https://github.com/iotaledger/iota.git"
+subdir = "crates/iota-framework/packages/iota-framework"
+rev = "framework/testnet"
+```
+
+Once dependencies are configured, updated aggregators can be referenced easily.
+
+### Example Move Code for Using Switchboard Values
+
+In the example.move module, use the Aggregator and CurrentResult types to access the latest feed data.
+
+```rust
+module example::switchboard;
+
+use switchboard::aggregator::{Aggregator, CurrentResult};
+use switchboard::decimal::Decimal;
+
+public entry fun use_switchboard_value(aggregator: &Aggregator) {
+
+    // Get the latest update info for the feed
+    let current_result = aggregator.current_result();
+
+    // Access various result properties
+    let result: Decimal = current_result.result();        // Median result
+    let result_u128: u128 = result.value();               // Result as u128
+    let min_timestamp_ms: u64 = current_result.min_timestamp_ms(); // Oldest data timestamp
+    let max_timestamp_ms: u64 = current_result.max_timestamp_ms(); // Latest data timestamp
+    let range: Decimal = current_result.range();          // Range of results
+    let mean: Decimal = current_result.mean();            // Average (mean)
+    let stdev: Decimal = current_result.stdev();          // Standard deviation
+    let max_result: Decimal = current_result.max_result();// Max result
+    let min_result: Decimal = current_result.min_result();// Min result
+    let neg: bool = result.neg();                         // Check if negative (ignore for prices)
+
+    // Use the computed result as needed...
+}
+```
+
+This implementation allows you to read and utilize Switchboard data feeds within Move. If you have any questions or need further assistance, please contact the Switchboard team.
+
+
+---
+
+# Movement (source: docs-by-chain/movement/movement.md)
+
+# Movement
+
+### Examples and Source Code
+
+Source code for the Switchboard On-Demand Movement integration can be found in the [github repo](https://github.com/switchboard-xyz/movement) along with examples.
+
+### Active Deployments
+
+The Switchboard On-Demand service is currently deployed on the following networks:
+
+* Mainnet:
+  * [0x465e420630570b780bd8bfc25bfadf444e98594357c488fe397a1142a7b11ffa](https://explorer.movementlabs.xyz/object/0x465e420630570b780bd8bfc25bfadf444e98594357c488fe397a1142a7b11ffa/modules/packages/OnDemand?network=mainnet)
+* Testnet (Bardock):
+  * [0x465e420630570b780bd8bfc25bfadf444e98594357c488fe397a1142a7b11ffa](https://explorer.movementlabs.xyz/object/0x465e420630570b780bd8bfc25bfadf444e98594357c488fe397a1142a7b11ffa/modules/packages/OnDemand?network=bardock+testnet)
+
+#### Adapter Addresses
+
+* Mainnet:
+  * [0xb3654a69ba2a252849a89fa70845ad8e713a28c322dc580ae457df1f747bb74a](https://explorer.movementlabs.xyz/object/0xb3654a69ba2a252849a89fa70845ad8e713a28c322dc580ae457df1f747bb74a/modules/packages/Switchboard?network=mainnet)
+* Testnet (Bardock):
+  * [0xfe38ecf6fc57e742327af6e951e9fe2fcadcd6d1f1327ba2bee5a31e43d6637f](https://explorer.movementlabs.xyz/object/0xfe38ecf6fc57e742327af6e951e9fe2fcadcd6d1f1327ba2bee5a31e43d6637f/modules/packages/Switchboard?network=bardock+testnet)
+
+***
+
+### Typescript-SDK Installation
+
+To use Switchboard On-Demand, add the following dependencies to your project:
+
+#### NPM
+
+```bash
+npm install @switchboard-xyz/aptos-sdk --save
+```
+
+#### Bun
+
+```bash
+bun add @switchboard-xyz/aptos-sdk
+```
+
+#### PNPM
+
+```bash
+pnpm add @switchboard-xyz/aptos-sdk
+```
+
+### Adding Switchboard to Move Code
+
+To integrate Switchboard with Move, add the following dependencies to Move.toml:
+
+```toml
+[addresses]
+on_demand = "0x465e420630570b780bd8bfc25bfadf444e98594357c488fe397a1142a7b11ffa"
+
+# ...
+
+[dependencies.OnDemand]
+git = "https://github.com/switchboard-xyz/movement.git"
+subdir = "on_demand/"
+rev = "main"
+```
+
+### Example Move Code for Using Switchboard Values
+
+In the example.move module, use the Aggregator and CurrentResult types to access the latest feed data.
+
+```rust
+module example::switchboard_example {
+    use aptos_framework::aptos_coin::AptosCoin;
+    use aptos_framework::object::{Self, Object};
+    use on_demand::aggregator::{Self, Aggregator, CurrentResult};
+    use on_demand::decimal::Decimal;
+    use on_demand::update_action;
+
+    public entry fun my_function(account: &signer, update_data: vector<vector<u8>>) {
+
+        // Update the feed with the provided data
+        update_action::run<AptosCoin>(account, update_data);
+
+        /**
+        * You can use the following code to remove and run switchboard updates from the update_data vector,
+        * keeping only non-switchboard byte vectors:
+        *
+        * update_action::extract_and_run<AptosCoin>(account, &mut update_data);
+        */
+
+        // Get the feed object
+        let aggregator: address = @0xSomeFeedAddress;
+        let aggregator: Object<Aggregator> = object::address_to_object<Aggregator>(aggregator);
+
+        // Get the latest update info for the feed
+        let current_result: CurrentResult = aggregator::current_result(aggregator);
+
+        // Access various result properties
+        let result: Decimal = aggregator::result(&current_result);              // Update result
+        let (result_u128, result_neg) = decimal::unpack(result);                // Unpack result
+        let timestamp_seconds = aggregator::timestamp(&current_result);         // Timestamp in seconds
+
+        // Other properties you can use from the current result
+        let min_timestamp: u64 = aggregator::min_timestamp(&current_result);    // Oldest valid timestamp used
+        let max_timestamp: u64 = aggregator::max_timestamp(&current_result);    // Latest valid timestamp used
+        let range: Decimal = aggregator::range(&current_result);                // Range of results
+        let mean: Decimal = aggregator::mean(&current_result);                  // Average (mean)
+        let stdev: Decimal = aggregator::stdev(&current_result);                // Standard deviation
+
+        // Use the computed result as needed...
+    }
+}
+```
+
+Once dependencies are configured, updated aggregators can be referenced easily.
+
+This implementation allows you to read and utilize Switchboard data feeds within Move. If you have any questions or need further assistance, please contact the Switchboard team.
+
+### Creating an Aggregator and Sending Transactions
+
+Building a feed in Switchboard can be done using the Typescript SDK, or it can be done with the [Switchboard Web App](https://ondemand.switchboard.xyz/aptos/mainnet). Visit the [custom feeds section](../../custom-feeds/build-and-deploy-feed/README.md) for more on designing and creating feeds.
+
+#### Building Feeds in Typescript \[optional]
+
+```typescript
+import {
+  CrossbarClient,
+  SwitchboardClient,
+  Aggregator,
+  ON_DEMAND_MAINNET_QUEUE,
+  ON_DEMAND_TESTNET_QUEUE,
+} from "@switchboard-xyz/aptos-sdk";
+import { OracleJob } from "@switchboard-xyz/common";
+import { Aptos, Account, AptosConfig, Network } from "@aptos-labs/ts-sdk"
+
+// get the aptos client
+const config = new AptosConfig({
+  network: Network.MAINNET, // network a necessary param / if not passed in, full node url is required
+});
+const aptos = new Aptos(config);
+
+const account = Account.generate(); // Or plug in your account
+
+// create a SwitchboardClient using the aptos client
+const client = new SwitchboardClient(aptos, "movement"); // "bardock" for testnet
+
+// for initial testing and development, you can use the public
+// https://crossbar.switchboard.xyz instance of crossbar
+const crossbarClient = new CrossbarClient("https://crossbar.switchboard.xyz");
+
+// ... define some jobs ...
+
+const isMainnet = true; // set to false for testnet
+const queue = isMainnet
+  ? ON_DEMAND_MAINNET_QUEUE
+  : ON_DEMAND_TESTNET_QUEUE;
+
+const jobs: OracleJob[] = [
+  OracleJob.fromObject({
+    tasks: [
+      {
+        httpTask: {
+          url: "https://binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+        }
+      },
+      {
+        jsonParseTask: {
+          path: "$.price"
+        }
+      }
+    ],
+  }),
+];
+
+// Store some job definition
+const { feedHash } = await crossbarClient.store(queue, jobs);
+
+// try creating a feed
+const feedName = "BTC/USDT";
+
+// Require only one oracle response needed
+const minSampleSize = 1;
+
+// Allow update data to be up to 60 seconds old
+const maxStalenessSeconds = 60;
+
+// If jobs diverge more than 1%, don't allow the feed to produce a valid update
+const maxVariance = 1e9;
+
+// Require only 1 job response
+const minResponses = 1;
+
+//==========================================================
+// Feed Initialization On-Chain
+//==========================================================
+
+// ... get the account object for your signer with relevant key / address ...
+
+// get the signer address
+const signerAddress = account.accountAddress.toString();
+
+const aggregatorInitTx = await Aggregator.initTx(client, signerAddress, {
+  name: feedName,
+  minSampleSize,
+  maxStalenessSeconds,
+  maxVariance,
+  feedHash,
+  minResponses,
+});
+
+const res = await aptos.signAndSubmitTransaction({
+  signer: account,
+  transaction: aggregatorInitTx,
+});
+
+const result = await aptos.waitForTransaction({
+  transactionHash: res.hash,
+  options: {
+    timeoutSecs: 30,
+    checkSuccess: true,
+  },
+});
+
+// Log the transaction results
+console.log(result);
+
+```
+
+### Updating Feeds
+
+```typescript
+// replace with your feed address
+const aggregatorId = "YOUR_FEED_ADDRESS";
+const aggregator = new Aggregator(client, aggregatorId);
+
+// Fetch and log the oracle responses
+const { updates } = await aggregator.fetchUpdate();
+
+// Create a transaction to run the feed update
+// your contract address
+const exampleAddress = "0x1234567890abcdef1234567890abcdef12345678";
+const updateTx = await client.aptos.transaction.build.simple({
+  sender: signerAddress,
+  data: {
+    function: `${exampleAddress}::switchboard_example::my_function`,
+    functionArguments: [updates],
+  },
+});
+
+// Sign and submit the transaction
+const res = await aptos.signAndSubmitTransaction({
+  signer: account,
+  transaction: updateTx,
+});
+
+// Wait for the transaction to complete
+const result = await aptos.waitForTransaction({
+  transactionHash: res.hash,
+  options: {
+    timeoutSecs: 30,
+    checkSuccess: true,
+  },
+});
+
+// Log the transaction results
+console.log(result);
+
+```
+
+### (optional) Using On-Demand with V2 interface
+
+If you have existing code using the [Switchboard V2 interface](https://github.com/switchboard-xyz/sbv2-aptos), you can use the On-Demand adapter for full compatibility with the new On-Demand service.
+
+#### 1. Update Move.toml
+
+You'll need to update your `Move.toml` to include the new `switchboard` adapter address. Pick the correct one for your target network.
+
+```diff
+[addresses]
++ switchboard = "0xb3654a69ba2a252849a89fa70845ad8e713a28c322dc580ae457df1f747bb74a" # mainnet
+# switchboard = "0xfe38ecf6fc57e742327af6e951e9fe2fcadcd6d1f1327ba2bee5a31e43d6637f" # testnet
+
+[dependencies]
+
+# nothing has to change in the switchboard v2 dependency
+[dependencies.Switchboard]
+git = "https://github.com/switchboard-xyz/sbv2-aptos.git"
+subdir = "move/switchboard/testnet/" # change to /mainnet/ if on mainnet - or fork and change deps for a specific commit hash
+rev = "main"
+```
+
+#### 2. Cranking
+
+On-demand works on a pull-based mechanism, so you will have to crank feeds with your client-side code in order to get the latest data. This can be done using the Typescript SDK.
+
+```typescript
+const aggregator = new Aggregator(client, aggregatorId);
+
+// update the aggregator every 10 seconds
+setInterval(async () => {
+  try {
+    // fetch the latest update and tx to update the aggregator
+    const { updateTx } = await aggregator.fetchUpdate({
+      sender: signerAddress,
+    });
+
+    // send the tx to update the aggregator
+    const tx = await aptos.signAndSubmitTransaction({
+      signer: account,
+      transaction: updateTx!,
+    });
+    const resultTx = await waitForTx(aptos, tx.hash);
+    console.log(`Aggregator ${aggregatorId} updated!`);
+  } catch (e) {
+    console.error(`Error updating aggregator ${aggregatorId}: ${e}`);
+  }
+}, 10000);
+```
+
+
+---
+
+# Monad Integration (source: docs-by-chain/evm/monad.md)
+
+# Monad Integration
+
+Monad is a high-performance EVM-compatible blockchain optimized for speed and efficiency. Switchboard On-Demand provides native oracle support for Monad with the same security guarantees and ease of use as other EVM chains.
+
+## Network Information
+
+| Network | Chain ID | RPC URL | Switchboard Contract |
+|---------|----------|---------|---------------------|
+| **Mainnet** | 143 | `https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY` | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
+| **Testnet** | 10143 | `https://testnet-rpc.monad.xyz` | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+
+## Quick Start
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
+cd sb-on-demand-examples/evm
+bun install
+```
+
+### 2. Configure Your Wallet
+
+> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
+
+Import your private key into Foundry's encrypted keystore:
+
+```bash
+cast wallet import mykey --interactive
+# Enter your private key when prompted (hidden from terminal)
+# Set a password to encrypt the keystore
+```
+
+Create a `.env` file for scripts (add to `.gitignore`):
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+RPC_URL=https://testnet-rpc.monad.xyz
+NETWORK=monad-testnet
+CONTRACT_ADDRESS=0xyour_contract_address
+```
+
+### 3. Deploy Contract
+
+```bash
+# Testnet
+forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --account mykey \
+  --broadcast -vvvv
+
+# Mainnet
+forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY \
+  --account mykey \
+  --broadcast -vvvv
+```
+
+### 4. Run Examples
+
+```bash
+# Price Feeds (reads from .env)
+bun scripts/run.ts
+
+# Randomness (reads from .env)
+bun run randomness
+```
+
+## Integration Example
+
+```typescript
+import { ethers } from 'ethers';
+import { CrossbarClient, SWITCHBOARD_ABI } from '@switchboard-xyz/common';
+
+const provider = new ethers.JsonRpcProvider('https://testnet-rpc.monad.xyz');
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+
+// Switchboard contract on Monad Testnet
+const switchboardAddress = '0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33';
+const switchboard = new ethers.Contract(switchboardAddress, SWITCHBOARD_ABI, signer);
+
+// Fetch and update prices
+const crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
+const feedHash = '0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea'; // ETH/USD
+
+const response = await crossbar.fetchOracleQuote([feedHash], 'mainnet');
+const fee = await switchboard.getFee([response.encoded]);
+
+const tx = await priceConsumer.updatePrices([response.encoded], { value: fee });
+const receipt = await tx.wait();
+
+console.log(`Price updated on Monad! Block: ${receipt.blockNumber}`);
+```
+
+## Monad-Specific Considerations
+
+- **Native Token**: MON (for gas fees)
+- **High Performance**: Monad's optimized execution enables faster oracle updates
+- **Low Fees**: Efficient gas usage for frequent price updates
+- **EVM Compatibility**: All existing Ethereum tooling works seamlessly
+
+## Getting MON Tokens
+
+**Testnet:**
+- Use the [Monad Testnet Faucet](https://faucet.monad.xyz) to get testnet MON
+
+**Mainnet:**
+- Acquire MON tokens through supported exchanges
+- Bridge from other networks using official Monad bridges
+
+
+---
+
+# Hyperliquid Integration (source: docs-by-chain/evm/hyperliquid.md)
+
+# Hyperliquid Integration
+
+Hyperliquid is a high-performance Layer 1 blockchain with native perpetual futures and spot trading. Switchboard On-Demand provides native oracle support for HyperEVM with the same security guarantees and ease of use as other EVM chains.
+
+## Network Information
+
+| Network | Chain ID | RPC URL | Switchboard Contract |
+|---------|----------|---------|---------------------|
+| **Mainnet** | 999 | `https://rpc.hyperliquid.xyz/evm` | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
+| **Testnet** | 998 | `https://rpc.hyperliquid-testnet.xyz/evm` | TBD |
+
+## Quick Start
+
+### 1. Clone the Examples Repository
+
+```bash
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
+cd sb-on-demand-examples/evm
+bun install
+```
+
+### 2. Configure Your Wallet
+
+> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
+
+Import your private key into Foundry's encrypted keystore:
+
+```bash
+cast wallet import mykey --interactive
+# Enter your private key when prompted (hidden from terminal)
+# Set a password to encrypt the keystore
+```
+
+Create a `.env` file for scripts (add to `.gitignore`):
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+RPC_URL=https://rpc.hyperliquid.xyz/evm
+NETWORK=hyperliquid-mainnet
+CONTRACT_ADDRESS=0xyour_contract_address
+```
+
+### 3. Deploy Contract
+
+```bash
+# Mainnet
+forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url https://rpc.hyperliquid.xyz/evm \
+  --account mykey \
+  --broadcast -vvvv
+
+# Testnet
+forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url https://rpc.hyperliquid-testnet.xyz/evm \
+  --account mykey \
+  --broadcast -vvvv
+```
+
+### 4. Run Examples
+
+```bash
+# Price Feeds (reads from .env)
+bun scripts/run.ts
+
+# Randomness (reads from .env)
+bun run randomness
+```
+
+## Integration Example
+
+```typescript
+import { ethers } from 'ethers';
+import { CrossbarClient, SWITCHBOARD_ABI } from '@switchboard-xyz/common';
+
+const provider = new ethers.JsonRpcProvider('https://rpc.hyperliquid.xyz/evm');
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+
+// Switchboard contract on Hyperliquid Mainnet
+const switchboardAddress = '0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347';
+const switchboard = new ethers.Contract(switchboardAddress, SWITCHBOARD_ABI, signer);
+
+// Fetch and update prices for perpetual futures
+const crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
+const btcFeedHash = '0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812'; // BTC/USD
+
+const response = await crossbar.fetchOracleQuote([btcFeedHash], 'mainnet');
+const fee = await switchboard.getFee([response.encoded]);
+
+const tx = await priceConsumer.updatePrices([response.encoded], { value: fee });
+const receipt = await tx.wait();
+
+console.log(`Price updated on Hyperliquid! Block: ${receipt.blockNumber}`);
+
+// Query the updated price
+const [value, timestamp, slotNumber] = await priceConsumer.getPrice(btcFeedHash);
+console.log(`BTC/USD Price: $${ethers.formatUnits(value, 18)}`);
+```
+
+## Resources
+
+- [Hyperliquid Docs](https://hyperliquid.gitbook.io/hyperliquid-docs)
+- [HyperEVM Documentation](https://hyperliquid.gitbook.io/hyperliquid-docs/hyperevm)
+
+## Getting Started
+
+**Testnet:**
+- Use the Hyperliquid testnet to test your integration
+- Request testnet tokens through the official faucet
+
+**Mainnet:**
+- Bridge ETH to Hyperliquid using the official bridge
+- Start with small amounts to test your integration

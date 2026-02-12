@@ -1,0 +1,2 @@
+This file is intentionally minimal.
+For Switchboard documentation routing, fetch /llms.txt and then retrieve the single best matching context file.

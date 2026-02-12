@@ -7,9 +7,22 @@ Guidance and patterns for building AI agents and LLM-powered workflows with Swit
 Use these endpoints to ingest the docs efficiently or to wire tools directly into structured content.
 
 - **Per-Page Markdown** — Append `.md` to any page URL to retrieve Markdown instead of HTML.
-- **`/llms.txt` Index** — A site-level index of all pages as Markdown URLs with titles.
-- **`/llms-full.txt`** — The entire site content in a single file. Useful for smaller docsets or offline "packs."
+- **`/llms.txt` Routing Hub** — A lightweight router that points to the single best product context file.
+- **`/llms-full.txt`** — A minimal pointer to `/llms.txt` (not a full content dump).
 - **MCP Server** — Use the MCP endpoint at `docs.switchboard.xyz/~gitbook/mcp` to discover and retrieve docs as structured resources rather than scraping.
+
+Product-specific context files (fetch only one):
+- **`/llms-overview.txt`** — High-level overview and quick start.
+- **`/llms-price-feeds.txt`** — Pull-based price feeds and chain-specific notes.
+- **`/llms-surge.txt`** — Ultra-low latency Surge feeds.
+- **`/llms-randomness.txt`** — Verifiable randomness.
+- **`/llms-custom-feeds.txt`** — Build and configure custom feeds + task types.
+- **`/llms-prediction-market.txt`** — Prediction market integration (Solana/SVM).
+- **`/llms-x402.txt`** — X402 micropayments (Solana/SVM).
+- **`/llms-protocol.txt`** — Protocol, operators, staking/restaking.
+- **`/llms-tooling.txt`** — CLI, SDKs, Crossbar.
+- **`/llms-ai-agents.txt`** — Agent skill + programmatic Surge subscription guide.
+- **`/llms-reference.txt`** — FAQ and glossary.
 
 ## Switchboard Agent Skill
 
