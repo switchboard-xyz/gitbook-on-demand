@@ -70,6 +70,7 @@ import { EVMUtils } from "@switchboard-xyz/common";
 
 // Initialize with Solana keypair and connection (uses on-chain subscription)
 const surge = new sb.Surge({ connection, keypair }); // keypair = Solana keypair with active Surge subscription
+// `connection` is a Solana RPC Connection from @solana/web3.js, not an EVM provider.
 
 // Auth note: the SDK signs with your keypair to authenticate the session.
 // If the keypair has no active Surge subscription, connectAndSubscribe will fail.
@@ -232,6 +233,7 @@ Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
 const surge = new sb.Surge({ connection, keypair }); // Solana keypair with active Surge subscription
+// `connection` is a Solana RPC Connection from @solana/web3.js, not an EVM provider.
 const feeds = await surge.getSurgeFeeds();
 
 feeds.forEach(feed => {

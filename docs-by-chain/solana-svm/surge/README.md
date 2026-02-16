@@ -69,6 +69,7 @@ import * as sb from "@switchboard-xyz/on-demand";
 
 // Initialize with keypair and connection (uses on-chain subscription)
 const surge = new sb.Surge({ connection, keypair });
+// `connection` is a Solana RPC Connection from @solana/web3.js.
 
 // Discover available feeds
 const availableFeeds = await surge.getSurgeFeeds();
@@ -245,6 +246,7 @@ Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
 const surge = new sb.Surge({ connection, keypair });
+// `connection` is a Solana RPC Connection from @solana/web3.js.
 const feeds = await surge.getSurgeFeeds();
 
 feeds.forEach(feed => {

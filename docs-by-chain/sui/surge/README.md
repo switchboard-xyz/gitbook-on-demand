@@ -71,6 +71,8 @@ import { Transaction } from "@mysten/sui/transactions";
 
 // Initialize with keypair and connection (uses on-chain subscription)
 const surge = new sb.Surge({ connection, keypair });
+// `connection` is a Solana RPC Connection from @solana/web3.js (used to verify the Solana subscription),
+// not your Sui client. Keep a separate Sui client for on-chain writes.
 
 // Auth note: the SDK signs with your keypair to authenticate the session.
 // If the keypair has no active Surge subscription, connectAndSubscribe will fail.
