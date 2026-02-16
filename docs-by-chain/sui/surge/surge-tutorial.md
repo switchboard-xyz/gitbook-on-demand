@@ -223,6 +223,8 @@ if (!solanaKeypair) {
     keypair: solanaKeypair!,
     signatureScheme: 'ed25519',
   });
+  // Auth note: the SDK signs with your Solana keypair to authenticate the session.
+  // If the keypair has no active Surge subscription, connectAndSubscribe will fail.
 
   // Connect and subscribe to feeds
   await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);

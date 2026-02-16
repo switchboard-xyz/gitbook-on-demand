@@ -16,6 +16,8 @@ A TypeScript script that:
 - **Bun** or Node.js 18+
 - Basic understanding of hexadecimal encoding
 
+If you're also streaming Surge updates yourself, note that the SDK authenticates by signing with a Solana keypair that has an active Surge subscription. Without an active subscription, `connectAndSubscribe` will fail.
+
 ## The Conversion Flow
 
 ```

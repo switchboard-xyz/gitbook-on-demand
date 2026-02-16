@@ -31,6 +31,9 @@ const { keypair, connection, queue } = await sb.AnchorUtils.loadEnv();
 // Initialize Surge client with keypair and connection
 const surge = new sb.Surge({ connection, keypair });
 
+// Auth note: the SDK signs with your keypair to authenticate the session.
+// If the keypair has no active Surge subscription, connectAndSubscribe will fail.
+
 // Discover available feeds
 const availableFeeds = await surge.getSurgeFeeds();
 console.log(`Found ${availableFeeds.length} available feeds`);

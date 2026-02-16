@@ -42,9 +42,11 @@ Surge works the same way regardless of your target chain:
 
 1. **Subscribe** — All Surge subscriptions are managed on Solana, regardless of which chain you're building on. Connect your Solana wallet at the [subscription portal](https://explorer.switchboardlabs.xyz/subscriptions).
 
-2. **Stream Prices** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+2. **Authenticate** — The SDK authenticates your session by signing with your Solana keypair. If the keypair does not have an active subscription, `connectAndSubscribe` will fail.
 
-3. **Use Prices** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
+3. **Stream Prices** — Once subscribed, prices stream directly to your application via WebSocket. No on-chain reads required—this is what enables sub-100ms latency.
+
+4. **Use Prices** — When you need prices on-chain, convert the Surge update to your chain's format and submit it. Switchboard provides SDKs for Solana, EVM, and Sui.
 
 ## Getting Started
 
@@ -68,6 +70,10 @@ import { EVMUtils } from "@switchboard-xyz/common";
 
 // Initialize with Solana keypair and connection (uses on-chain subscription)
 const surge = new sb.Surge({ connection, keypair }); // keypair = Solana keypair with active Surge subscription
+// `connection` is a Solana RPC Connection from @solana/web3.js, not an EVM provider.
+
+// Auth note: the SDK signs with your keypair to authenticate the session.
+// If the keypair has no active Surge subscription, connectAndSubscribe will fail.
 
 // Discover available feeds
 const availableFeeds = await surge.getSurgeFeeds();
@@ -227,6 +233,7 @@ Use the `getSurgeFeeds()` method to see all available trading pairs:
 
 ```typescript
 const surge = new sb.Surge({ connection, keypair }); // Solana keypair with active Surge subscription
+// `connection` is a Solana RPC Connection from @solana/web3.js, not an EVM provider.
 const feeds = await surge.getSurgeFeeds();
 
 feeds.forEach(feed => {
@@ -265,5 +272,6 @@ The SDK includes automatic reconnection logic with exponential backoff. Your app
 
 * [Surge Tutorial](surge-tutorial.md) - Step-by-step implementation guide
 * [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
+* [Surge Gateway Protocol](../../../tooling/crossbar/gateway-protocol.md) - Advanced HTTP + WebSocket protocol
 * [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)
 * [Join our Discord](https://discord.gg/TJAv6ZYvPC)
