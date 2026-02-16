@@ -91,6 +91,7 @@
 
 * [Crossbar](tooling/crossbar/README.md)
   * [Run Crossbar with Docker Compose](tooling/crossbar/run-crossbar-with-docker-compose.md)
+  * [Surge Gateway Protocol](tooling/crossbar/gateway-protocol.md)
 * [CLI](tooling/cli.md)
 * [SDKs](tooling/sdks.md)
 
