@@ -115,7 +115,9 @@ Send a `Subscribe` message after connecting:
 
 ## 6. Price updates
 
-The gateway sends **BundledFeedUpdate** messages. Each update includes `feed_values[]` entries. The `value` field is an **18-decimal big-integer string** (no decimal point). Convert it to a decimal value by dividing by `1e18`.
+The gateway sends **BundledFeedUpdate** messages. Each update includes `feed_values[]` entries. The `value` field is an **18-decimal big-integer string** (no decimal point). Convert it to a decimal value by dividing by `1e18` (e.g., `\"67335320000000000000000\"` → `67335.32`).
+
+If you're using the SDK, helpers like `getFormattedPrices()` already apply this scaling for you. Only raw consumers need to handle the `1e18` divisor.
 
 ---
 
