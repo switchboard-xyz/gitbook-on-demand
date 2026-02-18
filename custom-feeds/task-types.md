@@ -1671,7 +1671,19 @@ _**Example**_: Compute the median APY for an LST over the last 100 epochs
 
 ### MarinadeStateTask
 
-*No description available.*
+Fetch the current mSOL/SOL exchange rate from the Marinade program state.
+
+_**Input**_: None
+
+_**Returns**_: The current value of 1 mSOL in SOL.
+
+_**Example**_: Fetch the mSOL/SOL exchange rate
+
+```json
+{
+  "marinadeStateTask": {}
+}
+```
 
 ---
 
@@ -1784,7 +1796,29 @@ No inputs required - uses hardcoded vSUI pool addresses.
 
 ### EwmaTask
 
-*No description available.*
+Compute an exponentially weighted moving average (EWMA) over an aggregator's history buffer.
+
+_**Input**_: Aggregator address, lookback period (in seconds), and smoothing factor `lambda`.
+
+_**Returns**_: The EWMA value over the specified period.
+
+_**Example**_: Compute the 1h EWMA with lambda 0.94
+
+```json
+{
+  "ewmaTask": {
+    "aggregatorAddress": "AGGREGATOR_PUBKEY",
+    "period": 3600,
+    "lambda": 0.94
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `aggregator_address` | string | The aggregator to query. |
+| `period` | int32 | Lookback period in seconds. |
+| `lambda` | double | Smoothing factor in the range (0, 1]. |
 
 ---
 
@@ -1949,7 +1983,23 @@ _**Example**_: The 1hr Twap of the SOL/USD Aggregator, requiring at least 60 sam
 
 ### ExponentPTLinearPricingTask
 
-*No description available.*
+Compute the current price of an Exponent principal token using a linear
+schedule from `start_price` to 1.0 at maturity.
+_**Input**_: Vault address and starting price.
+_**Returns**_: The current principal token price.
+_**Example**_: Price a PT that linearly approaches 1.0
+```json
+   {
+     "exponentPtLinearPricingTask": {
+       "vault": "9YbaicMsXrtupkpD72pdWBfU6R7EJfSByw75sEpDM1uH",
+       "startPrice": 0.8
+     }
+   }
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `vault` | string | The Exponent vault address. |
+| `start_price` | double | The starting price at the vault start timestamp. |
 
 ---
 
@@ -2270,7 +2320,25 @@ _**Example**_: CacheTask storing ${ONE} = 1
 
 ### ComparisonTask
 
-*No description available.*
+Compare two values and return one of two results.
+
+_**Input**_: LHS/RHS values or jobs, plus on_true/on_false outputs.
+
+_**Returns**_: The value produced by `on_true` or `on_false` (or `on_failure` if evaluation fails).
+
+_**Example**_: Return 1 if lhs > rhs else 0
+
+```json
+{
+  "comparisonTask": {
+    "op": "OPERATION_GT",
+    "lhsValue": "10",
+    "rhsValue": "5",
+    "onTrueValue": "1",
+    "onFalseValue": "0"
+  }
+}
+```
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -2412,7 +2480,31 @@ _**Example**_: Returns the value stored in a CacheTask variable
 
 ### AftermathTask
 
-*No description available.*
+Fetch a spot swap quote from an Aftermath pool on Sui.
+
+_**Input**_: Pool address, input amount, and coin types for the swap.
+
+_**Returns**_: The estimated output amount for the given input.
+
+_**Example**_: Quote a swap in an Aftermath pool
+
+```json
+{
+  "aftermathTask": {
+    "poolAddress": "0xPOOL_OBJECT_ID",
+    "inAmount": 1,
+    "inCoinType": "0x2::sui::SUI",
+    "outCoinType": "0x...::coin::COIN"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pool_address` | string | The Aftermath pool object ID. |
+| `in_amount` | double | The input amount to quote. |
+| `in_coin_type` | string | The full Sui coin type for the input token. |
+| `out_coin_type` | string | The full Sui coin type for the output token. |
 
 ---
 
@@ -2448,13 +2540,53 @@ _**Example**_: Fetch the swap price using a custom RPC provider
 
 ### CorexTask
 
-*No description available.*
+Fetch a swap quote from CoreX (Core chain) using Uniswap V3 pricing.
+
+_**Input**_: Input token address, output token address, and slippage.
+
+_**Returns**_: The quoted swap price for the requested pair.
+
+_**Example**_: Quote STCORE -> WCORE
+
+```json
+{
+  "corexTask": {
+    "inToken": "0xIN_TOKEN",
+    "outToken": "0xOUT_TOKEN",
+    "slippage": 0.01
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `in_token` | string | The input token address. |
+| `out_token` | string | The output token address. |
+| `slippage` | double | The allowable slippage in percent for the swap quote. |
 
 ---
 
 ### EtherfuseTask
 
-*No description available.*
+Fetch the current price for Etherfuse Stablebonds.
+
+_**Input**_: The stablebond token to price.
+
+_**Returns**_: The price of 1 bond in USDC.
+
+_**Example**_: Fetch the CETES bond price
+
+```json
+{
+  "etherfuseTask": {
+    "token": "TOKEN_CETES"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `token` | Token | The Etherfuse stablebond token to price. |
 
 ---
 
@@ -2484,13 +2616,47 @@ _**Example**_: Fetch the fragSOL token price
 
 ### GlyphTask
 
-*No description available.*
+Fetch the spot price from a Glyph (Algebra) pool on Core.
+
+_**Input**_: Pool address and swap direction.
+
+_**Returns**_: The pool price in the requested direction.
+
+_**Example**_: Token0 -> Token1 price
+
+```json
+{
+  "glyphTask": {
+    "poolAddress": "0xPOOL_ADDRESS",
+    "zeroForOne": true
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pool_address` | string | The Algebra pool address on Core. |
+| `zero_for_one` | bool | True for token0 -> token1 price, false for token1 -> token0. |
 
 ---
 
 ### XStepPriceTask
 
-*No description available.*
+Fetch the STEP/USD price either by running a MedianTask or reading an existing aggregator.
+
+_**Input**_: Provide either `step_job` or `step_aggregator_pubkey`.
+
+_**Returns**_: The STEP/USD price.
+
+_**Example**_: Read from an existing STEP/USD aggregator
+
+```json
+{
+  "xstepPriceTask": {
+    "stepAggregatorPubkey": "STEP_USD_AGGREGATOR"
+  }
+}
+```
 
 ---
 
@@ -2498,7 +2664,29 @@ _**Example**_: Fetch the fragSOL token price
 
 ### HistoryFunctionTask
 
-*No description available.*
+Compute a reduction (min/max) over an aggregator's history buffer.
+
+_**Input**_: Aggregator address, method, and lookback period (in seconds).
+
+_**Returns**_: The min or max value observed in the period.
+
+_**Example**_: Fetch the max price over the last hour
+
+```json
+{
+  "historyFunctionTask": {
+    "aggregatorAddress": "AGGREGATOR_PUBKEY",
+    "method": "METHOD_MAX",
+    "period": 3600
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `method` | Method | The reduction method to apply over the history buffer. |
+| `aggregator_address` | string | The aggregator to query. |
+| `period` | uint32 | Lookback period in seconds. |
 
 ---
 
@@ -2540,7 +2728,29 @@ Fetch the current price for a Mango perpetual market
 
 ### VwapTask
 
-*No description available.*
+Compute a volume-weighted average price (VWAP) using price and volume aggregators.
+
+_**Input**_: Price aggregator address, volume aggregator address, and lookback period (in seconds).
+
+_**Returns**_: The VWAP over the specified period.
+
+_**Example**_: Compute the 1h VWAP for a price/volume pair
+
+```json
+{
+  "vwapTask": {
+    "priceAggregatorAddress": "PRICE_AGGREGATOR",
+    "volumeAggregatorAddress": "VOLUME_AGGREGATOR",
+    "period": 3600
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `price_aggregator_address` | string | The aggregator that provides price samples. |
+| `volume_aggregator_address` | string | The aggregator that provides volume samples. |
+| `period` | uint32 | Lookback period in seconds. |
 
 ---
 
