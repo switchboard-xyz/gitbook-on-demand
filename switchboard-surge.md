@@ -49,6 +49,46 @@ surge.on("signedPriceUpdate", (update: sb.SurgeUpdate) => {
 });
 ~~~
 
+### Subscription
+
+Surge subscriptions are managed **on Solana** via the Surge program (`orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz`). To subscribe programmatically:
+
+1. **Choose a tier** (Plug/Pro/Enterprise). Tiers are on-chain PDAs.
+2. **Acquire SWTCH tokens** (payments are in SWTCH only).
+3. **Fetch a fresh SWTCH/USDT oracle quote** and include it in the same transaction.
+4. **Call `subscription_init`** with `tier_id` and `epoch_amount`. The program prices the subscription in SWTCH using the live quote and creates your subscription PDA.
+
+Key notes:
+- If the keypair has no active subscription, `connectAndSubscribe` fails.
+- Tiers and limits are enforced on-chain (max feeds, connections, min delay).
+- For UI-free flows, derive PDAs (`STATE`, `TIER`, `SUBSCRIPTION`) and pass required accounts.
+
+Minimal sketch (quote + `subscription_init` in one tx):
+
+~~~ts
+import * as sb from "@switchboard-xyz/on-demand";
+
+const { keypair, connection, program } = await sb.AnchorUtils.loadEnv();
+const queue = await sb.Queue.loadDefault(program!);
+const crossbar = new sb.Crossbar({ rpcUrl: connection.rpcEndpoint, programId: queue.pubkey });
+
+// Fetch SWTCH/USDT quote ixs (feed hash from program state)
+const quoteIxs = await queue.fetchQuoteIx(crossbar, [swtchFeedHash], {
+  numSignatures: 1,
+  payer: keypair.publicKey,
+});
+
+const subscriptionInitIx = buildSubscriptionInitIx({ tierId, epochAmount, accounts });
+
+const tx = await sb.asV0Tx({
+  connection,
+  ixs: [quoteIxs, subscriptionInitIx],
+  signers: [keypair],
+});
+
+await connection.sendTransaction(tx);
+~~~
+
 ### 2) Convert for on-chain settlement
 
 - Solana: convert to quote/update instructions and include before consumer ix in the same tx.
