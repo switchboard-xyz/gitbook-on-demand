@@ -86,8 +86,7 @@ Multi-source median aggregation:
           { "tasks": [ { "httpTask": { "url": "https://ex1.com" } }, { "jsonParseTask": { "path": "$.price" } } ] },
           { "tasks": [ { "httpTask": { "url": "https://ex2.com" } }, { "jsonParseTask": { "path": "$.last" } } ] },
           { "tasks": [ { "httpTask": { "url": "https://ex3.com" } }, { "jsonParseTask": { "path": "$.data.price" } } ] }
-        ],
-        "minSuccessfulRequired": 2
+        ]
       }
     }
   ]

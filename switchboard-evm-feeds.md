@@ -59,9 +59,9 @@ const crossbar = new CrossbarClient(crossbarUrl);
 
 // Method naming differs across SDK versions.
 // Treat the result as `updates: bytes[]` suitable for `updateFeeds`.
-const { updates } = await crossbar.fetchEvmUpdates({
+const { encoded: updates } = await crossbar.fetchEVMResults({
   chainId,
-  feedIds: [feedId],
+  aggregatorIds: [feedId],
 });
 ~~~
 

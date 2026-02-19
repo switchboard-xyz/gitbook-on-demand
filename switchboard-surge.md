@@ -15,7 +15,6 @@ Use Switchboard Surge for low-latency streaming:
 - Subscribe to signed updates over WebSocket
 - Monitor latency/health and implement reconnection
 - Convert signed updates for on-chain settlement (chain-specific)
-- Optionally use unsigned updates for UI/monitoring only
 
 ## Preconditions
 
@@ -55,11 +54,7 @@ surge.on("signedPriceUpdate", (update: sb.SurgeUpdate) => {
 - Solana: convert to quote/update instructions and include before consumer ix in the same tx.
 - EVM: convert to EVM-compatible bytes and submit via `updateFeeds`.
 
-### 3) Unsigned updates (UI only)
-
-- Treat as display-only; do not use for settlement.
-
-### 4) Reliability
+### 3) Reliability
 
 - heartbeat monitoring
 - exponential backoff reconnect
