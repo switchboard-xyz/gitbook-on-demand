@@ -30,6 +30,20 @@ Out of scope (handled by specialized skills):
 - Chain-specific on-chain verifier/consumer code
 - Crossbar deployment configuration details
 
+## Subskills
+
+- [Switchboard Solana/SVM Feeds Skill](../switchboard-solana-svm-feeds.md)
+- [Switchboard EVM Feeds Skill](../switchboard-evm-feeds.md)
+- [Switchboard Sui Feeds Skill](../switchboard-sui-feeds.md)
+- [Switchboard Aptos Feeds Skill](../switchboard-aptos-feeds.md)
+- [Switchboard Iota Feeds Skill](../switchboard-iota-feeds.md)
+- [Switchboard Movement Feeds Skill](../switchboard-movement-feeds.md)
+- [Switchboard Feed Design Skill](../switchboard-feed-design.md)
+- [Switchboard Crossbar Ops Skill](../switchboard-crossbar-ops.md)
+- [Switchboard Surge Skill](../switchboard-surge.md)
+- [Switchboard Randomness Skill](../switchboard-randomness.md)
+- [Switchboard X402 Micropayments Skill](../switchboard-x402.md)
+
 ## Hard Rules: Security & Permissions Contract
 
 ### MUST establish `OperatorPolicy` before any of the following
