@@ -75,6 +75,7 @@ Example: `POST /api/simulate`, `GET /api/simulate/{feedHashes}`.
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/updates/solana/{network}/{feedPubkeys}` | Solana update instructions and oracle responses |
+| `GET` | `/updates/eclipse/{network}/{feedPubkeys}` | Eclipse update instructions and oracle responses |
 | `GET` | `/updates/evm/{chainId}/{aggregatorIds}` | EVM encoded updates |
 | `GET` | `/updates/evm/fetch_update_data/{chain_id}/{feed_ids}` | EVM update-data variant |
 | `GET` | `/updates/aptos/{network}/{aggregatorAddresses}` | Aptos aggregator updates |
@@ -295,7 +296,7 @@ Path:
 Query:
 
 - `numSignatures` (`u32`, optional)
-- `payer` (`string`, optional)
+- `payer` (`string`, required)
 
 Response (`200`): array of update objects
 
@@ -303,18 +304,100 @@ Response (`200`): array of update objects
 [
   {
     "success": true,
-    "pullIxns": ["...hex ix..."],
-    "responses": [
+    "pullIxns": [
       {
-        "oracle": "7xK...",
-        "result": 123.45,
-        "errors": ""
+        "keys": [
+          {
+            "pubkey": "acf6ac33e6e7ac61fc2753cb2b47461aa25aecf4309b48fd5aec01c9d898d391",
+            "isSigner": false,
+            "isWritable": true
+          },
+          {
+            "pubkey": "86807068432f186a147cf0b13a30067d386204ea9d6c8b04743ac2ef010b0752",
+            "isSigner": false,
+            "isWritable": false
+          }
+        ],
+        "programId": "0673bd46f2e47e04f12bd92fb731968ecd9d9757c274da87476f465c040c6573",
+        "data": "9616d7a68f5d3089728139110000000001000000761474bfb3cb6c060000000000000000ac95d3645aa39944c6c61ab056d05c27ae359ae45c25108946c7b6fe6e555e0d7ef033918d2ae6887af8bf1d44bd815f5d1a4772e46ffec2d01d01af896476ce0100"
       }
     ],
-    "lookupTables": ["..."]
+    "responses": [
+      {
+        "oracle": "8Vjo4QEbmB9QhhBu6QiTy66G1tw8WomtFVWECMi3a71y",
+        "result": 0.46296883458395865,
+        "errors": "[]"
+      }
+    ],
+    "lookupTables": [
+      "DY5XyWFyLAy9LU2riqbmxZTB5KvQkvzvzTqFiQRpZYFB",
+      "GZamopFRG3Nih67i7YdCEdMNRmGVkwXgxn3T3uNfT5YQ"
+    ]
   }
 ]
 ```
+
+`pullIxns` object schema:
+
+- `keys`: account metas for the instruction.
+- `keys[].pubkey`: 32-byte pubkey encoded as lowercase hex (64 chars, no `0x`).
+- `keys[].isSigner`: signer flag for that account.
+- `keys[].isWritable`: writable flag for that account.
+- `programId`: 32-byte program ID encoded as lowercase hex (64 chars, no `0x`).
+- `data`: instruction data bytes encoded as lowercase hex.
+
+Non-JS deserialization flow:
+
+1. Decode hex fields to bytes.
+2. Convert `programId` and each `keys[].pubkey` from 32-byte arrays into native pubkey types.
+3. Build account metas from `isSigner` + `isWritable`.
+4. Use decoded `data` bytes as instruction payload.
+
+Example (Rust):
+
+```rust
+use solana_program::{instruction::{AccountMeta, Instruction}, pubkey::Pubkey};
+
+fn pubkey_from_hex(s: &str) -> anyhow::Result<Pubkey> {
+    let bytes = hex::decode(s)?;
+    let arr: [u8; 32] = bytes.try_into()
+        .map_err(|_| anyhow::anyhow!("expected 32-byte pubkey"))?;
+    Ok(Pubkey::new_from_array(arr))
+}
+
+fn build_instruction(
+    program_id_hex: &str,
+    keys: Vec<(String, bool, bool)>,
+    data_hex: &str,
+) -> anyhow::Result<Instruction> {
+    let program_id = pubkey_from_hex(program_id_hex)?;
+    let accounts = keys
+        .into_iter()
+        .map(|(pubkey_hex, is_signer, is_writable)| -> anyhow::Result<AccountMeta> {
+            Ok(AccountMeta {
+                pubkey: pubkey_from_hex(&pubkey_hex)?,
+                is_signer,
+                is_writable,
+            })
+        })
+        .collect::<anyhow::Result<Vec<_>>>()?;
+
+    Ok(Instruction {
+        program_id,
+        accounts,
+        data: hex::decode(data_hex)?,
+    })
+}
+```
+
+#### `GET /updates/eclipse/{network}/{feedPubkeys}`
+
+Response schema is the same as `/updates/solana/{network}/{feedPubkeys}`:
+
+- `success`: `bool`
+- `pullIxns`: array of instruction objects (`keys`, `programId`, `data`)
+- `responses`: array of oracle responses
+- `lookupTables`: array of address lookup table pubkeys (base58)
 
 #### `GET /updates/evm/{chainId}/{aggregatorIds}`
 
@@ -328,29 +411,89 @@ Path:
 Query:
 
 - `numSignatures` (`u32`, optional)
-- `maxVariance` (`u64`, optional)
-- `minResponses` (`u32`, optional)
 - `gateway` (`string`, optional)
 
 Response (`200`): object
 
 ```json
 {
+  "results": [
+    {
+      "result": "123450000000000000000"
+    }
+  ],
+  "failures": [],
+  "encoded": [
+    "0x8f6f2b7c..."
+  ]
+}
+```
+
+EVM response schema:
+
+- `results`: array of oracle response objects (includes normalized `result` and additional gateway-returned fields).
+- `failures`: array of errors for feeds/oracles that failed during fetch/update building.
+- `encoded`: array of `0x`-prefixed ABI-encoded update payloads.
+
+#### `GET /updates/aptos/{network}/{aggregatorAddresses}`
+
+Response (`200`):
+
+```json
+{
   "responses": [
     {
-      "results": [
-        {
-          "result": "123450000000000000000"
-        }
-      ],
-      "feedConfigs": {
-        "feedHash": "0x...",
-        "maxVariance": 50000000,
-        "minResponses": 1,
-        "numSignatures": 3
-      },
+      "responses": [],
       "failures": [],
-      "encoded": ["0x..."]
+      "encoded": [
+        "0x..."
+      ]
+    }
+  ],
+  "failures": [],
+  "encoded": [
+    "0x..."
+  ]
+}
+```
+
+Aptos response schema:
+
+- `responses`: per-aggregator update objects returned by Aptos SDK.
+- `failures`: top-level route errors.
+- `encoded`: flattened list of encoded Aptos update payloads.
+
+#### `GET /updates/sui/{network}/{aggregatorAddresses}`
+
+Response (`200`):
+
+```json
+{
+  "responses": [
+    {
+      "results": [],
+      "failures": []
+    }
+  ],
+  "failures": []
+}
+```
+
+Sui response schema:
+
+- `responses`: per-aggregator update objects returned by Sui SDK (`fetchUpdateInfo` output).
+- `failures`: top-level route errors.
+
+#### `GET /updates/iota/{network}/{aggregatorAddresses}`
+
+Response (`200`) matches the Sui endpoint shape:
+
+```json
+{
+  "responses": [
+    {
+      "results": [],
+      "failures": []
     }
   ],
   "failures": []
