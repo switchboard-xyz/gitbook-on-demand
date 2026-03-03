@@ -16,6 +16,14 @@ Use Switchboard on-demand feeds on Movement:
 - integrate verified values into Move-based application logic
 - apply freshness/deviation validation policies appropriate to risk
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/aptos-sdk@0.1.5`
+- `@switchboard-xyz/common@5.7.0`
+- `@aptos-labs/ts-sdk@6.1.0`
+
 ## Preconditions
 
 - `OperatorPolicy` exists (Movement network, signer custody, RPC allowlist).
@@ -46,6 +54,22 @@ Collect validation thresholds only if relevant (risk-sensitive) or requested:
 2. Crank/update feed using the Movement SDK flow.
 3. In Move, read latest value + timestamp and enforce staleness/deviation as needed.
 4. Define failure mode: pause/guard high-risk actions when stale or deviating.
+
+## Minimal Example
+
+~~~move
+use aptos_framework::aptos_coin::AptosCoin;
+use aptos_framework::object::{Self, Object};
+use on_demand::aggregator::{Self, Aggregator, CurrentResult};
+use on_demand::update_action;
+
+public entry fun read_feed(account: &signer, update_data: vector<vector<u8>>) {
+    update_action::run<AptosCoin>(account, update_data);
+    let feed: Object<Aggregator> = object::address_to_object<Aggregator>(@0xSomeFeedAddress);
+    let current: CurrentResult = aggregator::current_result(feed);
+    let _price = aggregator::result(&current);
+}
+~~~
 
 ## References
 

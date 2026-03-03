@@ -1,3 +1,21 @@
 # SDKs (Software Developer Kits)
 
-<table><thead><tr><th width="134.640625">Language</th><th width="139.2734375">Type</th><th width="198.46875">Resource</th><th>Link</th></tr></thead><tbody><tr><td><strong>Rust</strong></td><td>SDK</td><td><code>switchboard-on-demand</code></td><td><a href="http://crates.io/crates/switchboard-on-demand">crates.io/crates/switchboard-on-demand</a></td></tr><tr><td></td><td>Docs</td><td></td><td><a href="https://switchboard-on-demand-rust-docs.web.app/">https://switchboard-on-demand-rust-docs.web.app/</a></td></tr><tr><td><strong>Typescript</strong></td><td>SDK (SVM)</td><td><code>on-demand</code></td><td><a href="https://switchboard-docs.web.app/">https://switchboard-docs.web.app/</a></td></tr><tr><td></td><td>SDK (EVM)</td><td><code>evm-sdk</code></td><td><a href="https://switchboard-evm-sdk.web.app">https://switchboard-evm-sdk.web.app</a></td></tr><tr><td></td><td>SDK (Sui)</td><td><code>sui-sdk</code></td><td><a href="https://switchboard-sui-sdk.web.app">https://switchboard-sui-sdk.web.app</a></td></tr><tr><td></td><td>SDK (Aptos)</td><td><code>aptos-sdk</code></td><td><a href="https://switchboard-aptos-sdk.web.app">https://switchboard-aptos-<kbd>sdk</kbd>.web.app</a></td></tr><tr><td></td><td>Common</td><td><code>common</code></td><td><a href="https://switchboardxyz-common.netlify.app/">https://switchboardxyz-common.netlify.app/</a></td></tr></tbody></table>
+Switchboard SDK versions are pinned and validated in one canonical place:
+
+- [SDK Version Matrix](sdk-version-matrix.md)
+- Machine-readable lock file: [`tooling/sdk-versions.lock.json`](sdk-versions.lock.json)
+
+Use the matrix for all docs and code snippets to avoid version drift.
+
+## SDK Links
+
+| Language | Type | Resource | Link |
+| --- | --- | --- | --- |
+| Rust | SDK | `switchboard-on-demand` | <https://crates.io/crates/switchboard-on-demand> |
+| Rust | Docs | `switchboard-on-demand` | <https://switchboard-on-demand-rust-docs.web.app/> |
+| TypeScript | SDK (SVM) | `@switchboard-xyz/on-demand` | <https://switchboard-docs.web.app/> |
+| TypeScript | SDK (EVM) | `@switchboard-xyz/on-demand-solidity` | <https://switchboard-evm-sdk.web.app> |
+| TypeScript | SDK (Sui) | `@switchboard-xyz/sui-sdk` | <https://switchboard-sui-sdk.web.app> |
+| TypeScript | SDK (Aptos/Movement) | `@switchboard-xyz/aptos-sdk` | <https://switchboard-aptos-sdk.web.app> |
+| TypeScript | SDK (Iota) | `@switchboard-xyz/iota-sdk` | <https://www.npmjs.com/package/@switchboard-xyz/iota-sdk> |
+| TypeScript | Common | `@switchboard-xyz/common` | <https://switchboardxyz-common.netlify.app/> |

@@ -4,6 +4,8 @@
 
 This tutorial shows you how to stream real-time price data via WebSocket using Switchboard Surge and submit updates to the Sui blockchain. This approach is ideal for applications requiring sub-second price updates.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## What You'll Build
 
 A TypeScript application that:
@@ -15,7 +17,7 @@ A TypeScript application that:
 ## Prerequisites
 
 - Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
-- Node.js 18+ and npm/pnpm
+- Node.js 21+ and npm/pnpm
 - A Sui keypair with SUI tokens (in your Sui keystore) for signing Sui transactions
 - A Solana keypair with an active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
 
@@ -391,7 +393,7 @@ Update #2 | Price: 97235.10 | Latency: 92ms | Avg: 88.5ms
 ### Dependencies
 
 ```bash
-npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk @mysten/sui @solana/web3.js
+npm install @switchboard-xyz/on-demand@3.9.0 @switchboard-xyz/sui-sdk@0.1.14 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
 ```
 
 ### Minimal Integration

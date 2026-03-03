@@ -13,11 +13,11 @@ Use these endpoints to ingest the docs efficiently or to wire tools directly int
 
 ## Switchboard Agent Skill
 
-The [Switchboard Agent Skill](switchboard-agent-skill.md) defines an autonomous operator for designing, simulating, deploying, updating, and reading Switchboard feeds and randomness across chains. Use it to configure an agent's behavior: copy the skill content into your agent skill registry or system prompt.
+The [Switchboard Agent Skill](skills/switchboard-agent-skill.md) defines an autonomous operator for designing, simulating, deploying, updating, and reading Switchboard feeds and randomness across chains. Use it to configure an agent's behavior: copy the skill content into your agent skill registry or system prompt.
 
 ### Install the Skill in Your AI Tool
 
-Preferred setup is an Agent Skills folder (a directory containing `SKILL.md`). Create a folder named `switchboard-agent/` and a `SKILL.md` file inside it, then paste the [raw markdown for the skill](https://docs.switchboard.xyz/ai-agents-llms/switchboard-agent-skill.md) into it.
+Preferred setup is an Agent Skills folder (a directory containing `SKILL.md`). Create a folder named `switchboard-agent/` and a `SKILL.md` file inside it, then paste the [raw markdown for the skill](https://docs.switchboard.xyz/ai-agents-llms/skills/switchboard-agent-skill.md) into it.
 
 
 #### Claude Code (Skill folder)

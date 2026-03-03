@@ -4,6 +4,8 @@
 
 This tutorial walks you through the simplest way to integrate Switchboard oracle price feeds into your Solana program. You'll learn how to read verified price data using Switchboard's managed update system.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## What You'll Build
 
 A minimal Anchor program that reads price feed data from a Switchboard oracle account, plus a TypeScript client that fetches fresh oracle data and calls your program.
@@ -350,7 +352,7 @@ In your `Cargo.toml`:
 
 ```toml
 [dependencies]
-switchboard-on-demand = "0.1"
+switchboard-on-demand = "0.11.3"
 ```
 
 ### 2. Add the Account Struct

@@ -2,6 +2,8 @@
 
 This guide covers the setup and use of Switchboard data feeds within your project, using the `Aggregator` module for updating feeds and integrating `Switchboard` in Move.
 
+> **Version source of truth:** [SDK Version Matrix](../../tooling/sdk-version-matrix.md)
+
 **Active Deployments**
 
 Switchboard is currently deployed on the following networks:
@@ -18,8 +20,7 @@ To use Switchboard On-Demand, add the following dependencies to your project:
 **NPM**
 
 ```bash
-npm install @switchboard-xyz/aptos-sdk --save
-npm install @aptos-labs/ts-sdk
+npm install @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0 --save
 ```
 
 **Adding Switchboard to Move Code**

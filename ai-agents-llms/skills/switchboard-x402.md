@@ -17,6 +17,14 @@ Use X402 micropayments with Switchboard feeds to access any X402-protected resou
 - avoids double-charging during simulation
 - keeps sensitive payment material out of stored feed definitions
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/on-demand@3.9.0`
+- `@switchboard-xyz/common@5.7.0`
+- `@solana/web3.js@1.98.4`
+
 ## Preconditions
 
 - `OperatorPolicy` exists (explicit approval for spending, secret handling rules).
@@ -43,6 +51,19 @@ Use X402 micropayments with Switchboard feeds to access any X402-protected resou
 - **Prefer inline feeds**
   - Payment signatures change every request and headers contain sensitive authorization.
   - Storing a static definition on IPFS is generally incompatible with per-request payment authorization.
+
+## Minimal Example
+
+~~~ts
+const instructions = await queue.fetchManagedUpdateIxs(crossbar, [ORACLE_FEED], {
+  numSignatures: 1,
+  instructionIdx: 0,
+  payer: keypair.publicKey,
+  variableOverrides: {
+    X402_PAYMENT_SIGNATURE: paymentSignature,
+  },
+});
+~~~
 
 ## Generalized Playbook
 

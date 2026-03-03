@@ -84,4 +84,5 @@ While a public instance is available for quick testing, running your own Crossba
 
 ### Advanced
 
+* [Crossbar API Endpoints](api-endpoints.md) — complete endpoint reference by route group.
 * [Surge Gateway Protocol](gateway-protocol.md) — HTTP + WebSocket protocol for custom Surge clients.

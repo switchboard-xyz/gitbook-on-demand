@@ -2,6 +2,8 @@
 
 > **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/x402](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/x402)
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## The Problem: Accessing Paywalled Data in Oracles
 
 Many valuable data sources—premium RPC endpoints, institutional APIs, proprietary market data—require payment or authentication. Traditional oracles can't access these sources because:
@@ -57,7 +59,7 @@ This pattern works for any paywalled HTTP API—you're not limited to RPC endpoi
 ## Prerequisites
 
 - [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools) installed and configured
-- Node.js 18+
+- Node.js 20+
 - A Solana keypair with **USDC on mainnet-beta** (the X402 payment token)
   - Ensure the wallet has a USDC associated token account (ATA) with balance
 

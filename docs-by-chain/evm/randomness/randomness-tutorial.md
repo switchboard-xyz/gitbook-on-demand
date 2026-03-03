@@ -14,6 +14,8 @@ Play Pancake Stacker directly in your browser! Connect your wallet (MetaMask or 
 
 This tutorial walks you through building **Pancake Stacker**, a simple on-chain game that demonstrates Switchboard's randomness system. You'll learn how to request, resolve, and use verifiable randomness in your EVM smart contracts.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## What You'll Build
 
 A game where players flip pancakes onto a stack:
@@ -41,7 +43,7 @@ The two-stage flow maps directly to our two main functions:
 ## Prerequisites
 
 - **Foundry** installed for Solidity development
-- **Bun** or Node.js 18+
+- **Bun** or Node.js 20+
 - Native tokens for gas (e.g., MON for Monad)
 - Basic understanding of Solidity and ethers.js
 
@@ -50,13 +52,13 @@ The two-stage flow maps directly to our two main functions:
 1. **Solidity SDK:**
 
 ```bash
-npm install @switchboard-xyz/on-demand-solidity
+npm install @switchboard-xyz/on-demand-solidity@1.1.0
 ```
 
 2. **TypeScript SDK** (for off-chain randomness resolution):
 
 ```bash
-npm install @switchboard-xyz/common ethers
+npm install @switchboard-xyz/common@5.7.0 ethers@6.16.0
 ```
 
 3. **Forge remappings** - Add to `remappings.txt`:

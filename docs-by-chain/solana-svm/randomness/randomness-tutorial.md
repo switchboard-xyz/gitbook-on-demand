@@ -4,6 +4,8 @@
 
 This tutorial demonstrates how to integrate **verifiable randomness** into your Solana program using Switchboard's commit-reveal pattern. You'll build a provably fair coin flip game.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## Why Verifiable Randomness?
 
 On-chain randomness is hard. Naive approaches fail because:
@@ -72,6 +74,8 @@ let randomness_data = RandomnessAccountData::parse(
 ).unwrap();
 ```
 
+> **Note:** Randomness is not read from `quote.feeds()`. For Solana commit-reveal, call `RandomnessAccountData::get_value(clock.slot)`, which returns a 32-byte randomness value (for example, `random_bytes[0] % 2` for a coin flip).
+
 ### Slot-Based Freshness
 
 Randomness must be used within a specific slot window:
@@ -111,7 +115,7 @@ Why? If you take payment on reveal, a malicious user could:
 ```toml
 [dependencies]
 anchor-lang = "0.31.1"
-switchboard-on-demand = "0.9.2"
+switchboard-on-demand = "0.11.3"
 ```
 
 ### Program Structure
