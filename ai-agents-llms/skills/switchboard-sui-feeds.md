@@ -17,6 +17,14 @@ Integrate Switchboard on-demand feeds into Sui Move contracts using the Quote Ve
 - Enforce freshness/deviation constraints in Move
 - Support “cranking” patterns to keep on-chain consumer state warm (push-like behavior)
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/sui-sdk@0.1.14`
+- `@switchboard-xyz/on-demand@3.9.0`
+- `@mysten/sui@1.38.0`
+
 ## Preconditions
 
 - `OperatorPolicy` exists (Sui network, RPC allowlist, signer custody).
@@ -42,6 +50,23 @@ Collect safety policy only if relevant (risk-sensitive logic) or requested:
 
 - Verify quotes against the queue from `SwitchboardClient.fetchState()`.
 - Verify before use; apply explicit staleness/deviation checks.
+
+## Minimal Example
+
+~~~ts
+const tx = new Transaction();
+const quotes = await Quote.fetchUpdateQuote(sb, tx, {
+  feedHashes: [feedId],
+  numOracles,
+});
+
+tx.moveCall({
+  target: `${consumerPackageId}::module::update_price`,
+  arguments: [tx.object(consumerObjectId), quotes, tx.pure.vector("u8", feedIdBytes), tx.object("0x6")],
+});
+
+await suiClient.signAndExecuteTransaction({ signer: keypair, transaction: tx });
+~~~
 
 ## Playbook
 

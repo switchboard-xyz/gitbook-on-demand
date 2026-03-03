@@ -9,6 +9,15 @@ Surge provides low-latency price streaming via the Crossbar gateway. This page d
 - You are debugging auth/session issues or connection failures.
 - You are building a load-testing or monitoring client.
 
+## Prerequisites
+
+Before calling `request_stream`, the Solana pubkey you authenticate with must have an **active on-chain Surge subscription**.
+
+- Subscriptions are managed on Solana and paid in `SWTCH` tokens (except free-tier cases where payment can be zero, but subscription initialization is still required).
+- If there is no active subscription for your pubkey, `POST /gateway/api/v1/request_stream` will fail even when signatures, blockhash, and timestamps are valid.
+- Subscription setup guide: [Surge Subscription Guide](../../ai-agents-llms/surge-subscription-guide.md).
+- Explorer subscription UI: [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions).
+
 ## Protocol Overview
 
 1. Discover a gateway endpoint.

@@ -4,6 +4,8 @@
 
 This tutorial walks you through integrating Switchboard oracle price feeds into your Sui Move contracts using the Quote Verifier pattern. You'll learn how to securely fetch, verify, and use real-time price data.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## What You'll Build
 
 A Move contract that:
@@ -17,7 +19,7 @@ Plus a TypeScript client that fetches oracle data and submits it to your contrac
 ## Prerequisites
 
 - Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
-- Node.js 18+ and npm/pnpm
+- Node.js 21+ and npm/pnpm
 - A Sui keypair with SUI tokens (testnet or mainnet)
 - Basic understanding of Move and TypeScript
 
@@ -646,7 +648,7 @@ public struct MyProtocol has key {
 ### 4. TypeScript Dependencies
 
 ```bash
-npm install @switchboard-xyz/sui-sdk @mysten/sui
+npm install @switchboard-xyz/sui-sdk@0.1.14 @mysten/sui@1.38.0
 ```
 
 ## Available Feeds

@@ -4,6 +4,8 @@
 
 Source code for the Switchboard On-Demand Movement integration can be found in the [github repo](https://github.com/switchboard-xyz/movement) along with examples.
 
+> **Version source of truth:** [SDK Version Matrix](../../tooling/sdk-version-matrix.md)
+
 ### Active Deployments
 
 The Switchboard On-Demand service is currently deployed on the following networks:
@@ -29,19 +31,19 @@ To use Switchboard On-Demand, add the following dependencies to your project:
 #### NPM
 
 ```bash
-npm install @switchboard-xyz/aptos-sdk --save
+npm install @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0 --save
 ```
 
 #### Bun
 
 ```bash
-bun add @switchboard-xyz/aptos-sdk
+bun add @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0
 ```
 
 #### PNPM
 
 ```bash
-pnpm add @switchboard-xyz/aptos-sdk
+pnpm add @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0
 ```
 
 ### Adding Switchboard to Move Code

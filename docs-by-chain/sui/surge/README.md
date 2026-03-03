@@ -1,5 +1,7 @@
 # Surge
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## The Future of Oracle Technology
 
 Switchboard Surge is the industry's fastest oracle data delivery system, providing sub-100ms latency through direct WebSocket streaming. Built for the next generation of DeFi applications, trading systems, and real-time dashboards.
@@ -57,9 +59,9 @@ Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions
 ### 2. Install the SDK
 
 ```bash
-npm install @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk
+npm install @switchboard-xyz/on-demand@3.9.0 @switchboard-xyz/sui-sdk@0.1.14 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
 # or
-yarn add @switchboard-xyz/on-demand @switchboard-xyz/sui-sdk
+yarn add @switchboard-xyz/on-demand@3.9.0 @switchboard-xyz/sui-sdk@0.1.14 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
 ```
 
 ### 3. Connect and Stream

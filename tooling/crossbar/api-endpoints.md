@@ -346,11 +346,20 @@ Response (`200`): array of update objects
 - `programId`: 32-byte program ID encoded as lowercase hex (64 chars, no `0x`).
 - `data`: instruction data bytes encoded as lowercase hex.
 
+Required accounts behavior (important):
+
+- There is no separate `requiredAccounts` field for this endpoint.
+- The canonical account list is `pullIxns[i].keys`.
+- Account order is significant and must be preserved exactly.
+- `isSigner` and `isWritable` flags are part of the instruction contract and must be preserved exactly.
+- Do not reorder, sort, dedupe, or recompute account metas when reconstructing the instruction.
+- `lookupTables` are provided separately for address lookup table usage in versioned transactions; they do not replace `keys`.
+
 Non-JS deserialization flow:
 
 1. Decode hex fields to bytes.
 2. Convert `programId` and each `keys[].pubkey` from 32-byte arrays into native pubkey types.
-3. Build account metas from `isSigner` + `isWritable`.
+3. Build account metas from `isSigner` + `isWritable` in the same order as returned.
 4. Use decoded `data` bytes as instruction payload.
 
 Example (Rust):

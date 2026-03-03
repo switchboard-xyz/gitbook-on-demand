@@ -2,11 +2,13 @@
 
 Switchboard provides on-demand oracle data for Sui Move contracts using the Quote Verifier pattern. This enables your DeFi applications to access verified, real-time price data with built-in security features.
 
+> **Version source of truth:** [SDK Version Matrix](../../tooling/sdk-version-matrix.md)
+
 **Prerequisites**
 
 * Sui CLI installed ([Installation Guide](https://docs.sui.io/guides/developer/getting-started/sui-install))
 * Basic understanding of Move and TypeScript
-* Node.js 18+ and npm installed
+* Node.js 21+ and npm installed
 
 #### Deployments
 

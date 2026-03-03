@@ -1,0 +1,190 @@
+# Agent Skill Docs Feedback
+
+The following issues are specific feedback on the **Agent Skill** pages at `docs.switchboard.xyz/ai-agents-llms/switchboard-agent-skill` — what would have made building this repo significantly easier.
+
+---
+
+## Issue 15: No Working Code Snippets in Agent Skills (CRITICAL)
+
+**Severity:** Critical  
+**Category:** Agent Skill Docs
+
+### Description
+The agent skill pages describe *what* to do (e.g. "commit in the same transaction as the randomized action") but never show *how*. There are zero code snippets — no TypeScript, no Rust, no Solidity. An AI agent (or developer) reading these skills gets a conceptual overview but can't actually build anything without jumping to 3-4 other doc pages and cross-referencing.
+
+Compare to how Solana's own docs work: every concept page has a runnable code block.
+
+### What I Needed
+When building the randomness game, I had to:
+1. Read the Randomness Skill page (conceptual)
+2. Jump to `/docs-by-chain/solana-svm/randomness` (some detail)
+3. Search GitHub for `switchboard-on-demand` examples (sparse)
+4. Guess at the `QuoteVerifier` API by reading crate docs
+
+If the Randomness Skill page had a 30-line Anchor snippet showing commit + reveal, it would have saved ~45 minutes.
+
+### Suggested Fix
+Add a "Minimal Example" section to each agent skill with:
+- A complete, copy-paste-ready code block for the most common use case
+- Language: TypeScript for client-side, Rust/Solidity for on-chain
+- Working import paths and crate/package versions
+
+---
+
+## Issue 16: Agent Skills Don't Mention Crossbar REST Endpoints (HIGH)
+
+**Severity:** High  
+**Category:** Agent Skill Docs
+
+### Description
+The Crossbar Ops skill mentions "store definitions", "simulate feeds", and "fetch update payloads" but never lists the actual HTTP endpoints. An AI agent can't make API calls to concepts — it needs URLs.
+
+I had to discover these by reading the Crossbar docs separately:
+- `POST /store` — store feed definition
+- `GET /simulate/{feedHash}` — simulate a feed
+- `GET /fetch/{feedHash}` — get stored definition
+- `GET /updates/solana/{network}/{feedHash}` — Solana update ixs
+- `GET /updates/evm/{chainId}/{feedHash}` — EVM update bytes
+
+### What I Needed
+The Crossbar Ops skill should include a "Quick Reference" table of endpoints with request/response examples. AI agents are HTTP-native — give them URLs and they can work.
+
+### Suggested Fix
+Add an endpoint reference table to the Crossbar Ops skill:
+```
+| Endpoint | Method | Description | Example |
+|----------|--------|-------------|---------|
+| /store | POST | Store feed definition | `{"queue": "...", "jobs": [...]}` → `{"feedHash": "0x..."}` |
+| /simulate/{feedHash} | GET | Get current value | → `{"results": [{"result": 95432.50}]}` |
+| ... | ... | ... | ... |
+```
+
+---
+
+## Issue 17: No Crate/Package Version Pinning in Skills (HIGH)
+
+**Severity:** High  
+**Category:** Agent Skill Docs
+
+### Description
+None of the agent skill pages mention which SDK versions to use. When I added `switchboard-on-demand` to Cargo.toml, I had to guess the version (`0.11.x`). The TypeScript SDK version (`@switchboard-xyz/on-demand`) is similarly unspecified.
+
+For AI agents generating code, version pinning is critical — wrong versions mean broken imports, missing types, and compile errors that waste tokens debugging.
+
+### Suggested Fix
+Each skill should have a "Dependencies" section at the top:
+```
+## Dependencies
+- Rust (on-chain): `switchboard-on-demand = "0.11.3"`
+- TypeScript: `@switchboard-xyz/on-demand@^1.x`
+- Solana CLI: `>=1.18`
+- Anchor: `>=0.30`
+```
+
+---
+
+## Issue 18: Surge Skill Missing Auth Flow Details (HIGH)
+
+**Severity:** High  
+**Category:** Agent Skill Docs
+
+### Description
+The Surge skill says to "subscribe to Surge" and "convert for on-chain settlement" but doesn't explain the auth flow at all. Building the surge-subscriber required reading the separate Gateway Protocol page and piecing together:
+1. Ed25519 signature creation (blockhash + timestamp)
+2. Custom HTTP headers (`X-Switchboard-Signature`, `X-Switchboard-Pubkey`, etc.)
+3. Session token flow (`POST /gateway/api/v1/request_stream`)
+4. WebSocket auth headers
+5. `SignedPing`/`SignedPong` keepalive protocol
+
+The Surge skill should at least outline this flow with the header names and endpoint paths.
+
+### Suggested Fix
+Add a "Connection Flow" section showing the 5-step auth process with actual header names and endpoint paths.
+
+---
+
+
+## Issue 20: Randomness Skill Missing Account Structure (MEDIUM)
+
+**Severity:** Medium  
+**Category:** Agent Skill Docs
+
+### Description
+The Randomness skill says "create randomness account" but doesn't explain:
+- What the account structure looks like
+- What PDA seeds to use
+- How the oracle assignment works
+- What the generation window duration is (~1 min? 10 slots? configurable?)
+- How to check if randomness is ready for reveal
+
+I had to infer the account structure from the `switchboard-on-demand` crate types and guess at the generation window.
+
+### Suggested Fix
+Add account layout and timing details to the Randomness skill.
+
+---
+
+## Issue 21: Feed Design Skill Needs More Multi-Source Examples (MEDIUM)
+
+**Severity:** Medium  
+**Category:** Agent Skill Docs
+
+### Description
+The Feed Design skill shows the basic `httpTask → jsonParseTask → multiplyTask` pipeline but only has one simple example. For production feeds, you need:
+- Multi-source median (the most common pattern)
+- Error handling (what if one source fails?)
+- Rate limiting considerations
+- Which exchanges have the most reliable free APIs
+
+I built `multi-source-btc-usd.json` (median of Binance, Kraken, Coinbase) from scratch. If this was in the docs, it would save every new integrator time.
+
+### Suggested Fix
+Add 3-4 production-ready job templates:
+1. Single source (tutorial)
+2. 3-source median (production minimum)
+3. 5-source with fallbacks (production recommended)
+4. Custom API with auth (variable override example)
+
+---
+
+## Issue 22: No "Getting Started" E2E Walkthrough (MEDIUM)
+
+**Severity:** Medium  
+**Category:** Agent Skill Docs
+
+### Description
+There's no end-to-end "zero to working feed" walkthrough that an agent (or developer) can follow. The skills are modular (by design) but there's no "happy path" that chains them together.
+
+For example, a "Your First Solana Feed in 5 Minutes" walkthrough:
+1. Define a BTC/USD job → 2. Store via Crossbar → 3. Get feed hash → 4. Create on-chain account → 5. Read the value
+
+This would be the single most useful addition to the agent skill docs.
+
+### Suggested Fix
+Add a `switchboard-quickstart` skill or a "Getting Started" section in the main agent skill page that walks through a complete flow on Solana devnet.
+
+---
+
+
+
+## Issue 24: OperatorPolicy Is Great But Needs Defaults (LOW)
+
+**Severity:** Low  
+**Category:** Agent Skill Docs
+
+### Description
+The OperatorPolicy concept is excellent for safety. But for devnet experimentation (which is 90% of agent usage), having to define all 7 fields before doing anything is friction.
+
+### Suggested Fix
+Add sensible devnet defaults:
+```
+OperatorPolicy (devnet defaults):
+  network: devnet
+  autonomy: execute_with_approval
+  spend_limits: 1 SOL/tx, 10 SOL/day
+  key_custody: file path ($HOME/.config/solana/id.json)
+  persist_keys: no
+  mainnet_signing: no
+```
+
+---

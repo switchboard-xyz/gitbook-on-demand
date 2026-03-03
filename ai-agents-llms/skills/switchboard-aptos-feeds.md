@@ -16,6 +16,14 @@ Use Switchboard on-demand feeds on Aptos:
 - consume verified results in Move
 - enforce freshness/deviation policies in app logic
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/aptos-sdk@0.1.5`
+- `@switchboard-xyz/common@5.7.0`
+- `@aptos-labs/ts-sdk@6.1.0`
+
 ## Preconditions
 
 - `OperatorPolicy` exists (Aptos network, signer custody, RPC allowlist).
@@ -41,6 +49,22 @@ Use Switchboard on-demand feeds on Aptos:
 - On-chain:
   - read current result + timestamp
   - enforce staleness and deviation vs last stored value
+
+## Minimal Example
+
+~~~move
+use aptos_framework::aptos_coin::AptosCoin;
+use aptos_framework::object::{Self, Object};
+use switchboard::aggregator::{Self, Aggregator, CurrentResult};
+use switchboard::update_action;
+
+public entry fun read_feed(account: &signer, update_data: vector<vector<u8>>) {
+    update_action::run<AptosCoin>(account, update_data);
+    let feed: Object<Aggregator> = object::address_to_object<Aggregator>(@0xSomeFeedAddress);
+    let current: CurrentResult = aggregator::current_result(feed);
+    let _price = aggregator::result(&current);
+}
+~~~
 
 ## Outputs
 

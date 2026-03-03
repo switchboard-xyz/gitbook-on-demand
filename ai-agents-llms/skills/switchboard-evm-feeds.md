@@ -17,6 +17,14 @@ Integrate Switchboard on-demand feeds into EVM contracts and bots:
 - Read verified feed results and enforce freshness/deviation constraints
 - Support “cranking” patterns to emulate push/heartbeat feeds
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/common@5.7.0`
+- `@switchboard-xyz/on-demand-solidity@1.1.0`
+- `ethers@6.16.0`
+
 ## Preconditions
 
 - `OperatorPolicy` exists (chainId, RPC allowlist, contract allowlist, spend limits).
@@ -40,6 +48,16 @@ Collect safety policy only if relevant (risk-sensitive logic) or requested:
 
 - Always compute and pay fee (e.g., `getFee`) before `updateFeeds`.
 - For safety-critical logic, accept `updates` as calldata and do update+read inside the same app function.
+
+## Minimal Example
+
+~~~solidity
+function updateAndRead(bytes[] calldata updates, bytes32 feedId) external payable {
+    uint256 fee = switchboard.getFee(updates);
+    switchboard.updateFeeds{value: fee}(updates);
+    switchboard.latestUpdate(feedId);
+}
+~~~
 
 ## Playbook
 

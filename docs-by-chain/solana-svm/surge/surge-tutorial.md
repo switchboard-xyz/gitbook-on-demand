@@ -4,6 +4,8 @@
 
 This tutorial walks you through implementing Switchboard Surge for real-time price streaming on Solana.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## Prerequisites
 
 - Node.js 18+
@@ -13,9 +15,9 @@ This tutorial walks you through implementing Switchboard Surge for real-time pri
 ## Installation
 
 ```bash
-npm install @switchboard-xyz/on-demand
+npm install @switchboard-xyz/on-demand@3.9.0
 # or
-yarn add @switchboard-xyz/on-demand
+yarn add @switchboard-xyz/on-demand@3.9.0
 ```
 
 ## Basic Implementation

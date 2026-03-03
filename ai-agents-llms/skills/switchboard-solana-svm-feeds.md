@@ -16,6 +16,16 @@ Integrate Switchboard on-demand feeds into Solana/SVM transactions and programs:
 - Implement on-chain verification patterns (Anchor/Rust) when your program consumes feeds
 - Support “cranking” patterns to keep canonical quote accounts warm (push-like behavior)
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/on-demand@3.9.0`
+- `@switchboard-xyz/common@5.7.0`
+- `@solana/web3.js@1.98.4`
+- `@coral-xyz/anchor@0.32.1` (TypeScript client)
+- `switchboard-on-demand = "0.11.3"` (Rust on-chain)
+
 This skill is about integration correctness, not designing new feed definitions (handled by `switchboard-feed-design`).
 
 ## Preconditions
@@ -36,6 +46,25 @@ This skill is about integration correctness, not designing new feed definitions 
 - Consumer instruction must occur after Switchboard verification/update instructions in the same transaction.
 - Use deterministic/canonical accounts; do not accept arbitrary “quote accounts” without canonical checks.
 - Variable overrides are secrets-only (never selectors/URLs/paths/IDs/multipliers).
+
+## Minimal Example
+
+~~~ts
+const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
+  numSignatures: 1,
+  instructionIdx: 0,
+  payer: keypair.publicKey,
+  variableOverrides: {},
+});
+
+const tx = await sb.asV0Tx({
+  connection,
+  ixs: [...updateIxs, consumerIx],
+  signers: [keypair],
+});
+
+await connection.sendTransaction(tx);
+~~~
 
 ## Playbook
 
@@ -102,6 +131,8 @@ for feed in quote.feeds() {
     // feed.value(), feed.decimals(), feed.hex_id(), etc.
 }
 ~~~
+
+> **Note:** `quote.feeds()` contains feed outputs (such as price values). Randomness uses a different path: read bytes from `RandomnessAccountData::get_value(...)` in the [Randomness Tutorial](../../docs-by-chain/solana-svm/randomness/randomness-tutorial.md).
 
 Also enforce, when applicable:
 

@@ -4,6 +4,8 @@
 
 This tutorial walks you through integrating Switchboard oracle price feeds into your EVM smart contracts. You'll learn how to fetch oracle data, submit updates to your contract, and read verified prices.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## What You'll Build
 
 A Solidity smart contract that:
@@ -16,7 +18,7 @@ Plus a TypeScript client that fetches oracle data and submits it to your contrac
 ## Prerequisites
 
 - **Foundry** for Solidity development (`forge`, `cast`)
-- **Bun** or Node.js 18+
+- **Bun** or Node.js 20+
 - Native tokens for gas (MON, ETH, etc.)
 - Basic understanding of Solidity and ethers.js
 
@@ -497,7 +499,7 @@ cp -r sb-on-demand-examples/evm/src/switchboard your-project/src/
 Or install via npm:
 
 ```bash
-npm install @switchboard-xyz/on-demand-solidity
+npm install @switchboard-xyz/on-demand-solidity@1.1.0
 ```
 
 ### 2. Import and Use

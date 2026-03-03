@@ -60,4 +60,18 @@ There are two stages, requesting and resolving the randomness.
 - The **App** asks the **Switchboard contract** to verify that the randomness it received from Alice is correct.
 - If all is well, the **Switchboard contract** sends verification to the **App**, resolving the random event.
 
+## Solana Technical Quick Reference
+
+- **Account structure**: use a Switchboard randomness account (commit/reveal state parsed by `RandomnessAccountData`) plus your app-owned state account/PDA (for app fields like `randomness_account` and `commit_slot`).
+- **PDA seeds**: Switchboard randomness account is created with `sb.Randomness.create(...)`. App PDA seeds are app-specific; tutorial examples use `[b"playerState", user.key().as_ref()]` and `[b"stateEscrow"]`.
+- **Oracle assignment**: assignment happens through the Switchboard request/commit flow and is checked during reveal/settlement. Store and verify the same randomness account reference across commit and settle.
+- **Generation window duration**: treat this as policy-based. A strict freshness policy example is `seed_slot == current_slot - 1`, while less strict policies can be chosen for lower-sensitivity flows.
+- **Reveal readiness check**: call `RandomnessAccountData::get_value(clock.slot)`. At settle time, success means randomness is ready; error means not yet resolved.
+
+For complete Solana code (account structs, commit/reveal instruction flow, and slot checks), see the [Randomness Tutorial](randomness-tutorial.md).
+
+## Next Step
+
+Read the [Randomness Tutorial](randomness-tutorial.md) for full account structures, PDA examples, and commit/reveal validation patterns.
+
 --

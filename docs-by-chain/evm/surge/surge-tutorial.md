@@ -4,6 +4,8 @@
 
 This tutorial walks you through converting Switchboard Surge real-time price updates into EVM-compatible format for use with your smart contracts.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## What You'll Build
 
 A TypeScript script that:
@@ -13,7 +15,7 @@ A TypeScript script that:
 
 ## Prerequisites
 
-- **Bun** or Node.js 18+
+- **Bun** or Node.js 20+
 - Basic understanding of hexadecimal encoding
 
 If you're also streaming Surge updates yourself, note that the SDK authenticates by signing with a Solana keypair that has an active Surge subscription. Without an active subscription, `connectAndSubscribe` will fail.

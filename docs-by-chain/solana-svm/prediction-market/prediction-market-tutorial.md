@@ -4,6 +4,8 @@
 
 This tutorial demonstrates how to **verify oracle feed configurations on-chain** using Kalshi prediction market data. You'll learn a critical security pattern that prevents oracle substitution attacks.
 
+> **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+
 ## The Problem: Oracle Substitution Attacks
 
 When using oracle data in your program, how do you know the oracle is fetching data from the sources you expect? A malicious actor could:
@@ -89,12 +91,14 @@ const quote = await queue.fetchQuoteIx(crossbar, [feed], {
 ```toml
 [dependencies]
 anchor-lang = "0.31.1"
-switchboard-on-demand = { version = "0.9.2", features = ["anchor", "devnet"] }
-switchboard-protos = { version = "^0.2.1", features = ["serde"] }
+switchboard-on-demand = { version = "0.10.0", features = ["anchor", "devnet"] }
+switchboard-protos = { version = "0.2.4", features = ["serde"] }
 prost = "0.13"
 solana-program = "3.0.0"
 faster-hex = "0.10.0"
 ```
+
+> **Note:** This tutorial currently pins `switchboard-on-demand` to `0.10.0` for `anchor-lang 0.31.1` compatibility.
 
 ### Program Structure
 

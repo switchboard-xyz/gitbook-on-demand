@@ -16,6 +16,14 @@ Use Switchboard on-demand feeds on Iota:
 - crank updates using Iota transactions (pull model)
 - consume results in Move with freshness/deviation checks
 
+## Dependencies
+
+Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
+
+- `@switchboard-xyz/iota-sdk@0.0.3`
+- `@switchboard-xyz/common@5.7.0`
+- `@iota/iota-sdk@1.11.0`
+
 ## Preconditions
 
 - `OperatorPolicy` exists (Iota network, signer custody, RPC allowlist).
@@ -40,6 +48,20 @@ Use Switchboard on-demand feeds on Iota:
 3. Fetch update transaction/actions and execute them.
 4. Call consumer Move function after update actions.
 5. Enforce staleness/deviation in Move.
+
+## Minimal Example
+
+~~~ts
+import { Aggregator, SwitchboardClient } from "@switchboard-xyz/iota-sdk";
+import { Transaction } from "@iota/iota-sdk/transactions";
+
+const sb = new SwitchboardClient(iotaClient);
+const aggregator = new Aggregator(sb, aggregatorId);
+
+const tx = new Transaction();
+await aggregator.fetchUpdateTx(tx);
+await iotaClient.signAndExecuteTransaction({ signer: keypair, transaction: tx });
+~~~
 
 ## References
 
