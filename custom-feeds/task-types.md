@@ -1583,13 +1583,18 @@ _**Input**_: None
 
 _**Returns**_: The swap price on Titan for a given input and output token mint address.
 
+_**Important**_: Set `userPublicKey` / `user_public_key` to a valid Solana wallet public key.
+If this is missing or invalid, Titan routing can return no routes and the task can fail.
+`amount` is specified in whole token units (for example, `"1"` for 1 USDC), then converted internally to raw atoms using mint decimals before calling Titan.
+
 _**Example**_: Fetch the Titan price for exchanging 1 SOL into USDC.
 
 ```json
 {
   "titanTask": {
     "inTokenAddress": "So11111111111111111111111111111111111111112",
-    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "userPublicKey": "7M6M9Ybbp6kAMPxQqvYXvyfZ87Z84qxdjQ671Vkj2rWQ"
   }
 }
 ```
@@ -1611,8 +1616,8 @@ _**Example**_: Fetch the Titan price for exchanging 1000 SOL into USDC with slip
 |-------|------|-------------|
 | `in_token_address` | string | The input token mint address (base58 encoded). |
 | `out_token_address` | string | The output token mint address (base58 encoded). |
-| `amount` | string | The amount of tokens to swap (raw atoms, not scaled by decimals). |
-| `user_public_key` | string | Optional user public key for transaction generation (base58 encoded). |
+| `amount` | string | The amount of input token units to swap (human-readable units, not raw atoms). If omitted, defaults to `1` token unit. |
+| `user_public_key` | string | User wallet public key used for quote/route context (base58 encoded). Required in practice for reliable routing; missing/invalid values can cause quote failures. |
 | `swap_mode` | SwapMode | Whether the amount is in terms of input or output token. Defaults to ExactIn. |
 | `slippage_bps` | uint32 | Allowed slippage in basis points (e.g., 50 = 0.5%). |
 | `dexes` | FilterList | If set, constrain quotes to the given set of DEXes. |
