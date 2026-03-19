@@ -395,5 +395,6 @@ pub fn your_instruction(ctx: Context<YourInstruction>) -> Result<()> {
 
 - **Multiple Feeds**: Pass multiple feed IDs to `fetchManagedUpdateIxs` to update several prices in one transaction
 - **Staleness Checks**: Add maximum staleness requirements for your use case
+- **Authority-Updated Feeds**: Publish quotes from your own trusted wallet or PDA in the [Authority-Updated Feeds](authority-updated-feeds.md) guide
 - **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) section
 - **Advanced Patterns**: See the Advanced Price Feed tutorial for more complex integration patterns
