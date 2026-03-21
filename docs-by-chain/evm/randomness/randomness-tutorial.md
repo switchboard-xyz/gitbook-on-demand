@@ -210,7 +210,7 @@ This view function provides the data needed for off-chain resolution:
 
 ## The Off-Chain Script
 
-The `stack-pancake.ts` script demonstrates how to interact with the contract from off-chain. While the example repository also includes a React UI, the script is simpler to understand and follows the exact same flow.
+The `stackPancake.ts` script demonstrates how to interact with the contract from off-chain. While the example repository also includes a React UI, the script is simpler to understand and follows the exact same flow.
 
 > **Note**: The UI code does the same thing as this script, but with React state management and a visual interface. Understanding this script is sufficient to understand how any client (UI, bot, etc.) interacts with the randomness system.
 
@@ -233,7 +233,7 @@ const PANCAKE_STACKER_ABI = [
 
 async function main() {
     // Initialize providers
-    const rpcUrl = process.env.RPC_URL || "https://rpc.monad.xyz";
+    const rpcUrl = process.env.RPC_URL || "https://testnet-rpc.monad.xyz";
     const provider = new ethers.JsonRpcProvider(rpcUrl);
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
     const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
@@ -255,10 +255,15 @@ async function main() {
 ### Step 2: Request Randomness (Flip the Pancake)
 
 ```typescript
-    // Call flipPancake() to request randomness
-    const tx = await contract.flipPancake();
-    await tx.wait();
-    console.log("Flip requested:", tx.hash);
+    const [, hasPendingFlip] = await contract.getPlayerStats(wallet.address);
+
+    if (hasPendingFlip) {
+        console.log("Found pending flip, resuming settlement...");
+    } else {
+        const tx = await contract.flipPancake();
+        await tx.wait();
+        console.log("Flip requested:", tx.hash);
+    }
 ```
 
 This triggers the **Request Randomness** phase on-chain.
@@ -294,6 +299,8 @@ The contract returns:
 ```
 
 This is where **Crossbar** talks to the **Oracle** and returns the encoded randomness proof.
+
+In practice you should wait until `rollTimestamp + minSettlementDelay` before calling Crossbar. The packaged example script adds a small buffer and resumes an already-pending flip if a previous run stopped after requesting randomness.
 
 ### Step 5: Settle On-Chain (Catch the Pancake)
 
@@ -422,7 +429,8 @@ The contract gracefully handles settlement failures by catching exceptions and r
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
 cd sb-on-demand-examples/evm/randomness/pancake-stacker
-bun install  # or npm install
+bun install
+forge build
 ```
 
 ### 2. Configure Your Wallet
@@ -437,8 +445,10 @@ cast wallet import mykey --interactive
 ### 3. Deploy the Contract
 
 ```bash
-# Deploy (adjust for your target chain)
-forge script script/PancakeStacker.s.sol --rpc-url https://rpc.monad.xyz --account mykey --broadcast
+forge script deploy/PancakeStacker.s.sol:PancakeStackerScript \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --private-key $PRIVATE_KEY \
+  --broadcast
 ```
 
 ### 4. Run the Script
@@ -448,11 +458,11 @@ Create a `.env` file (add to `.gitignore`):
 ```bash
 PRIVATE_KEY=0x...
 PANCAKE_STACKER_CONTRACT_ADDRESS=0x_your_deployed_address
-RPC_URL=https://rpc.monad.xyz
+RPC_URL=https://testnet-rpc.monad.xyz
 ```
 
 ```bash
-bun scripts/stack-pancake.ts
+bun run flip
 ```
 
 ### Expected Output
@@ -463,6 +473,7 @@ Current stack: 0 pancakes
 Flipping pancake...
 Flip requested: 0x...
 
+Waiting 10s for randomness settlement window...
 Resolving randomness...
 Catching pancake...
 

@@ -1,6 +1,6 @@
 # Monad Integration
 
-Monad is a high-performance EVM-compatible blockchain optimized for speed and efficiency. Switchboard On-Demand provides native oracle support for Monad with the same security guarantees and ease of use as other EVM chains.
+Monad is the primary EVM test network exercised by the current `sb-on-demand-examples` repo. The verified Monad testnet Switchboard proxy is `0x6724818814927e057a693f4e3A172b6cC1eA690C`.
 
 ## Network Information
 
@@ -11,99 +11,141 @@ Monad is a high-performance EVM-compatible blockchain optimized for speed and ef
 
 ## Quick Start
 
-### 1. Clone the Examples Repository
+### Price Feeds
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
-cd sb-on-demand-examples/evm
+cd sb-on-demand-examples/evm/price-feeds
 bun install
+forge build
+cp .env.example .env
 ```
 
-### 2. Configure Your Wallet
-
-> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
-
-Import your private key into Foundry's encrypted keystore:
-
-```bash
-cast wallet import mykey --interactive
-# Enter your private key when prompted (hidden from terminal)
-# Set a password to encrypt the keystore
-```
-
-Create a `.env` file for scripts (add to `.gitignore`):
+Set your `.env` like this:
 
 ```bash
 PRIVATE_KEY=0xyour_private_key_here
 RPC_URL=https://testnet-rpc.monad.xyz
 NETWORK=monad-testnet
-CONTRACT_ADDRESS=0xyour_contract_address
+# Optional: if omitted, the example deploys a new consumer contract for you
+CONTRACT_ADDRESS=0xyour_existing_consumer
 ```
 
-### 3. Deploy Contract
+Then run:
 
 ```bash
-# Testnet
-forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+bun run example
+```
+
+This flow was verified on Monad testnet. The packaged script now handles the current Crossbar Monad testnet rollout by falling back to the network-agnostic oracle quote endpoint if the chain-specific feed lookup is unavailable.
+
+### Direct Randomness
+
+```bash
+cd ../randomness
+bun install
+PRIVATE_KEY=0xyour_private_key_here bun run example
+```
+
+That example talks directly to the Switchboard proxy, creates a randomness request, waits for the settlement window, resolves through Crossbar, and settles on-chain.
+
+### Coin Flip
+
+```bash
+cd coin-flip
+bun install
+forge build
+forge script deploy/CoinFlip.s.sol:CoinFlipScript \
   --rpc-url https://testnet-rpc.monad.xyz \
-  --account mykey \
-  --broadcast -vvvv
-
-# Mainnet
-forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
-  --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY \
-  --account mykey \
-  --broadcast -vvvv
+  --private-key $PRIVATE_KEY \
+  --broadcast
 ```
 
-### 4. Run Examples
+After deployment, fund the example contract with a small bankroll so it can pay winning flips:
 
 ```bash
-# Price Feeds (reads from .env)
-bun scripts/run.ts
-
-# Randomness (reads from .env)
-bun run randomness
+cast send $COIN_FLIP_CONTRACT_ADDRESS \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --private-key $PRIVATE_KEY \
+  --value 0.05ether
 ```
+
+Set your `.env`:
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+RPC_URL=https://testnet-rpc.monad.xyz
+COIN_FLIP_CONTRACT_ADDRESS=0xyour_deployed_contract
+WAGER_AMOUNT=0.01
+```
+
+Run the game script:
+
+```bash
+bun run flip
+```
+
+### Pancake Stacker
+
+```bash
+cd ../pancake-stacker
+bun install
+forge build
+forge script deploy/PancakeStacker.s.sol:PancakeStackerScript \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --private-key $PRIVATE_KEY \
+  --broadcast
+```
+
+Set your `.env`:
+
+```bash
+PRIVATE_KEY=0xyour_private_key_here
+RPC_URL=https://testnet-rpc.monad.xyz
+PANCAKE_STACKER_CONTRACT_ADDRESS=0xyour_deployed_contract
+```
+
+Then run:
+
+```bash
+bun run flip
+```
+
+If a previous run already created a pending flip, the packaged script resumes settlement instead of failing.
 
 ## Integration Example
 
 ```typescript
-import { ethers } from 'ethers';
-import { CrossbarClient, SWITCHBOARD_ABI } from '@switchboard-xyz/common';
+import { ethers } from "ethers";
+import { CrossbarClient } from "@switchboard-xyz/common";
 
-const provider = new ethers.JsonRpcProvider('https://testnet-rpc.monad.xyz');
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz");
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
-// Switchboard contract on Monad Testnet
-const switchboardAddress = '0x6724818814927e057a693f4e3A172b6cC1eA690C';
-const switchboard = new ethers.Contract(switchboardAddress, SWITCHBOARD_ABI, signer);
+const switchboard = new ethers.Contract(
+  "0x6724818814927e057a693f4e3A172b6cC1eA690C",
+  ["function getFee(bytes[] calldata updates) external view returns (uint256)"],
+  signer
+);
 
-// Fetch and update prices
-const crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
-const feedHash = '0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea'; // ETH/USD
+const priceConsumer = new ethers.Contract(
+  process.env.CONTRACT_ADDRESS!,
+  ["function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable"],
+  signer
+);
 
-const response = await crossbar.fetchOracleQuote([feedHash], 'mainnet');
-const fee = await switchboard.getFee([response.encoded]);
+const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+const feedHash = "0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea";
 
-const tx = await priceConsumer.updatePrices([response.encoded], { value: fee });
-const receipt = await tx.wait();
+const response = await crossbar.fetchOracleQuote([feedHash], "mainnet");
+const updates = [response.encoded];
+const fee = await switchboard.getFee(updates);
 
-console.log(`Price updated on Monad! Block: ${receipt.blockNumber}`);
+await priceConsumer.updatePrices(updates, [feedHash], { value: fee });
 ```
 
-## Monad-Specific Considerations
+## Monad Notes
 
-- **Native Token**: MON (for gas fees)
-- **High Performance**: Monad's optimized execution enables faster oracle updates
-- **Low Fees**: Efficient gas usage for frequent price updates
-- **EVM Compatibility**: All existing Ethereum tooling works seamlessly
-
-## Getting MON Tokens
-
-**Testnet:**
-- Use the [Monad Testnet Faucet](https://faucet.monad.xyz) to get testnet MON
-
-**Mainnet:**
-- Acquire MON tokens through supported exchanges
-- Bridge from other networks using official Monad bridges
+- `MON` is the native gas token on Monad.
+- The current examples repo is organized as standalone subprojects under `evm/price-feeds`, `evm/randomness`, `evm/randomness/coin-flip`, and `evm/randomness/pancake-stacker`.
+- Testnet MON is available from the [Monad faucet](https://faucet.monad.xyz).

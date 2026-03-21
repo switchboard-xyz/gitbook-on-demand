@@ -336,10 +336,10 @@ bun install
 
 ```bash
 # With sample data
-bun examples/surgeToEvmConversion.ts
+bun run surge-convert
 
 # With custom surge data file
-SURGE_DATA_FILE=path/to/surge-data.json bun examples/surgeToEvmConversion.ts
+SURGE_DATA_FILE=path/to/surge-data.json bun run surge-convert
 ```
 
 ### Expected Output

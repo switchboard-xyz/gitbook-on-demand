@@ -293,17 +293,27 @@ Here's a complete client that fetches oracle data and submits it to your contrac
 
 ```typescript
 import * as ethers from "ethers";
-import { CrossbarClient, SWITCHBOARD_ABI } from "@switchboard-xyz/common";
+import { CrossbarClient } from "@switchboard-xyz/common";
 
 async function main() {
   // Setup
   const privateKey = process.env.PRIVATE_KEY!;
   const contractAddress = process.env.CONTRACT_ADDRESS!;
+  const switchboardAddress = process.env.SWITCHBOARD_ADDRESS!;
 
   const provider = new ethers.JsonRpcProvider("https://rpc.hyperliquid.xyz/evm");
   const signer = new ethers.Wallet(privateKey, provider);
 
-  const contract = new ethers.Contract(contractAddress, SWITCHBOARD_ABI, signer);
+  const consumerAbi = [
+    "function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable",
+    "event PriceUpdated(bytes32 indexed feedId, int128 oldPrice, int128 newPrice, uint256 timestamp, uint64 slotNumber)"
+  ];
+  const switchboardAbi = [
+    "function getFee(bytes[] calldata updates) external view returns (uint256)"
+  ];
+
+  const contract = new ethers.Contract(contractAddress, consumerAbi, signer);
+  const switchboard = new ethers.Contract(switchboardAddress, switchboardAbi, signer);
   const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
 
   // The feed ID you want to update (e.g., BTC/USD)
@@ -318,7 +328,8 @@ async function main() {
   console.log("Fetched", encoded.length, "encoded updates");
 
   // Step 2: Submit to your contract
-  const tx = await contract.updatePrices(encoded, [feedId]);
+  const fee = await switchboard.getFee(encoded);
+  const tx = await contract.updatePrices(encoded, [feedId], { value: fee });
   console.log("Transaction hash:", tx.hash);
 
   // Step 3: Wait for confirmation
@@ -326,7 +337,7 @@ async function main() {
   console.log("Confirmed in block:", receipt.blockNumber);
 
   // Step 4: Parse events
-  const iface = new ethers.Interface(SWITCHBOARD_ABI);
+  const iface = new ethers.Interface(consumerAbi);
   for (const log of receipt.logs) {
     try {
       const parsed = iface.parseLog({ topics: log.topics, data: log.data });
@@ -386,51 +397,30 @@ After confirmation, you can:
 
 ### Using Foundry
 
-Create a deploy script `script/Deploy.s.sol`:
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
-
-import "forge-std/Script.sol";
-import "../src/SwitchboardPriceConsumer.sol";
-
-contract Deploy is Script {
-    // Switchboard addresses by network
-    address constant MONAD_TESTNET = 0x6724818814927e057a693f4e3A172b6cC1eA690C;
-    address constant MONAD_MAINNET = 0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67;
-    address constant HYPERLIQUID_MAINNET = 0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347;
-
-    function run() external {
-        address switchboardAddress = MONAD_TESTNET; // Change as needed
-
-        vm.startBroadcast();
-        SwitchboardPriceConsumer consumer = new SwitchboardPriceConsumer(switchboardAddress);
-        vm.stopBroadcast();
-
-        console.log("Deployed at:", address(consumer));
-    }
-}
-```
+The examples repo already includes a deploy script at `deploy/DeploySwitchboardPriceConsumer.s.sol`.
 
 ### Deploy Commands
 
 ```bash
 # Monad Testnet
-forge script script/Deploy.s.sol:Deploy \
+forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://testnet-rpc.monad.xyz \
+  --private-key $PRIVATE_KEY \
   --broadcast \
   -vvvv
 
 # Monad Mainnet
-forge script script/Deploy.s.sol:Deploy \
+forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_KEY \
+  --private-key $PRIVATE_KEY \
   --broadcast \
   -vvvv
 
 # HyperEVM Mainnet
-forge script script/Deploy.s.sol:Deploy \
+SWITCHBOARD_ADDRESS=0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347 \
+forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://rpc.hyperliquid.xyz/evm \
+  --private-key $PRIVATE_KEY \
   --broadcast \
   -vvvv
 ```
@@ -441,14 +431,14 @@ forge script script/Deploy.s.sol:Deploy \
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/evm
+cd sb-on-demand-examples/evm/price-feeds
 ```
 
 ### 2. Install Dependencies
 
 ```bash
 bun install
-forge install
+forge build
 ```
 
 ### 3. Configure Environment
@@ -459,13 +449,16 @@ Create a `.env` file (add to `.gitignore`):
 
 ```bash
 PRIVATE_KEY=0x...
-EXAMPLE_ADDRESS=0x...  # Your deployed contract
+RPC_URL=https://testnet-rpc.monad.xyz
+NETWORK=monad-testnet
+# Optional: if omitted, the script deploys a new consumer contract for you
+CONTRACT_ADDRESS=0x...
 ```
 
 ### 4. Run the Example
 
 ```bash
-bun run examples/updateFeed.ts
+bun run example
 ```
 
 ### Expected Output
@@ -493,7 +486,7 @@ Timestamp: 2024-12-18T10:30:00.000Z
 Copy the interface files from the examples repo:
 
 ```bash
-cp -r sb-on-demand-examples/evm/src/switchboard your-project/src/
+cp -r sb-on-demand-examples/evm/price-feeds/src/switchboard your-project/src/
 ```
 
 Or install via npm:
