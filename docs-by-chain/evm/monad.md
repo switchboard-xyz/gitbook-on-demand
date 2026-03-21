@@ -7,7 +7,7 @@ Monad is a high-performance EVM-compatible blockchain optimized for speed and ef
 | Network | Chain ID | RPC URL | Switchboard Contract |
 |---------|----------|---------|---------------------|
 | **Mainnet** | 143 | `https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY` | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
-| **Testnet** | 10143 | `https://testnet-rpc.monad.xyz` | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| **Testnet** | 10143 | `https://testnet-rpc.monad.xyz` | `0x6724818814927e057a693f4e3A172b6cC1eA690C` |
 
 ## Quick Start
 
@@ -76,7 +76,7 @@ const provider = new ethers.JsonRpcProvider('https://testnet-rpc.monad.xyz');
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
 // Switchboard contract on Monad Testnet
-const switchboardAddress = '0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33';
+const switchboardAddress = '0x6724818814927e057a693f4e3A172b6cC1eA690C';
 const switchboard = new ethers.Contract(switchboardAddress, SWITCHBOARD_ABI, signer);
 
 // Fetch and update prices
