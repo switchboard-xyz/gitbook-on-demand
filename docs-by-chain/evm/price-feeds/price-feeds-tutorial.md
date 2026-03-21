@@ -293,17 +293,27 @@ Here's a complete client that fetches oracle data and submits it to your contrac
 
 ```typescript
 import * as ethers from "ethers";
-import { CrossbarClient, SWITCHBOARD_ABI } from "@switchboard-xyz/common";
+import { CrossbarClient } from "@switchboard-xyz/common";
 
 async function main() {
   // Setup
   const privateKey = process.env.PRIVATE_KEY!;
   const contractAddress = process.env.CONTRACT_ADDRESS!;
+  const switchboardAddress = process.env.SWITCHBOARD_ADDRESS!;
 
   const provider = new ethers.JsonRpcProvider("https://rpc.hyperliquid.xyz/evm");
   const signer = new ethers.Wallet(privateKey, provider);
 
-  const contract = new ethers.Contract(contractAddress, SWITCHBOARD_ABI, signer);
+  const consumerAbi = [
+    "function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable",
+    "event PriceUpdated(bytes32 indexed feedId, int128 oldPrice, int128 newPrice, uint256 timestamp, uint64 slotNumber)"
+  ];
+  const switchboardAbi = [
+    "function getFee(bytes[] calldata updates) external view returns (uint256)"
+  ];
+
+  const contract = new ethers.Contract(contractAddress, consumerAbi, signer);
+  const switchboard = new ethers.Contract(switchboardAddress, switchboardAbi, signer);
   const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
 
   // The feed ID you want to update (e.g., BTC/USD)
@@ -318,7 +328,8 @@ async function main() {
   console.log("Fetched", encoded.length, "encoded updates");
 
   // Step 2: Submit to your contract
-  const tx = await contract.updatePrices(encoded, [feedId]);
+  const fee = await switchboard.getFee(encoded);
+  const tx = await contract.updatePrices(encoded, [feedId], { value: fee });
   console.log("Transaction hash:", tx.hash);
 
   // Step 3: Wait for confirmation
@@ -326,7 +337,7 @@ async function main() {
   console.log("Confirmed in block:", receipt.blockNumber);
 
   // Step 4: Parse events
-  const iface = new ethers.Interface(SWITCHBOARD_ABI);
+  const iface = new ethers.Interface(consumerAbi);
   for (const log of receipt.logs) {
     try {
       const parsed = iface.parseLog({ topics: log.topics, data: log.data });
