@@ -397,7 +397,7 @@ import "../src/SwitchboardPriceConsumer.sol";
 
 contract Deploy is Script {
     // Switchboard addresses by network
-    address constant MONAD_TESTNET = 0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33;
+    address constant MONAD_TESTNET = 0x6724818814927e057a693f4e3A172b6cC1eA690C;
     address constant MONAD_MAINNET = 0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67;
     address constant HYPERLIQUID_MAINNET = 0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347;
 
@@ -577,7 +577,7 @@ function shouldLiquidate(
 
 | Network | Chain ID | Switchboard Contract |
 |---------|----------|---------------------|
-| Monad Testnet | 10143 | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| Monad Testnet | 10143 | `0x6724818814927e057a693f4e3A172b6cC1eA690C` |
 | Monad Mainnet | 143 | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
 | HyperEVM Mainnet | 999 | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
 | Arbitrum One | 42161 | `0xAd9b8604b6B97187CDe9E826cDeB7033C8C37198` |
