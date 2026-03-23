@@ -52,13 +52,13 @@ The two-stage flow maps directly to our two main functions:
 1. **Solidity SDK:**
 
 ```bash
-npm install @switchboard-xyz/on-demand-solidity@1.1.0
+npm install @switchboard-xyz/on-demand-solidity
 ```
 
 2. **TypeScript SDK** (for off-chain randomness resolution):
 
 ```bash
-npm install @switchboard-xyz/common@5.7.0 ethers@6.16.0
+npm install @switchboard-xyz/common ethers
 ```
 
 3. **Forge remappings** - Add to `remappings.txt`:
@@ -232,8 +232,14 @@ const PANCAKE_STACKER_ABI = [
 ];
 
 async function main() {
-    // Initialize providers
-    const rpcUrl = process.env.RPC_URL || "https://rpc.monad.xyz";
+    // Resolve the target network. The packaged example defaults to Monad testnet
+    // and lets you flip to mainnet by setting NETWORK=monad-mainnet.
+    const networkName = process.env.NETWORK || "monad-testnet";
+    const rpcUrl =
+        process.env.RPC_URL ||
+        (networkName === "monad-mainnet"
+            ? "https://rpc.monad.xyz"
+            : "https://testnet-rpc.monad.xyz");
     const provider = new ethers.JsonRpcProvider(rpcUrl);
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
     const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
@@ -423,36 +429,42 @@ The contract gracefully handles settlement failures by catching exceptions and r
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
 cd sb-on-demand-examples/evm/randomness/pancake-stacker
 bun install  # or npm install
+forge build
 ```
 
-### 2. Configure Your Wallet
+### 2. Configure Environment
 
-> **Security:** Never use `export PRIVATE_KEY=...`—it appears in shell history. Use Foundry's encrypted keystore instead.
+> **Security:** Never use `export PRIVATE_KEY=...` in shell history. Put secrets in a local `.env` file instead.
+
+Copy the example file and fill in your values:
 
 ```bash
-cast wallet import mykey --interactive
-# Enter your private key when prompted (hidden from terminal)
+cp .env.example .env
 ```
 
 ### 3. Deploy the Contract
 
 ```bash
-# Deploy (adjust for your target chain)
-forge script script/PancakeStacker.s.sol --rpc-url https://rpc.monad.xyz --account mykey --broadcast
+# Default: Monad testnet
+bun run deploy
+
+# Monad mainnet with the same deploy flow
+NETWORK=monad-mainnet bun run deploy
 ```
 
 ### 4. Run the Script
 
-Create a `.env` file (add to `.gitignore`):
+Update `.env` with your deployed contract address:
 
 ```bash
 PRIVATE_KEY=0x...
+NETWORK=monad-testnet
 PANCAKE_STACKER_CONTRACT_ADDRESS=0x_your_deployed_address
-RPC_URL=https://rpc.monad.xyz
+RPC_URL=
 ```
 
 ```bash
-bun scripts/stack-pancake.ts
+bun run flip
 ```
 
 ### Expected Output

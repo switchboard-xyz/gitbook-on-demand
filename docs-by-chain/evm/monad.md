@@ -1,109 +1,141 @@
 # Monad Integration
 
-Monad is a high-performance EVM-compatible blockchain optimized for speed and efficiency. Switchboard On-Demand provides native oracle support for Monad with the same security guarantees and ease of use as other EVM chains.
+Monad is the primary EVM network exercised by the current `sb-on-demand-examples` repo. The packaged EVM examples now share a single network switch:
+
+- `NETWORK=monad-testnet`
+- `NETWORK=monad-mainnet`
+
+If `NETWORK` is unset, the examples default to `monad-testnet`.
 
 ## Network Information
 
-| Network | Chain ID | RPC URL | Switchboard Contract |
-|---------|----------|---------|---------------------|
-| **Mainnet** | 143 | `https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY` | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
-| **Testnet** | 10143 | `https://testnet-rpc.monad.xyz` | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| Network | Chain ID | Default RPC | Switchboard Contract |
+| --- | --- | --- | --- |
+| Monad Testnet | `10143` | `https://testnet-rpc.monad.xyz` | `0x6724818814927e057a693f4e3A172b6cC1eA690C` |
+| Monad Mainnet | `143` | `https://rpc.monad.xyz` | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
 
-## Quick Start
+`RPC_URL` remains available as an override, but it must still resolve to the chain implied by `NETWORK`.
 
-### 1. Clone the Examples Repository
+## Shared Env Contract
 
-```bash
-git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
-cd sb-on-demand-examples/evm
-bun install
-```
-
-### 2. Configure Your Wallet
-
-> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
-
-Import your private key into Foundry's encrypted keystore:
-
-```bash
-cast wallet import mykey --interactive
-# Enter your private key when prompted (hidden from terminal)
-# Set a password to encrypt the keystore
-```
-
-Create a `.env` file for scripts (add to `.gitignore`):
+The runnable EVM examples use the same env model:
 
 ```bash
 PRIVATE_KEY=0xyour_private_key_here
-RPC_URL=https://testnet-rpc.monad.xyz
 NETWORK=monad-testnet
-CONTRACT_ADDRESS=0xyour_contract_address
+RPC_URL=
+SWITCHBOARD_ADDRESS=
 ```
 
-### 3. Deploy Contract
+Per-example contract addresses stay separate:
+
+- `CONTRACT_ADDRESS` for `evm/price-feeds`
+- `COIN_FLIP_CONTRACT_ADDRESS` for `evm/randomness/coin-flip`
+- `PANCAKE_STACKER_CONTRACT_ADDRESS` for `evm/randomness/pancake-stacker`
+
+## Guardrails
+
+Before broadcasting transactions, the packaged scripts verify:
+
+- `NETWORK` is supported
+- the RPC chain ID matches `NETWORK`
+- the resolved Switchboard contract has bytecode
+- Monad `SWITCHBOARD_ADDRESS` overrides match the canonical address for the selected network
+- any reused contract address already has deployed bytecode
+
+## Quick Start: Price Feeds
 
 ```bash
-# Testnet
-forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
-  --rpc-url https://testnet-rpc.monad.xyz \
-  --account mykey \
-  --broadcast -vvvv
-
-# Mainnet
-forge script script/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
-  --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_API_KEY \
-  --account mykey \
-  --broadcast -vvvv
+git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
+cd sb-on-demand-examples/evm/price-feeds
+bun install
+forge build
+cp .env.example .env
 ```
 
-### 4. Run Examples
+Run on testnet:
 
 ```bash
-# Price Feeds (reads from .env)
-bun scripts/run.ts
+bun run deploy
+bun run example
+```
 
-# Randomness (reads from .env)
-bun run randomness
+Flip to mainnet with one env var:
+
+```bash
+NETWORK=monad-mainnet bun run deploy
+NETWORK=monad-mainnet bun run example
+```
+
+## Quick Start: Randomness
+
+```bash
+cd ../randomness/coin-flip
+bun install
+forge build
+cp .env.example .env
+```
+
+Run on testnet:
+
+```bash
+bun run deploy
+bun run flip
+```
+
+Run on mainnet:
+
+```bash
+NETWORK=monad-mainnet bun run deploy
+NETWORK=monad-mainnet bun run flip
 ```
 
 ## Integration Example
 
 ```typescript
-import { ethers } from 'ethers';
-import { CrossbarClient, SWITCHBOARD_ABI } from '@switchboard-xyz/common';
+import { ethers } from "ethers";
+import { CrossbarClient } from "@switchboard-xyz/common";
 
-const provider = new ethers.JsonRpcProvider('https://testnet-rpc.monad.xyz');
+const networkName = process.env.NETWORK || "monad-testnet";
+const chainId = networkName === "monad-mainnet" ? 143 : 10143;
+const rpcUrl =
+  process.env.RPC_URL ||
+  (networkName === "monad-mainnet"
+    ? "https://rpc.monad.xyz"
+    : "https://testnet-rpc.monad.xyz");
+const switchboardAddress =
+  networkName === "monad-mainnet"
+    ? "0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67"
+    : "0x6724818814927e057a693f4e3A172b6cC1eA690C";
+
+const provider = new ethers.JsonRpcProvider(rpcUrl);
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
-// Switchboard contract on Monad Testnet
-const switchboardAddress = '0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33';
-const switchboard = new ethers.Contract(switchboardAddress, SWITCHBOARD_ABI, signer);
+const switchboard = new ethers.Contract(
+  switchboardAddress,
+  ["function getFee(bytes[] calldata updates) external view returns (uint256)"],
+  signer
+);
 
-// Fetch and update prices
-const crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
-const feedHash = '0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea'; // ETH/USD
+const priceConsumer = new ethers.Contract(
+  process.env.CONTRACT_ADDRESS!,
+  ["function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable"],
+  signer
+);
 
-const response = await crossbar.fetchOracleQuote([feedHash], 'mainnet');
-const fee = await switchboard.getFee([response.encoded]);
+const feedHash = "0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea";
+const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+const { encoded } = await crossbar.fetchEVMResults({
+  chainId,
+  aggregatorIds: [feedHash],
+});
 
-const tx = await priceConsumer.updatePrices([response.encoded], { value: fee });
-const receipt = await tx.wait();
-
-console.log(`Price updated on Monad! Block: ${receipt.blockNumber}`);
+const fee = await switchboard.getFee(encoded);
+const tx = await priceConsumer.updatePrices(encoded, [feedHash], { value: fee });
+await tx.wait();
 ```
 
-## Monad-Specific Considerations
+## Notes
 
-- **Native Token**: MON (for gas fees)
-- **High Performance**: Monad's optimized execution enables faster oracle updates
-- **Low Fees**: Efficient gas usage for frequent price updates
-- **EVM Compatibility**: All existing Ethereum tooling works seamlessly
-
-## Getting MON Tokens
-
-**Testnet:**
-- Use the [Monad Testnet Faucet](https://faucet.monad.xyz) to get testnet MON
-
-**Mainnet:**
-- Acquire MON tokens through supported exchanges
-- Bridge from other networks using official Monad bridges
+- Testnet MON is available from the [Monad faucet](https://faucet.monad.xyz).
+- The generic randomness helper at `evm/randomness/randomness.ts` still supports `hyperliquid-mainnet` in addition to Monad. Run it from `evm/randomness` after `bun install`.

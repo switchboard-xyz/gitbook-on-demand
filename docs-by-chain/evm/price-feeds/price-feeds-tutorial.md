@@ -371,7 +371,8 @@ The `fetchEVMResults` call returns encoded oracle data signed by Switchboard ora
 #### Step 2: Submit to Contract
 
 ```typescript
-const tx = await contract.updatePrices(encoded, [feedId]);
+const fee = await switchboard.getFee(encoded);
+const tx = await contract.updatePrices(encoded, [feedId], { value: fee });
 ```
 
 Your contract receives the encoded data, submits it to Switchboard for verification, then stores the result.
@@ -384,53 +385,46 @@ After confirmation, you can:
 
 ## Deployment
 
-### Using Foundry
+The packaged example now uses one network switch for both deploys and runtime:
 
-Create a deploy script `script/Deploy.s.sol`:
+- `NETWORK=monad-testnet` or `NETWORK=monad-mainnet`
+- `RPC_URL` is optional and overrides the default RPC for the selected network
+- `PRIVATE_KEY` is required
+- `SWITCHBOARD_ADDRESS` is an advanced override only
 
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
+Defaults:
 
-import "forge-std/Script.sol";
-import "../src/SwitchboardPriceConsumer.sol";
+- `NETWORK=monad-testnet`
+- Testnet RPC: `https://testnet-rpc.monad.xyz`
+- Mainnet RPC: `https://rpc.monad.xyz`
 
-contract Deploy is Script {
-    // Switchboard addresses by network
-    address constant MONAD_TESTNET = 0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33;
-    address constant MONAD_MAINNET = 0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67;
-    address constant HYPERLIQUID_MAINNET = 0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347;
+The packaged deploy flow validates the selected network before broadcast:
 
-    function run() external {
-        address switchboardAddress = MONAD_TESTNET; // Change as needed
+- the RPC chain ID must match `NETWORK`
+- the resolved Switchboard address must have deployed bytecode
+- Monad `SWITCHBOARD_ADDRESS` overrides must match the canonical address for the selected network
 
-        vm.startBroadcast();
-        SwitchboardPriceConsumer consumer = new SwitchboardPriceConsumer(switchboardAddress);
-        vm.stopBroadcast();
-
-        console.log("Deployed at:", address(consumer));
-    }
-}
-```
-
-### Deploy Commands
+Use the packaged wrapper from the example repo:
 
 ```bash
-# Monad Testnet
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url https://testnet-rpc.monad.xyz \
-  --broadcast \
-  -vvvv
+# Default: Monad testnet
+bun run deploy
 
-# Monad Mainnet
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_KEY \
-  --broadcast \
-  -vvvv
+# Explicit aliases
+bun run deploy:monad-testnet
+bun run deploy:monad-mainnet
 
-# HyperEVM Mainnet
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url https://rpc.hyperliquid.xyz/evm \
+# Flip to mainnet with one env var
+NETWORK=monad-mainnet bun run deploy
+```
+
+If you want raw Foundry instead of the wrapper, keep the same env contract:
+
+```bash
+NETWORK=monad-testnet \
+RPC_URL=https://testnet-rpc.monad.xyz \
+forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
+  --rpc-url $RPC_URL \
   --broadcast \
   -vvvv
 ```
@@ -441,31 +435,41 @@ forge script script/Deploy.s.sol:Deploy \
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/evm
+cd sb-on-demand-examples/evm/price-feeds
 ```
 
 ### 2. Install Dependencies
 
 ```bash
 bun install
-forge install
+forge build
 ```
 
 ### 3. Configure Environment
 
 > **Security:** Never use `export PRIVATE_KEY=...`—it appears in shell history. Use a `.env` file instead.
 
-Create a `.env` file (add to `.gitignore`):
+Create a `.env` file (add it to `.gitignore`):
 
 ```bash
 PRIVATE_KEY=0x...
-EXAMPLE_ADDRESS=0x...  # Your deployed contract
+NETWORK=monad-testnet
+RPC_URL=
+SWITCHBOARD_ADDRESS=
+# Optional: if omitted, the script deploys a new consumer contract
+CONTRACT_ADDRESS=0x...
 ```
 
 ### 4. Run the Example
 
 ```bash
-bun run examples/updateFeed.ts
+bun run example
+```
+
+Switch to Monad mainnet without changing the script:
+
+```bash
+NETWORK=monad-mainnet bun run example
 ```
 
 ### Expected Output
@@ -493,13 +497,13 @@ Timestamp: 2024-12-18T10:30:00.000Z
 Copy the interface files from the examples repo:
 
 ```bash
-cp -r sb-on-demand-examples/evm/src/switchboard your-project/src/
+cp -r sb-on-demand-examples/evm/price-feeds/src/switchboard your-project/src/
 ```
 
 Or install via npm:
 
 ```bash
-npm install @switchboard-xyz/on-demand-solidity@1.1.0
+npm install @switchboard-xyz/on-demand-solidity
 ```
 
 ### 2. Import and Use
@@ -577,7 +581,7 @@ function shouldLiquidate(
 
 | Network | Chain ID | Switchboard Contract |
 |---------|----------|---------------------|
-| Monad Testnet | 10143 | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| Monad Testnet | 10143 | `0x6724818814927e057a693f4e3A172b6cC1eA690C` |
 | Monad Mainnet | 143 | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
 | HyperEVM Mainnet | 999 | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
 | Arbitrum One | 42161 | `0xAd9b8604b6B97187CDe9E826cDeB7033C8C37198` |

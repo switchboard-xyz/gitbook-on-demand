@@ -4,6 +4,14 @@ Learn how to build and use programs that call Switchboard data feeds on EVM chai
 
 If you need to create a custom data feed, check out the [custom feeds section](../../custom-feeds/build-and-deploy-feed/README.md).
 
+## Monad Example Network Switch
+
+The packaged Monad examples in `sb-on-demand-examples/evm` now share one network selector:
+
+- `NETWORK=monad-testnet`
+- `NETWORK=monad-mainnet`
+
+`RPC_URL` remains optional as an override, but the example scripts now verify that it matches the selected network before they broadcast transactions. The Monad guides under this section use that shared env contract.
 
 ## Deployments
 
@@ -17,6 +25,6 @@ The Switchboard contract has been deployed to the following EVM networks:
 | Core | Testnet | 1114 | `0x2f833D73bA1086F3E5CDE9e9a695783984636A76` |
 | HyperEVM | Mainnet | 999 | `0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347` |
 | Monad | Mainnet | 143 | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
-| Monad | Testnet | 10143 | `0xD3860E2C66cBd5c969Fa7343e6912Eff0416bA33` |
+| Monad | Testnet | 10143 | `0x6724818814927e057a693f4e3A172b6cC1eA690C` |
 | Morph | Mainnet | - | `0x33A5066f65f66161bEb3f827A3e40fce7d7A2e6C` |
 | Morph | Holesky | - | `0x3c1604DF82FDc873D289a47c6bb07AFA21f299e5` |
