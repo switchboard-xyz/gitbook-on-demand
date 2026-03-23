@@ -285,13 +285,13 @@ All three must be in the same transaction for the verification to work.
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/solana
+cd sb-on-demand-examples/solana/feeds/basic
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-pnpm install
+npm install
 ```
 
 ### 3. Configure Your Environment
@@ -308,9 +308,13 @@ Ensure your keypair has SOL:
 solana airdrop 2
 ```
 
-### 4. Build and Deploy the Program (Optional)
+### 4. Build and Deploy the Program
 
-If you want to deploy your own instance:
+This step is optional only if you want to smoke-test the managed update flow by
+itself.
+
+If you want the example to invoke `read_oracle_data` after the quote update, you
+must deploy the sample Anchor program first:
 
 ```bash
 anchor build
@@ -321,13 +325,31 @@ anchor deploy
 
 ```bash
 # Using default BTC/USD feed
-npm run feeds:managed
+npm run update
 
 # Using a custom feed ID
-npm run feeds:managed -- --feedId=YOUR_FEED_ID_HERE
+npm run update -- --feedId YOUR_FEED_ID_HERE
 ```
 
+`npm run update` always fetches a fresh managed update and submits the
+Switchboard transaction.
+
+If the example program is not deployed, the script logs that it skipped the
+consumer-program step and only updates the quote account. If the program is
+deployed, the same command also appends the `read_oracle_data` instruction.
+
 ### Expected Output
+
+If the example program is not deployed yet, you should see output like:
+
+```text
+ℹ️  Skipping crank: basic_oracle_example program not deployed
+✅ Transaction sent: 5c...
+✅ Managed update confirmed
+ℹ️  The quote account was updated without the example consumer instruction
+```
+
+With the example program deployed, you should also see logs like:
 
 ```
 Queue: FdRnYujMnYbAJp5P2rkEYZCbF2TKs2D2yXZ7MYq89Hms
@@ -352,8 +374,10 @@ In your `Cargo.toml`:
 
 ```toml
 [dependencies]
-switchboard-on-demand = "0.11.3"
+switchboard-on-demand = { version = "=0.10.3", features = ["anchor", "devnet"] }
 ```
+
+The example program pins `=0.10.3` on devnet. If you are targeting a different Solana cluster, swap the cluster feature to match your deployment.
 
 ### 2. Add the Account Struct
 

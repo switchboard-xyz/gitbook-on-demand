@@ -68,7 +68,8 @@ entries:
     success_checks:
       - Example package exposes the documented `update` flow.
       - Build succeeds.
-      - Runtime update reaches the preconfigured devnet program path when a funded wallet is available.
+      - Runtime update submits the managed update transaction when a funded wallet is available.
+      - If the local Anchor program is deployed, the same command should also include the example consumer instruction.
     skip_conditions:
       - Mark blocked_external_prereq if Solana, Anchor, or a funded keypair is unavailable.
       - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
@@ -153,20 +154,26 @@ entries:
       - Solana CLI
       - Anchor CLI
       - Funded Solana keypair
-    required_env_vars: []
+      - Kalshi API credentials
+      - Kalshi order id
+      - Deployed prediction-market program
+    required_env_vars:
+      - KALSHI_API_KEY_ID
+      - KALSHI_PRIVATE_KEY_PATH
+      - KALSHI_ORDER_ID
     commands:
       - 'test -d ../sb-on-demand-examples/solana/prediction-market'
-      - "jq -r '.scripts.test' ../sb-on-demand-examples/solana/prediction-market/package.json"
+      - "jq -r '.scripts.start' ../sb-on-demand-examples/solana/prediction-market/package.json"
       - '(cd ../sb-on-demand-examples/solana/prediction-market && npm install && npm run build)'
-      - '(cd ../sb-on-demand-examples/solana/prediction-market && npm run test)'
+      - '(cd ../sb-on-demand-examples/solana/prediction-market && npm run start -- --api-key-id "$KALSHI_API_KEY_ID" --private-key-path "$KALSHI_PRIVATE_KEY_PATH" --order-id "$KALSHI_ORDER_ID")'
     success_checks:
       - Build succeeds.
-      - The verification script exists and runs through the documented standalone example flow.
+      - The verification script exists and runs through the documented standalone example flow when Kalshi credentials and a deployed program are available.
     skip_conditions:
-      - Mark blocked_external_prereq if Solana, Anchor, or a funded keypair is unavailable.
+      - Mark blocked_external_prereq if Solana, Anchor, a funded keypair, Kalshi credentials, the order id, or a deployed prediction-market program is unavailable.
       - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
     notes:
-      - This page validates a security pattern and should be checked against the packaged example, not an old workspace flow.
+      - `npm test` is only a CLI help smoke test; use `npm run start -- ...` for the credentialed validation flow.
 
   - id: solana-surge
     title: Solana Surge Tutorial
@@ -396,11 +403,11 @@ entries:
     commands:
       - 'test -d ../sb-on-demand-examples/sui/feeds/basic'
       - 'tmpdir="$(mktemp -d)" && rsync -a --exclude ".git" ../sb-on-demand-examples/sui/feeds/basic/ "$tmpdir/" && (cd "$tmpdir" && npm install && npm run build:testnet) && rm -rf "$tmpdir"'
-      - '(cd ../sb-on-demand-examples/sui/feeds/basic && npm install && npm run quotes -- --network testnet)'
+      - '(cd ../sb-on-demand-examples/sui/feeds/basic && npm install && npm run quotes)'
     success_checks:
       - The standalone example directory exists at `sui/feeds/basic`.
       - The documented `build:testnet` flow succeeds when run from a disposable copy.
-      - The quote-fetching example connects and dry-runs successfully without requiring a private key.
+      - The quote-fetching example connects and dry-runs successfully on the default mainnet flow without requiring a private key.
     skip_conditions:
       - Mark blocked_external_prereq if the Sui CLI or `../sb-on-demand-examples` is unavailable.
     notes:
