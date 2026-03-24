@@ -70,7 +70,7 @@ Clone the examples repository and install dependencies:
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
 cd sb-on-demand-examples/solana/x402
-npm install
+pnpm install
 ```
 
 ### Dependencies
@@ -345,7 +345,7 @@ Standard Switchboard feeds are stored on IPFS and referenced by hash. X402 feeds
 ## Running the Example
 
 ```bash
-npm run start
+pnpm start
 ```
 
 Expected output:

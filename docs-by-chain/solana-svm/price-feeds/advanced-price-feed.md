@@ -382,13 +382,13 @@ async function main() {
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/solana
+cd sb-on-demand-examples/solana/feeds/advanced
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-pnpm install
+npm install
 ```
 
 ### 3. Build and Deploy the Program
@@ -407,10 +407,10 @@ solana program deploy target/deploy/advanced_oracle_example.so
 
 ```bash
 # Using default BTC/USD feed
-npm run feeds:advanced
+npm run update
 
 # Using a custom feed ID
-npm run feeds:advanced -- --feedId=YOUR_FEED_ID
+npm run update -- --feedId YOUR_FEED_ID
 ```
 
 ### Expected Output

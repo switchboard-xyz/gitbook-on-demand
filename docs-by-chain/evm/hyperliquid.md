@@ -1,6 +1,6 @@
 # Hyperliquid Integration
 
-Hyperliquid is a high-performance Layer 1 blockchain with native perpetual futures and spot trading. Switchboard On-Demand provides native oracle support for HyperEVM with the same security guarantees and ease of use as other EVM chains.
+Switchboard supports HyperEVM with the same encoded-update flow used on other EVM chains. The current examples repo does not ship a dedicated Hyperliquid runner script, but you should reuse the `evm/price-feeds` contract and deployment flow with Hyperliquid-specific chain settings.
 
 ## Network Information
 
@@ -11,7 +11,7 @@ Hyperliquid is a high-performance Layer 1 blockchain with native perpetual futur
 
 ## Quick Start
 
-### 1. Clone the Examples Repository
+Clone the examples repo and build the shared price-consumer project:
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
@@ -20,110 +20,53 @@ bun install
 forge build
 ```
 
-### 2. Configure Your Wallet
-
-> **Security:** Never use `export PRIVATE_KEY=...` or pass private keys as command-line arguments—they appear in shell history and process listings.
-
-Import your private key into Foundry's encrypted keystore:
+Deploy the consumer contract to HyperEVM with the packaged Foundry script:
 
 ```bash
-cast wallet import mykey --interactive
-# Enter your private key when prompted (hidden from terminal)
-# Set a password to encrypt the keystore
-```
-
-Create a `.env` file for scripts (add to `.gitignore`):
-
-```bash
-PRIVATE_KEY=0xyour_private_key_here
-RPC_URL=https://rpc.hyperliquid.xyz/evm
-NETWORK=hyperliquid-mainnet
-# Optional: if omitted, the example deploys a new consumer contract for you
-CONTRACT_ADDRESS=0xyour_contract_address
-```
-
-### 3. Deploy Contract
-
-```bash
-# Mainnet
 SWITCHBOARD_ADDRESS=0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347 \
 forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
   --rpc-url https://rpc.hyperliquid.xyz/evm \
   --private-key $PRIVATE_KEY \
-  --broadcast -vvvv
-
-```
-
-Hyperliquid testnet remains `TBD` in the deployment table above, so the packaged examples currently only have a documented Hyperliquid mainnet path.
-
-### 4. Run Examples
-
-```bash
-# Price Feeds (reads from .env)
-bun run example
-
-# Direct randomness example
-cd ../randomness
-bun install
-PRIVATE_KEY=0x... NETWORK=hyperliquid-mainnet bun run example
+  --broadcast \
+  -vvvv
 ```
 
 ## Integration Example
 
 ```typescript
-import { ethers } from 'ethers';
-import { CrossbarClient } from '@switchboard-xyz/common';
+import { ethers } from "ethers";
+import { CrossbarClient } from "@switchboard-xyz/common";
 
-const provider = new ethers.JsonRpcProvider('https://rpc.hyperliquid.xyz/evm');
+const provider = new ethers.JsonRpcProvider("https://rpc.hyperliquid.xyz/evm");
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 
-// Switchboard contract on Hyperliquid Mainnet
-const switchboardAddress = '0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347';
 const switchboard = new ethers.Contract(
-  switchboardAddress,
-  ['function getFee(bytes[] calldata updates) external view returns (uint256)'],
+  "0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347",
+  ["function getFee(bytes[] calldata updates) external view returns (uint256)"],
   signer
 );
+
 const priceConsumer = new ethers.Contract(
   process.env.CONTRACT_ADDRESS!,
-  [
-    'function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable',
-    'function getPrice(bytes32 feedId) external view returns (int128 value, uint256 timestamp, uint64 slotNumber)'
-  ],
+  ["function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable"],
   signer
 );
 
-// Fetch and update prices for perpetual futures
-const crossbar = new CrossbarClient('https://crossbar.switchboard.xyz');
-const btcFeedHash = '0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812'; // BTC/USD
+const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
+const btcFeedHash = "0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
 
-const response = await crossbar.fetchEVMResults({
+const { encoded } = await crossbar.fetchEVMResults({
   chainId: 999,
   aggregatorIds: [btcFeedHash],
 });
-const fee = await switchboard.getFee(response.encoded);
 
-const tx = await priceConsumer.updatePrices(response.encoded, [btcFeedHash], { value: fee });
-const receipt = await tx.wait();
-
-console.log(`Price updated on Hyperliquid! Block: ${receipt.blockNumber}`);
-
-// Query the updated price
-const [value, timestamp, slotNumber] = await priceConsumer.getPrice(btcFeedHash);
-console.log(`BTC/USD Price: $${ethers.formatUnits(value, 18)}`);
+const fee = await switchboard.getFee(encoded);
+const tx = await priceConsumer.updatePrices(encoded, [btcFeedHash], { value: fee });
+await tx.wait();
 ```
 
-## Resources
+## Notes
 
-- [Hyperliquid Docs](https://hyperliquid.gitbook.io/hyperliquid-docs)
-- [HyperEVM Documentation](https://hyperliquid.gitbook.io/hyperliquid-docs/hyperevm)
-
-## Getting Started
-
-**Testnet:**
-- Use the Hyperliquid testnet to test your integration
-- Request testnet tokens through the official faucet
-
-**Mainnet:**
-- Bridge ETH to Hyperliquid using the official bridge
-- Start with small amounts to test your integration
+- The packaged `evm/price-feeds/scripts/run.ts` currently includes Monad presets, not Hyperliquid presets.
+- For Hyperliquid, reuse the same contract and encoded-update flow shown above with chain ID `999`.
+- Hyperliquid network docs: [Hyperliquid Docs](https://hyperliquid.gitbook.io/hyperliquid-docs) and [HyperEVM](https://hyperliquid.gitbook.io/hyperliquid-docs/hyperevm).
