@@ -662,6 +662,22 @@ Discover gateways:
 curl "http://localhost:8080/gateways?network=mainnet"
 ```
 
+## Public Rate Limits
+
+For `https://crossbar.switchboard.xyz`, rate limiting is layered and route-dependent:
+
+| Surface | Public limit behavior | Source |
+| --- | --- | --- |
+| Network-level Switchboard oracle requests | Default `20 requests/second` per user wallet; can be increased with stake | [The Switchboard NCN](../../how-it-works/switchboard-protocol/re-staking/the-switchboard-ncn.md) |
+| Crossbar public REST (`/updates/*`, gateway/signature routes) | Additional IP-based edge throttling; `429 Too Many Requests` can appear under burst traffic | Public endpoint behavior, observed on March 3, 2026 |
+| Surge WebSocket access | Plan-based max connections (`Plug: 1`, `Pro: 10`, `Enterprise: 15`) | [Surge pricing and limits](../../docs-by-chain/solana-svm/surge/README.md) |
+
+Operational guidance:
+
+- Keep update polling conservative on public Crossbar and avoid burst fan-out.
+- On `429`, apply exponential backoff with jitter and retry.
+- For steady high-throughput workloads, self-host Crossbar.
+
 ## Notes
 
 - Some stream and gateway flows require signature/auth headers. See [Surge Gateway Protocol](gateway-protocol.md).

@@ -115,7 +115,7 @@ Why? If you take payment on reveal, a malicious user could:
 ```toml
 [dependencies]
 anchor-lang = "0.31.1"
-switchboard-on-demand = "0.11.3"
+switchboard-on-demand = { version = "0.10.0", features = ["anchor"] }
 ```
 
 ### Program Structure
@@ -504,52 +504,47 @@ async function retryReveal(
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/solana
+cd sb-on-demand-examples/solana/randomness/coin-flip
 ```
 
-### 2. Build the Program
+### 2. Install Dependencies
 
 ```bash
+npm install
+```
+
+### 3. Point Solana CLI at Devnet
+
+```bash
+solana config set --url devnet
+solana airdrop 2
+```
+
+### 4. Run the Example Against the Preconfigured Devnet Program
+
+The checked-in `Anchor.toml` already includes a devnet program ID for `sb_randomness`, so you can run the example directly:
+
+```bash
+npm run start -- heads
+# or
+npm run start -- tails
+```
+
+### 5. Deploy Your Own Program (Optional)
+
+If you want to deploy your own instance instead of using the preconfigured devnet program:
+
+```bash
+anchor keys sync
 anchor build
-```
-
-### 3. Update Program ID
-
-Get your program address:
-```bash
-anchor keys list
-```
-
-Update `lib.rs`:
-```rust
-declare_id!("YOUR_PROGRAM_ADDRESS");
-```
-
-Rebuild:
-```bash
-anchor build
-```
-
-### 4. Deploy
-
-```bash
 anchor deploy
 anchor idl init --filepath target/idl/sb_randomness.json YOUR_PROGRAM_ADDRESS
 ```
 
-### 5. Install Dependencies
+The example script resolves the example program ID from `Anchor.toml`. To override that at runtime, set `SB_RANDOMNESS_PROGRAM_ID`:
 
 ```bash
-cd examples/randomness
-pnpm install
-```
-
-### 6. Play!
-
-```bash
-pnpm start heads
-# or
-pnpm start tails
+SB_RANDOMNESS_PROGRAM_ID=YOUR_PROGRAM_ADDRESS npm run start -- heads
 ```
 
 ### Expected Output

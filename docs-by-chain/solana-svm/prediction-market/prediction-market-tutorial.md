@@ -91,14 +91,14 @@ const quote = await queue.fetchQuoteIx(crossbar, [feed], {
 ```toml
 [dependencies]
 anchor-lang = "0.31.1"
-switchboard-on-demand = { version = "0.10.0", features = ["anchor", "devnet"] }
-switchboard-protos = { version = "0.2.4", features = ["serde"] }
+switchboard-on-demand = { version = "=0.10.3", features = ["anchor", "devnet"] }
+switchboard-protos = { version = "^0.2.1", features = ["serde"] }
 prost = "0.13"
-solana-program = "3.0.0"
+solana-program = ">=2,<3"
 faster-hex = "0.10.0"
 ```
 
-> **Note:** This tutorial currently pins `switchboard-on-demand` to `0.10.0` for `anchor-lang 0.31.1` compatibility.
+> **Note:** The current example program pins `switchboard-on-demand` to `=0.10.3` for the `anchor-lang 0.31.1` toolchain.
 
 ### Program Structure
 
@@ -367,13 +367,13 @@ async function verifyKalshiFeed(
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/solana
+cd sb-on-demand-examples/solana/prediction-market
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-pnpm install
+npm install
 ```
 
 ### 3. Build and Deploy the Program
@@ -392,7 +392,7 @@ anchor deploy --provider.cluster devnet
 ### 5. Run the Verification
 
 ```bash
-bun run scripts/prediction-market-examples/testKalshiFeedVerification.ts \
+npm run start -- \
   --api-key-id YOUR_API_KEY_ID \
   --private-key-path /path/to/kalshi/private-key.pem \
   --order-id YOUR_ORDER_ID

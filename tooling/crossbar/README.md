@@ -77,6 +77,20 @@ While a public instance is available for quick testing, running your own Crossba
 
 * **Public Instance:** [https://crossbar.switchboard.xyz](https://crossbar.switchboard.xyz)
 
+#### Public Rate Limits (as of March 3, 2026)
+
+The public Crossbar endpoint has multiple limit layers. The key limits to plan around are:
+
+* **Network-level oracle request budget:** default `20 RPS` per user wallet for Switchboard requests; higher limits are available with `svSWTCH` stake. See [The Switchboard NCN](../../how-it-works/switchboard-protocol/re-staking/the-switchboard-ncn.md).
+* **Public edge throttling:** `https://crossbar.switchboard.xyz` enforces additional IP-based throttling and can return `429 Too Many Requests` under burst traffic (especially for `/updates/*` routes).
+* **Surge connection caps:** managed Surge subscriptions have explicit connection limits by plan (`Plug: 1`, `Pro: 10`, `Enterprise: 15`). See [Surge pricing and limits](../../docs-by-chain/solana-svm/surge/README.md).
+
+Practical guidance:
+
+* Treat public Crossbar as **best-effort** for development and low-volume usage.
+* Back off exponentially with jitter on `429` responses.
+* For production bots/frontends, self-host Crossbar to remove public edge contention.
+
 **Examples:**
 
 * **Job Definition Fetch:** [https://crossbar.switchboard.xyz/fetch/2718f49aa8fb6b71452ef149fa654a06d3996113034c27e2dca5c71b4a2866e7](https://crossbar.switchboard.xyz/fetch/2718f49aa8fb6b71452ef149fa654a06d3996113034c27e2dca5c71b4a2866e7)
