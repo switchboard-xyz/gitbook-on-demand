@@ -382,7 +382,8 @@ The `fetchEVMResults` call returns encoded oracle data signed by Switchboard ora
 #### Step 2: Submit to Contract
 
 ```typescript
-const tx = await contract.updatePrices(encoded, [feedId]);
+const fee = await switchboard.getFee(encoded);
+const tx = await contract.updatePrices(encoded, [feedId], { value: fee });
 ```
 
 Your contract receives the encoded data, submits it to Switchboard for verification, then stores the result.
@@ -395,32 +396,46 @@ After confirmation, you can:
 
 ## Deployment
 
-### Using Foundry
+The packaged example now uses one network switch for both deploys and runtime:
 
-The examples repo already includes a deploy script at `deploy/DeploySwitchboardPriceConsumer.s.sol`.
+- `NETWORK=monad-testnet` or `NETWORK=monad-mainnet`
+- `RPC_URL` is optional and overrides the default RPC for the selected network
+- `PRIVATE_KEY` is required
+- `SWITCHBOARD_ADDRESS` is an advanced override only
 
-### Deploy Commands
+Defaults:
+
+- `NETWORK=monad-testnet`
+- Testnet RPC: `https://testnet-rpc.monad.xyz`
+- Mainnet RPC: `https://rpc.monad.xyz`
+
+The packaged deploy flow validates the selected network before broadcast:
+
+- the RPC chain ID must match `NETWORK`
+- the resolved Switchboard address must have deployed bytecode
+- Monad `SWITCHBOARD_ADDRESS` overrides must match the canonical address for the selected network
+
+Use the packaged wrapper from the example repo:
 
 ```bash
-# Monad Testnet
-forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
-  --rpc-url https://testnet-rpc.monad.xyz \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  -vvvv
+# Default: Monad testnet
+bun run deploy
 
-# Monad Mainnet
-forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
-  --rpc-url https://rpc-mainnet.monadinfra.com/rpc/YOUR_KEY \
-  --private-key $PRIVATE_KEY \
-  --broadcast \
-  -vvvv
+# Explicit aliases
+bun run deploy:monad-testnet
+bun run deploy:monad-mainnet
 
-# HyperEVM Mainnet
-SWITCHBOARD_ADDRESS=0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347 \
+# Flip to mainnet with one env var
+NETWORK=monad-mainnet bun run deploy
+```
+
+If you want raw Foundry instead of the wrapper, keep the same env contract:
+
+```bash
+NETWORK=monad-testnet \
+RPC_URL=https://testnet-rpc.monad.xyz \
 forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer \
-  --rpc-url https://rpc.hyperliquid.xyz/evm \
-  --private-key $PRIVATE_KEY \
+  --rpc-url $RPC_URL \
   --broadcast \
   -vvvv
 ```
@@ -445,13 +460,14 @@ forge build
 
 > **Security:** Never use `export PRIVATE_KEY=...`—it appears in shell history. Use a `.env` file instead.
 
-Create a `.env` file (add to `.gitignore`):
+Create a `.env` file (add it to `.gitignore`):
 
 ```bash
 PRIVATE_KEY=0x...
-RPC_URL=https://testnet-rpc.monad.xyz
 NETWORK=monad-testnet
-# Optional: if omitted, the script deploys a new consumer contract for you
+RPC_URL=
+SWITCHBOARD_ADDRESS=
+# Optional: if omitted, the script deploys a new consumer contract
 CONTRACT_ADDRESS=0x...
 ```
 
@@ -459,6 +475,12 @@ CONTRACT_ADDRESS=0x...
 
 ```bash
 bun run example
+```
+
+Switch to Monad mainnet without changing the script:
+
+```bash
+NETWORK=monad-mainnet bun run example
 ```
 
 ### Expected Output
@@ -492,7 +514,7 @@ cp -r sb-on-demand-examples/evm/price-feeds/src/switchboard your-project/src/
 Or install via npm:
 
 ```bash
-npm install @switchboard-xyz/on-demand-solidity@1.1.0
+npm install @switchboard-xyz/on-demand-solidity
 ```
 
 ### 2. Import and Use

@@ -486,43 +486,44 @@ This calls your contract's `update_price` function with the fetched quotes. The 
 ## Project Structure
 
 ```
-sui/
-├── Move.toml              # Mainnet configuration
-├── Move.testnet.toml      # Testnet configuration
+sui/feeds/basic/
+├── Move.toml              # Checked-in default Move config (testnet)
+├── Move.testnet.toml      # Explicit testnet configuration
+├── Move.mainnet.toml      # Explicit mainnet configuration
 ├── sources/
 │   └── example.move       # Quote Consumer contract with verifier
 ├── scripts/
-│   └── run.ts             # Complete TypeScript example
-├── examples/
-│   ├── quotes.ts                # Simple quote fetching example
-│   ├── mainnet_surge_stream.ts  # Mainnet streaming with Sui integration
-│   └── testnet_surge_stream.ts  # Testnet streaming with Sui integration
+│   ├── run.ts             # Complete TypeScript example
+│   └── quotes.ts          # Simple quote fetching example
 └── package.json
 ```
 
 ## Available Scripts
 
 ```bash
-# Build the Move contract
-npm run build
-
-# Build for testnet
+# Build explicitly for testnet
 npm run build:testnet
+
+# Build explicitly for mainnet
+npm run build:mainnet
 
 # Run Move tests
 npm run test
 
-# Deploy to mainnet
-npm run deploy
-
 # Deploy to testnet
 npm run deploy:testnet
+
+# Deploy to mainnet
+npm run deploy:mainnet
 
 # Run the complete example with Move integration
 npm run example
 
-# Run simple quote fetching example
+# Run simple quote fetching example (defaults to mainnet)
 npm run quotes
+
+# Run simple quote fetching example on testnet
+npm run quotes -- --network testnet
 ```
 
 ## Running the Example
@@ -531,43 +532,55 @@ npm run quotes
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
-cd sb-on-demand-examples/sui
+cd sb-on-demand-examples/sui/feeds/basic
 ```
 
 ### 2. Install Dependencies
 
 ```bash
 npm install
-# or
-pnpm install
 ```
 
-### 3. Build the Move Contract
+### 3. Smoke-Test Quote Fetching
+
+If you want to validate the Switchboard quote path before deploying your Move
+package, run the quote-only example first:
 
 ```bash
-# For mainnet
-npm run build
+# Defaults to mainnet and dry-runs without a private key
+npm run quotes
 
+# Optional: target testnet explicitly
+npm run quotes -- --network testnet
+```
+
+### 4. Build the Move Contract
+
+```bash
 # For testnet
 npm run build:testnet
+
+# For mainnet
+npm run build:mainnet
 ```
 
-### 4. Deploy the Contract
+### 5. Deploy the Contract
 
 ```bash
-# For mainnet
-npm run deploy
-
 # For testnet
 npm run deploy:testnet
+
+# For mainnet
+npm run deploy:mainnet
 ```
 
 Save the package ID from the deployment output.
 
-### 5. Run the Example
+### 6. Run the Example
 
 ```bash
-# Set your package ID
+# Match the network to the Move package you deployed
+export SUI_NETWORK=testnet
 export EXAMPLE_PACKAGE_ID=0xYOUR_PACKAGE_ID
 
 # Run the example
@@ -585,14 +598,14 @@ npm run example
 Switchboard Oracle Quote Verifier Example
 
 Configuration:
-  Network: mainnet
+  Network: testnet
   Package: 0xYOUR_PACKAGE_ID
   Feed: 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
   Oracles: 3
 
 Switchboard Connected:
   Oracle Queue: 0xe9324b82374f18d17de601ae5a19cd72e8c9f57f54661bf9e41a76f8948e80b5
-  Network: Mainnet
+  Network: Testnet
 
 User Address: 0x...
 
@@ -694,10 +707,12 @@ Find more feeds at the [Switchboard Explorer](https://ondemand.switchboard.xyz/)
 ```bash
 # Clean and rebuild
 rm -rf build/
-npm run build
 
 # For testnet
 npm run build:testnet
+
+# For mainnet
+npm run build:mainnet
 ```
 
 ## Next Steps

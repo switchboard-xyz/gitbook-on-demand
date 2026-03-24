@@ -4,6 +4,14 @@ Learn how to build and use programs that call Switchboard data feeds on EVM chai
 
 If you need to create a custom data feed, check out the [custom feeds section](../../custom-feeds/build-and-deploy-feed/README.md).
 
+## Monad Example Network Switch
+
+The packaged Monad examples in `sb-on-demand-examples/evm` now share one network selector:
+
+- `NETWORK=monad-testnet`
+- `NETWORK=monad-mainnet`
+
+`RPC_URL` remains optional as an override, but the example scripts now verify that it matches the selected network before they broadcast transactions. The Monad guides under this section use that shared env contract.
 
 ## Deployments
 

@@ -1,0 +1,939 @@
+schema_version: 1
+manifest_name: tutorial-validation
+selection_rule: >-
+  Curated tutorial-like pages from the published docs tree. Pure landing pages
+  and reference-only pages are intentionally excluded unless they contain
+  procedural validation surface.
+terminal_statuses:
+  - pass
+  - fail
+  - blocked_external_prereq
+  - not_applicable
+default_execution_order:
+  - static_consistency
+  - full_exec
+  - exec_if_prereqs_present
+  - manual_external
+  - infra_heavy
+entries:
+  - id: quick-start
+    title: Quick Start
+    doc_path: quick-start.md
+    group: core
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - quick-start.md
+      - docs-by-chain/solana-svm/price-feeds/basic-price-feed.md
+      - docs-by-chain/evm/price-feeds/price-feeds-tutorial.md
+      - docs-by-chain/solana-svm/randomness/randomness-tutorial.md
+      - custom-feeds/build-and-deploy-feed/build-with-typescript.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f quick-start.md'
+      - 'test -f docs-by-chain/solana-svm/price-feeds/basic-price-feed.md'
+      - 'test -f docs-by-chain/evm/price-feeds/price-feeds-tutorial.md'
+      - 'test -f docs-by-chain/solana-svm/randomness/randomness-tutorial.md'
+      - 'rg -n "Quick Start|custom data feed|randomness|Surge" quick-start.md'
+    success_checks:
+      - Local tutorial links referenced from quick-start exist.
+      - Quick-start bullets still point at the current tutorial pages.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - External explorer links are out of scope for pass or fail unless obviously malformed in the doc text.
+
+  - id: solana-basic-price-feed
+    title: Solana Basic Price Feed Tutorial
+    doc_path: docs-by-chain/solana-svm/price-feeds/basic-price-feed.md
+    group: solana
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/solana-svm/price-feeds/basic-price-feed.md
+      - ../sb-on-demand-examples/solana/feeds/basic
+    prerequisites:
+      - Node.js and npm
+      - Rust toolchain
+      - Solana CLI
+      - Anchor CLI
+      - Funded Solana keypair
+    required_env_vars: []
+    commands:
+      - 'test -d ../sb-on-demand-examples/solana/feeds/basic'
+      - "jq -r '.scripts.update' ../sb-on-demand-examples/solana/feeds/basic/package.json"
+      - '(cd ../sb-on-demand-examples/solana/feeds/basic && npm install && npm run build)'
+      - '(cd ../sb-on-demand-examples/solana/feeds/basic && npm run update -- --feedId f01cc150052ba08171863e5920bdce7433e200eb31a8558521b0015a09867630)'
+    success_checks:
+      - Example package exposes the documented `update` flow.
+      - Build succeeds.
+      - Runtime update submits the managed update transaction when a funded wallet is available.
+      - If the local Anchor program is deployed, the same command should also include the example consumer instruction.
+    skip_conditions:
+      - Mark blocked_external_prereq if Solana, Anchor, or a funded keypair is unavailable.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - Use the preconfigured program from `Anchor.toml`; do not invent a different flow.
+
+  - id: solana-advanced-price-feed
+    title: Solana Advanced Price Feed Tutorial
+    doc_path: docs-by-chain/solana-svm/price-feeds/advanced-price-feed.md
+    group: solana
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/solana-svm/price-feeds/advanced-price-feed.md
+      - ../sb-on-demand-examples/solana/feeds/advanced
+    prerequisites:
+      - Node.js and npm
+      - Rust toolchain
+      - Solana CLI
+      - Anchor CLI
+      - Funded Solana keypair
+    required_env_vars: []
+    commands:
+      - 'test -d ../sb-on-demand-examples/solana/feeds/advanced'
+      - "jq -r '.scripts.update' ../sb-on-demand-examples/solana/feeds/advanced/package.json"
+      - '(cd ../sb-on-demand-examples/solana/feeds/advanced && npm install && npm run build)'
+      - '(cd ../sb-on-demand-examples/solana/feeds/advanced && npm run update -- --feedId f01cc150052ba08171863e5920bdce7433e200eb31a8558521b0015a09867630)'
+    success_checks:
+      - Example package exposes the documented `update` flow.
+      - Build succeeds.
+      - Runtime update reaches the optimized example path when wallet prerequisites are present.
+    skip_conditions:
+      - Mark blocked_external_prereq if Solana, Anchor, or a funded keypair is unavailable.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - This tutorial is example-backed but still requires a signer and Solana toolchain.
+
+  - id: solana-randomness
+    title: Solana Randomness Tutorial
+    doc_path: docs-by-chain/solana-svm/randomness/randomness-tutorial.md
+    group: solana
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/solana-svm/randomness/randomness-tutorial.md
+      - ../sb-on-demand-examples/solana/randomness/coin-flip
+    prerequisites:
+      - Node.js and npm
+      - Rust toolchain
+      - Solana CLI
+      - Anchor CLI
+      - Funded Solana keypair
+    required_env_vars:
+      - SB_RANDOMNESS_PROGRAM_ID
+    commands:
+      - 'test -d ../sb-on-demand-examples/solana/randomness/coin-flip'
+      - "jq -r '.scripts.start' ../sb-on-demand-examples/solana/randomness/coin-flip/package.json"
+      - '(cd ../sb-on-demand-examples/solana/randomness/coin-flip && npm install && npm run build)'
+      - '(cd ../sb-on-demand-examples/solana/randomness/coin-flip && npm run start -- heads)'
+    success_checks:
+      - Build succeeds.
+      - The documented `npm run start -- heads` command exists and runs when wallet prerequisites are present.
+      - Doc guidance matches the current `Anchor.toml` and optional `SB_RANDOMNESS_PROGRAM_ID` override flow.
+    skip_conditions:
+      - Mark blocked_external_prereq if Solana, Anchor, or a funded keypair is unavailable.
+      - Mark blocked_external_prereq if the user did not provide an alternate program id and the default environment is not usable.
+    notes:
+      - Do not validate by editing `declare_id!`; the current documented source of truth is `Anchor.toml` or `SB_RANDOMNESS_PROGRAM_ID`.
+
+  - id: solana-prediction-market
+    title: Solana Prediction Market Tutorial
+    doc_path: docs-by-chain/solana-svm/prediction-market/prediction-market-tutorial.md
+    group: solana
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/solana-svm/prediction-market/prediction-market-tutorial.md
+      - ../sb-on-demand-examples/solana/prediction-market
+    prerequisites:
+      - Node.js and npm
+      - Rust toolchain
+      - Solana CLI
+      - Anchor CLI
+      - Funded Solana keypair
+      - Kalshi API credentials
+      - Kalshi order id
+      - Deployed prediction-market program
+    required_env_vars:
+      - KALSHI_API_KEY_ID
+      - KALSHI_PRIVATE_KEY_PATH
+      - KALSHI_ORDER_ID
+    commands:
+      - 'test -d ../sb-on-demand-examples/solana/prediction-market'
+      - "jq -r '.scripts.start' ../sb-on-demand-examples/solana/prediction-market/package.json"
+      - '(cd ../sb-on-demand-examples/solana/prediction-market && npm install && npm run build)'
+      - '(cd ../sb-on-demand-examples/solana/prediction-market && npm run start -- --api-key-id "$KALSHI_API_KEY_ID" --private-key-path "$KALSHI_PRIVATE_KEY_PATH" --order-id "$KALSHI_ORDER_ID")'
+    success_checks:
+      - Build succeeds.
+      - The verification script exists and runs through the documented standalone example flow when Kalshi credentials and a deployed program are available.
+    skip_conditions:
+      - Mark blocked_external_prereq if Solana, Anchor, a funded keypair, Kalshi credentials, the order id, or a deployed prediction-market program is unavailable.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - `npm test` is only a CLI help smoke test; use `npm run start -- ...` for the credentialed validation flow.
+
+  - id: solana-surge
+    title: Solana Surge Tutorial
+    doc_path: docs-by-chain/solana-svm/surge/surge-tutorial.md
+    group: solana
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/solana-svm/surge/surge-tutorial.md
+      - ../sb-on-demand-examples/solana/surge
+    prerequisites:
+      - Node.js and npm
+      - Solana keypair
+      - Active Surge subscription on the Solana keypair
+    required_env_vars:
+      - SOLANA_KEYPAIR_PATH
+    commands:
+      - 'test -d ../sb-on-demand-examples/solana/surge'
+      - "jq -r '.scripts.stream' ../sb-on-demand-examples/solana/surge/package.json"
+      - '(cd ../sb-on-demand-examples/solana/surge && npm install)'
+      - '(cd ../sb-on-demand-examples/solana/surge && npm run stream)'
+    success_checks:
+      - Example package exposes the documented stream entrypoint.
+      - Runtime stream connects only when the keypair owns an active subscription.
+      - The doc still matches the current signature-based Surge auth flow.
+    skip_conditions:
+      - Mark blocked_external_prereq if the keypair is missing or lacks an active Surge subscription.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - Do not mark this as fail just because the validator lacks a subscription.
+
+  - id: solana-x402
+    title: Solana X402 Tutorial
+    doc_path: docs-by-chain/solana-svm/x402/x402-tutorial.md
+    group: solana
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/solana-svm/x402/x402-tutorial.md
+      - ../sb-on-demand-examples/solana/x402
+    prerequisites:
+      - Node.js and pnpm
+      - Solana CLI
+      - Mainnet Solana keypair with USDC
+      - Access to the paywalled endpoint used in the tutorial flow
+    required_env_vars:
+      - SOLANA_KEYPAIR_PATH
+    commands:
+      - 'test -d ../sb-on-demand-examples/solana/x402'
+      - "jq -r '.scripts.start' ../sb-on-demand-examples/solana/x402/package.json"
+      - '(cd ../sb-on-demand-examples/solana/x402 && pnpm install)'
+      - '(cd ../sb-on-demand-examples/solana/x402 && pnpm start)'
+    success_checks:
+      - Package install works with pnpm.
+      - Runtime command exists and follows the documented X402 payment-signature flow.
+      - Documentation still explains inline feed definitions with variable overrides rather than a stored-feed flow.
+    skip_conditions:
+      - Mark blocked_external_prereq if the wallet lacks mainnet USDC, the paywalled access path is unavailable, or `pnpm` is missing.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - Treat missing funds or missing paid access as blocked_external_prereq, not fail.
+
+  - id: evm-price-feeds
+    title: EVM Price Feeds Tutorial
+    doc_path: docs-by-chain/evm/price-feeds/price-feeds-tutorial.md
+    group: evm
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/evm/price-feeds/price-feeds-tutorial.md
+      - ../sb-on-demand-examples/evm/price-feeds
+    prerequisites:
+      - Bun or npm
+      - Foundry
+      - Funded EVM private key
+      - Network RPC URL
+    required_env_vars:
+      - PRIVATE_KEY
+      - RPC_URL
+    commands:
+      - 'test -d ../sb-on-demand-examples/evm/price-feeds'
+      - "jq -r '.scripts.example' ../sb-on-demand-examples/evm/price-feeds/package.json"
+      - 'tmpdir="$(mktemp -d)" && rsync -a --exclude ".git" ../sb-on-demand-examples/evm/price-feeds/ "$tmpdir/" && (cd "$tmpdir" && npm install && ([ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git) && npm run build) && rm -rf "$tmpdir"'
+      - '(cd ../sb-on-demand-examples/evm/price-feeds && npm run example)'
+    success_checks:
+      - Build succeeds against the packaged Foundry project.
+      - Tutorial flow still uses `crossbar.fetchEVMResults`, `switchboard.getFee`, and `contract.updatePrices`.
+      - Example runtime can execute when a funded key and RPC are present.
+    skip_conditions:
+      - Mark blocked_external_prereq if Foundry, a funded private key, or an RPC URL is unavailable.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - Use a disposable copy for build steps so `forge install` does not dirty the adjacent repo.
+
+  - id: evm-surge
+    title: EVM Surge Tutorial
+    doc_path: docs-by-chain/evm/surge/surge-tutorial.md
+    group: evm
+    validation_mode: full_exec
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/evm/surge/surge-tutorial.md
+      - ../sb-on-demand-examples/evm/price-feeds/scripts/surgeToEvmConversion.ts
+      - ../sb-on-demand-examples/evm/price-feeds
+    prerequisites:
+      - Bun or npm
+    required_env_vars: []
+    commands:
+      - 'test -f ../sb-on-demand-examples/evm/price-feeds/scripts/surgeToEvmConversion.ts'
+      - '(cd ../sb-on-demand-examples/evm/price-feeds && npm install && npm run surge-convert)'
+    success_checks:
+      - The packaged script path matches the tutorial text.
+      - The conversion script prints encoded data and parses the result using sample Surge data.
+    skip_conditions:
+      - Mark blocked_external_prereq if Bun, npm, or `../sb-on-demand-examples` is unavailable.
+    notes:
+      - This is the safest example-backed full execution target because it does not require a wallet or subscription by default.
+
+  - id: evm-randomness
+    title: EVM Randomness Tutorial
+    doc_path: docs-by-chain/evm/randomness/randomness-tutorial.md
+    group: evm
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/evm/randomness/randomness-tutorial.md
+      - ../sb-on-demand-examples/evm/randomness/pancake-stacker
+    prerequisites:
+      - Bun or npm
+      - Foundry
+      - Funded EVM private key
+      - Network RPC URL
+      - Deployed randomness example contract
+    required_env_vars:
+      - PRIVATE_KEY
+      - RPC_URL
+      - CONTRACT_ADDRESS
+    commands:
+      - 'test -d ../sb-on-demand-examples/evm/randomness/pancake-stacker'
+      - "jq -r '.scripts.flip' ../sb-on-demand-examples/evm/randomness/pancake-stacker/package.json"
+      - 'tmpdir="$(mktemp -d)" && rsync -a --exclude ".git" ../sb-on-demand-examples/evm/randomness/pancake-stacker/ "$tmpdir/" && (cd "$tmpdir" && npm install && ([ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git) && npm run build) && rm -rf "$tmpdir"'
+      - '(cd ../sb-on-demand-examples/evm/randomness/pancake-stacker && npm run flip)'
+    success_checks:
+      - Build succeeds.
+      - Runtime flow can request and settle randomness when env vars and deployment prerequisites are present.
+      - Tutorial still points at the packaged pancake-stacker example and not a stale script path.
+    skip_conditions:
+      - Mark blocked_external_prereq if Foundry, RPC, funded key, or contract deployment info is missing.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - The tutorial also references a browser UI. Do not claim UI validation unless you explicitly performed a manual browser pass.
+
+  - id: evm-monad
+    title: Monad Integration
+    doc_path: docs-by-chain/evm/monad.md
+    group: evm
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/evm/monad.md
+      - ../sb-on-demand-examples/evm/price-feeds
+      - ../sb-on-demand-examples/evm/randomness/coin-flip
+    prerequisites:
+      - Bun or npm
+      - Foundry
+      - Funded EVM private key
+      - Monad RPC access
+    required_env_vars:
+      - PRIVATE_KEY
+      - MONAD_RPC_URL
+    commands:
+      - '(cd ../sb-on-demand-examples/evm/price-feeds && npm install && npm run build)'
+      - '(cd ../sb-on-demand-examples/evm/price-feeds && npm run deploy:monad-testnet)'
+      - '(cd ../sb-on-demand-examples/evm/randomness/coin-flip && npm install && npm run build)'
+    success_checks:
+      - Price-feed project still defaults to Monad testnet in the documented flow.
+      - Monad deploy command points at `DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer`.
+      - Randomness example path still matches the standalone `coin-flip` project.
+    skip_conditions:
+      - Mark blocked_external_prereq if Foundry, RPC access, or a funded private key is unavailable.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - Do not broadcast transactions from a shared production wallet during routine validation.
+
+  - id: evm-hyperliquid
+    title: Hyperliquid Integration
+    doc_path: docs-by-chain/evm/hyperliquid.md
+    group: evm
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/evm/hyperliquid.md
+      - ../sb-on-demand-examples/evm/price-feeds
+    prerequisites:
+      - Bun or npm
+      - Foundry
+      - Funded EVM private key
+      - Hyperliquid RPC access
+    required_env_vars:
+      - PRIVATE_KEY
+    commands:
+      - '(cd ../sb-on-demand-examples/evm/price-feeds && npm install && npm run build)'
+      - '(cd ../sb-on-demand-examples/evm/price-feeds && SWITCHBOARD_ADDRESS=0xcDb299Cb902D1E39F83F54c7725f54eDDa7F3347 forge script deploy/DeploySwitchboardPriceConsumer.s.sol:DeploySwitchboardPriceConsumer --rpc-url https://rpc.hyperliquid.xyz/evm --private-key "$PRIVATE_KEY" --broadcast -vvvv)'
+    success_checks:
+      - The deploy script path is current.
+      - The documented encoded-update flow still matches the shared EVM price-feed project.
+      - Chain id and contract address guidance remain coherent with the page text.
+    skip_conditions:
+      - Mark blocked_external_prereq if Foundry, private key, or Hyperliquid RPC access is unavailable.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - The examples repo does not ship a dedicated Hyperliquid runner; validation focuses on the shared price-feed project and deploy flow.
+
+  - id: sui-price-feeds
+    title: Sui Price Feeds Tutorial
+    doc_path: docs-by-chain/sui/price-feeds/price-feeds-tutorial.md
+    group: sui
+    validation_mode: full_exec
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/sui/price-feeds/price-feeds-tutorial.md
+      - ../sb-on-demand-examples/sui/feeds/basic
+    prerequisites:
+      - Node.js and npm
+      - Sui CLI
+    required_env_vars: []
+    commands:
+      - 'test -d ../sb-on-demand-examples/sui/feeds/basic'
+      - 'tmpdir="$(mktemp -d)" && rsync -a --exclude ".git" ../sb-on-demand-examples/sui/feeds/basic/ "$tmpdir/" && (cd "$tmpdir" && npm install && npm run build:testnet) && rm -rf "$tmpdir"'
+      - '(cd ../sb-on-demand-examples/sui/feeds/basic && npm install && npm run quotes)'
+    success_checks:
+      - The standalone example directory exists at `sui/feeds/basic`.
+      - The documented `build:testnet` flow succeeds when run from a disposable copy.
+      - The quote-fetching example connects and dry-runs successfully on the default mainnet flow without requiring a private key.
+    skip_conditions:
+      - Mark blocked_external_prereq if the Sui CLI or `../sb-on-demand-examples` is unavailable.
+    notes:
+      - Do not run `build:testnet` or `build:mainnet` in the live example tree because those scripts overwrite `Move.toml`.
+
+  - id: sui-surge
+    title: Sui Surge Tutorial
+    doc_path: docs-by-chain/sui/surge/surge-tutorial.md
+    group: sui
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - docs-by-chain/sui/surge/surge-tutorial.md
+      - ../sb-on-demand-examples/sui/surge/basic
+    prerequisites:
+      - Node.js and npm
+      - Sui CLI
+      - Sui keystore with a funded keypair
+      - Solana keypair with an active Surge subscription
+    required_env_vars:
+      - SOLANA_KEYPAIR_PATH
+    commands:
+      - 'test -d ../sb-on-demand-examples/sui/surge/basic'
+      - "jq -r '.scripts[\"stream:testnet\"]' ../sb-on-demand-examples/sui/surge/basic/package.json"
+      - '(cd ../sb-on-demand-examples/sui/surge/basic && npm install)'
+      - '(cd ../sb-on-demand-examples/sui/surge/basic && npm run stream:testnet)'
+    success_checks:
+      - The packaged testnet streaming script exists and matches the docs.
+      - Runtime flow only succeeds when both the Sui signer and subscription-owning Solana keypair are available.
+      - Docs still describe Solana-only Surge subscriptions for this flow.
+    skip_conditions:
+      - Mark blocked_external_prereq if the Sui keypair, Solana subscription owner, or local toolchain is missing.
+      - Mark blocked_external_prereq if `../sb-on-demand-examples` is missing.
+    notes:
+      - Do not mark this as fail just because no active subscription is available on the validator machine.
+
+  - id: aptos-sdk-guide
+    title: Aptos Guide
+    doc_path: docs-by-chain/aptos/aptos.md
+    group: move-chains
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - docs-by-chain/aptos/aptos.md
+      - tooling/sdk-version-matrix.md
+      - tooling/sdk-versions.lock.json
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f docs-by-chain/aptos/aptos.md'
+      - 'rg -n "@switchboard-xyz/aptos-sdk|@aptos-labs/ts-sdk" docs-by-chain/aptos/aptos.md tooling/sdk-version-matrix.md tooling/sdk-versions.lock.json'
+    success_checks:
+      - Package names and documented version guidance are still consistent with the current version docs.
+      - The page still reads as an integration guide rather than a stale package-install fragment.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - No bundled runnable example path exists in this repo, so do not claim runtime validation.
+
+  - id: iota-sdk-guide
+    title: Iota Guide
+    doc_path: docs-by-chain/iota/iota.md
+    group: move-chains
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - docs-by-chain/iota/iota.md
+      - tooling/sdk-version-matrix.md
+      - tooling/sdk-versions.lock.json
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f docs-by-chain/iota/iota.md'
+      - 'rg -n "@switchboard-xyz/iota-sdk|@iota/iota-sdk" docs-by-chain/iota/iota.md tooling/sdk-version-matrix.md tooling/sdk-versions.lock.json'
+    success_checks:
+      - Package names and documented version guidance are still consistent with the current version docs.
+      - Installation commands remain coherent across npm, bun, and pnpm snippets.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Treat this as documentation drift detection, not a runtime smoke test.
+
+  - id: movement-sdk-guide
+    title: Movement Guide
+    doc_path: docs-by-chain/movement/movement.md
+    group: move-chains
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - docs-by-chain/movement/movement.md
+      - tooling/sdk-version-matrix.md
+      - tooling/sdk-versions.lock.json
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f docs-by-chain/movement/movement.md'
+      - 'rg -n "@switchboard-xyz/aptos-sdk|@aptos-labs/ts-sdk|movement" docs-by-chain/movement/movement.md tooling/sdk-version-matrix.md tooling/sdk-versions.lock.json'
+    success_checks:
+      - Package names and documented version guidance remain coherent.
+      - Move dependency snippet still points at the current Movement repo path described by the page.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - No bundled runnable example path exists in this repo, so runtime validation is out of scope.
+
+  - id: custom-build-with-typescript
+    title: Build with TypeScript
+    doc_path: custom-feeds/build-and-deploy-feed/build-with-typescript.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: mixed
+    source_path:
+      - custom-feeds/build-and-deploy-feed/build-with-typescript.md
+      - ../sb-on-demand-examples/common/job-testing/README.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/build-and-deploy-feed/build-with-typescript.md'
+      - 'rg -n "bun add @switchboard-xyz/on-demand @switchboard-xyz/common|simulate|OracleJob" custom-feeds/build-and-deploy-feed/build-with-typescript.md'
+      - 'test -f ../sb-on-demand-examples/common/job-testing/README.md'
+    success_checks:
+      - Install commands, `OracleJob` examples, and Crossbar simulation concepts are present and coherent.
+      - The page still hands deployment off to `deploy-feed.md`.
+    skip_conditions:
+      - Mark blocked_external_prereq only if the adjacent examples repo is missing and you need it for context; otherwise continue with local static checks.
+    notes:
+      - This is a design and simulation guide, not a packaged end-to-end runnable example.
+
+  - id: custom-build-with-ui
+    title: Build with UI
+    doc_path: custom-feeds/build-and-deploy-feed/build-with-ui.md
+    group: custom-feeds
+    validation_mode: manual_external
+    source_kind: mixed
+    source_path:
+      - custom-feeds/build-and-deploy-feed/build-with-ui.md
+      - https://explorer.switchboardlabs.xyz/feed-builder
+    prerequisites:
+      - Browser access if you want to manually test the UI
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/build-and-deploy-feed/build-with-ui.md'
+      - 'rg -n "feed-builder|explorer.switchboardlabs.xyz/feed-builder|Simulation vs deployment" custom-feeds/build-and-deploy-feed/build-with-ui.md'
+      - 'test -f custom-feeds/build-and-deploy-feed/deploy-feed.md'
+    success_checks:
+      - The page links to the current Feed Builder URL.
+      - The page still distinguishes simulation from deployment and links to the deployment guide.
+    skip_conditions:
+      - Do not attempt to fake browser execution. If no browser access is available, validate the wording and links only.
+    notes:
+      - Manual UI execution is optional; do not claim it unless you actually performed it.
+
+  - id: custom-deploy-feed
+    title: Deploy Feed
+    doc_path: custom-feeds/build-and-deploy-feed/deploy-feed.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/build-and-deploy-feed/deploy-feed.md
+      - custom-feeds/build-and-deploy-feed/build-with-typescript.md
+      - custom-feeds/build-and-deploy-feed/build-with-ui.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/build-and-deploy-feed/deploy-feed.md'
+      - 'rg -n "Solana / SVM: Deploy with Managed Updates|EVM:|canonical OracleQuote|managed update" custom-feeds/build-and-deploy-feed/deploy-feed.md'
+      - 'test -f custom-feeds/build-and-deploy-feed/build-with-typescript.md'
+      - 'test -f custom-feeds/build-and-deploy-feed/build-with-ui.md'
+    success_checks:
+      - Solana and EVM deployment sections both exist.
+      - Terminology matches the current managed update model.
+      - The page links back to the build guides.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Treat this as a deployment-model guide, not a request to publish anything on-chain.
+
+  - id: custom-variable-overrides
+    title: Data Feed Variable Overrides
+    doc_path: custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md
+    group: custom-feeds
+    validation_mode: exec_if_prereqs_present
+    source_kind: mixed
+    source_path:
+      - custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md
+      - ../sb-on-demand-examples/common/variable-overrides
+    prerequisites:
+      - Bun
+      - API key for the example provider
+    required_env_vars:
+      - POLYGON_API_KEY
+    commands:
+      - 'test -d ../sb-on-demand-examples/common/variable-overrides'
+      - "jq -r '.scripts.test' ../sb-on-demand-examples/common/variable-overrides/package.json"
+      - '(cd ../sb-on-demand-examples/common/variable-overrides && bun install && bun run test)'
+    success_checks:
+      - Example package exposes the documented test flow.
+      - Runtime simulation succeeds when `POLYGON_API_KEY` is present.
+      - The page still forbids using variables for data selection logic.
+    skip_conditions:
+      - Mark blocked_external_prereq if `POLYGON_API_KEY`, Bun, or `../sb-on-demand-examples` is unavailable.
+    notes:
+      - If the API key is missing, still perform the doc-to-example static comparison before marking blocked.
+
+  - id: custom-how-feeds-are-resolved
+    title: How Feeds are Resolved
+    doc_path: custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md
+      - custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md
+      - custom-feeds/advanced-feed-configuration/variables-with-cachetask.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md'
+      - 'rg -n "Task Runner|Variable Expansion|CacheTask|Variable Overrides" custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md'
+    success_checks:
+      - The page still explains task execution order, schemas, and variable expansion.
+      - Links and terminology remain coherent with the variable override and CacheTask pages.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Do not claim runtime validation; this page is conceptual but still procedural enough to track for drift.
+
+  - id: custom-variables-with-cachetask
+    title: Variables with CacheTask
+    doc_path: custom-feeds/advanced-feed-configuration/variables-with-cachetask.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/variables-with-cachetask.md
+      - custom-feeds/advanced-feed-configuration/how-feeds-are-resolved.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/variables-with-cachetask.md'
+      - 'rg -n "CacheTask|\\$\\{|variable" custom-feeds/advanced-feed-configuration/variables-with-cachetask.md'
+    success_checks:
+      - CacheTask examples and variable expansion language remain coherent with the resolution guide.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Validate terminology and examples only.
+
+  - id: custom-rest-apis-with-httptask
+    title: REST APIs with HttpTask
+    doc_path: custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md
+      - custom-feeds/task-types.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md'
+      - 'rg -n "HttpTask|httpTask|REST" custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md'
+    success_checks:
+      - The page still contains concrete HttpTask guidance aligned with current task naming.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Validate examples and references, not live HTTP sources.
+
+  - id: custom-bounding-results
+    title: Bounding Results
+    doc_path: custom-feeds/advanced-feed-configuration/bounding-results.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/bounding-results.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/bounding-results.md'
+      - 'rg -n "bound|variance|max|min|clamp" custom-feeds/advanced-feed-configuration/bounding-results.md'
+    success_checks:
+      - The page remains procedurally coherent and still explains result bounding behavior.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Validate terminology and links only.
+
+  - id: custom-decentralized-exchanges
+    title: Decentralized Exchanges
+    doc_path: custom-feeds/advanced-feed-configuration/decentralized-exchanges.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/decentralized-exchanges.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/decentralized-exchanges.md'
+      - 'rg -n "DEX|decentralized exchange|pool|pair|price" custom-feeds/advanced-feed-configuration/decentralized-exchanges.md'
+    success_checks:
+      - The page remains procedural and coherent for DEX-derived feeds.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Validate examples and links only.
+
+  - id: custom-oracle-aggregator
+    title: Oracle Aggregator
+    doc_path: custom-feeds/advanced-feed-configuration/oracle-aggregator.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/oracle-aggregator.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/oracle-aggregator.md'
+      - 'rg -n "aggregator|median|oracle|sample" custom-feeds/advanced-feed-configuration/oracle-aggregator.md'
+    success_checks:
+      - The page remains coherent with current aggregation terminology.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Validate terminology and links only.
+
+  - id: custom-twap
+    title: Time-Weighted Average Prices
+    doc_path: custom-feeds/advanced-feed-configuration/twap.md
+    group: custom-feeds
+    validation_mode: static_consistency
+    source_kind: local_repo
+    source_path:
+      - custom-feeds/advanced-feed-configuration/twap.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f custom-feeds/advanced-feed-configuration/twap.md'
+      - 'rg -n "TWAP|time-weighted|average" custom-feeds/advanced-feed-configuration/twap.md'
+    success_checks:
+      - The TWAP page remains procedural and coherent with current terminology.
+    skip_conditions:
+      - Never skip; this is a local static check.
+    notes:
+      - Validate terminology and links only.
+
+  - id: crossbar-docker-compose
+    title: Run Crossbar with Docker Compose
+    doc_path: tooling/crossbar/run-crossbar-with-docker-compose.md
+    group: operations
+    validation_mode: infra_heavy
+    source_kind: local_repo
+    source_path:
+      - tooling/crossbar/run-crossbar-with-docker-compose.md
+      - tooling/crossbar/README.md
+    prerequisites:
+      - Docker
+      - Docker Compose
+    required_env_vars: []
+    commands:
+      - 'test -f tooling/crossbar/run-crossbar-with-docker-compose.md'
+      - 'rg -n "docker compose|switchboardlabs/rust-crossbar:stable|8080:8080|8081:8081" tooling/crossbar/run-crossbar-with-docker-compose.md'
+    success_checks:
+      - The image name, exposed ports, and documented env vars remain coherent.
+      - The page still matches the current Crossbar Rust deployment story.
+    skip_conditions:
+      - Do not start long-lived services unless explicitly asked. If Docker is unavailable, mark blocked_external_prereq after static checks.
+    notes:
+      - Infra-heavy means command-shape and doc coherence validation only by default.
+
+  - id: surge-subscription-guide
+    title: Programmatic Surge Subscription Guide
+    doc_path: ai-agents-llms/surge-subscription-guide.md
+    group: operations
+    validation_mode: exec_if_prereqs_present
+    source_kind: local_repo
+    source_path:
+      - ai-agents-llms/surge-subscription-guide.md
+    prerequisites:
+      - Solana keypair
+      - SWTCH balance
+      - Live SWTCH/USDT quote path
+    required_env_vars: []
+    commands:
+      - 'test -f ai-agents-llms/surge-subscription-guide.md'
+      - 'rg -n "subscription_init|TIER|SWTCH|tier_id" ai-agents-llms/surge-subscription-guide.md'
+    success_checks:
+      - The on-chain flow, tier language, and required instruction names remain coherent.
+      - If prerequisites are actually present and you were explicitly asked to submit transactions, the validator may derive and test the flow separately.
+    skip_conditions:
+      - Mark blocked_external_prereq if the validator does not have a funded Solana signer, SWTCH, or the authority to submit live subscription transactions.
+    notes:
+      - There is no packaged helper script in this repo. Treat runtime validation as optional and only with explicit approval plus prerequisites.
+
+  - id: oracle-repo-structure
+    title: Oracle Repo Structure
+    doc_path: how-it-works/switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.md
+    group: oracle-ops
+    validation_mode: infra_heavy
+    source_kind: mixed
+    source_path:
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.md
+      - https://github.com/switchboard-xyz/infra-external
+    prerequisites:
+      - Network access if you choose to inspect the external repo
+    required_env_vars: []
+    commands:
+      - 'test -f how-it-works/switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.md'
+      - 'rg -n "git clone https://github.com/switchboard-xyz/infra-external|cfg/|oracle/" how-it-works/switchboard-protocol/running-a-switchboard-oracle/the-git-repo-clone-our-code/repo-structure.md'
+    success_checks:
+      - Clone instructions and described directory layout remain coherent.
+    skip_conditions:
+      - Never perform host setup from this page during routine validation.
+    notes:
+      - This is infra-heavy because it is part of an installation manual and points at an external operations repo.
+
+  - id: oracle-configuration-overview
+    title: Oracle Configuration Overview
+    doc_path: how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/README.md
+    group: oracle-ops
+    validation_mode: infra_heavy
+    source_kind: local_repo
+    source_path:
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/README.md
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/README.md'
+      - 'rg -n "00-common-vars.cfg|00-devnet-vars.cfg|00-mainnet-vars.cfg" how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/README.md'
+    success_checks:
+      - The overview still points at the right config files and preserves the devnet-before-mainnet guidance.
+    skip_conditions:
+      - Never perform config edits in the live environment during routine validation.
+    notes:
+      - This entry validates the structure of the configuration walkthrough, not a deployment.
+
+  - id: oracle-cfg-common
+    title: Oracle cfg/00-common-vars.cfg
+    doc_path: how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md
+    group: oracle-ops
+    validation_mode: infra_heavy
+    source_kind: local_repo
+    source_path:
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md'
+      - 'rg -n "EMAIL=|CLUSTER_DOMAIN|TASK_RUNNER_SOLANA_RPC|DO NOT CHANGE ANYTHING BELOW THIS POINT" how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-common-vars.cfg.md'
+    success_checks:
+      - The page still describes the shared variables and warns clearly about the immutable section.
+    skip_conditions:
+      - Never modify an operator config during routine validation.
+    notes:
+      - Infra-heavy validation here means doc coherence only.
+
+  - id: oracle-cfg-network
+    title: Oracle cfg/00-devnet-vars.cfg and cfg/00-mainnet-vars.cfg
+    doc_path: how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md
+    group: oracle-ops
+    validation_mode: infra_heavy
+    source_kind: local_repo
+    source_path:
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md'
+      - 'rg -n "NETWORK=|RPC_URL=|WSS_URL=|GUARDIAN_ENABLED|INGRESS" how-it-works/switchboard-protocol/running-a-switchboard-oracle/configuration-tweaking-configurations/cfg-00-devnet-vars.cfg-and-cfg-00-mainnet-vars.cfg.md'
+    success_checks:
+      - The page still documents network selection, oracle pubkeys, RPC URLs, and ingress handling coherently.
+    skip_conditions:
+      - Never modify operator configs during routine validation.
+    notes:
+      - Treat this as a configuration doc check, not a deployment action.
+
+  - id: oracle-installation-overview
+    title: Oracle Installation Overview
+    doc_path: how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/README.md
+    group: oracle-ops
+    validation_mode: infra_heavy
+    source_kind: local_repo
+    source_path:
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/README.md
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md
+    prerequisites: []
+    required_env_vars: []
+    commands:
+      - 'test -f how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/README.md'
+      - 'rg -n "00-kernel-install.sh|30-k3s-install.sh|90-k8s-oracle-install.sh" how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/README.md'
+    success_checks:
+      - The script ordering story remains coherent.
+      - The overview still points at the numbered script flow rather than ad hoc steps.
+    skip_conditions:
+      - Never run host-setup scripts during routine validation unless explicitly approved.
+    notes:
+      - This is command-shape validation only.
+
+  - id: oracle-baremetal-k3s-snp
+    title: Bare Metal with Kubernetes (K3s) + AMD SEV SNP
+    doc_path: how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md
+    group: oracle-ops
+    validation_mode: infra_heavy
+    source_kind: local_repo
+    source_path:
+      - how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md
+    prerequisites:
+      - Bare-metal host
+      - Root access
+      - BIOS access
+      - Kubernetes and Oracle operator approval
+    required_env_vars: []
+    commands:
+      - 'test -f how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md'
+      - 'rg -n "00-kernel-install.sh|snphost ok|30-k3s-install.sh|50-oracle-ctr-sb.sh|90-k8s-oracle-install.sh" how-it-works/switchboard-protocol/running-a-switchboard-oracle/installation-setup-via-scripts/bare-metal-with-kubernetes-k3s-+-amd-sev-snp.md'
+    success_checks:
+      - The step ordering is internally coherent.
+      - Required scripts and checkpoints are still named consistently through the walkthrough.
+      - Optional steps are clearly marked as optional or recommended.
+    skip_conditions:
+      - Mark blocked_external_prereq unless you have explicit approval and the required hardware and privileges.
+    notes:
+      - Never attempt to run kernel, BIOS, or Kubernetes installation commands during normal doc validation.
