@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "baseline_date": "2026-03-03",
+  "baseline_date": "2026-03-24",
   "policy": {
     "pinning": "exact",
     "scope": "current flows only (legacy excluded)",
-    "status_model": "single canonical pinned set"
+    "status_model": "single canonical verifier set + observed example pins"
   },
   "drift_exceptions": {
     "npm": {
@@ -27,12 +27,174 @@
   },
   "companion_versions": {
     "npm": {
-      "@solana/web3.js": "1.98.4",
+      "@solana/web3.js": "1.98.0",
       "@mysten/sui": "1.38.0",
       "@aptos-labs/ts-sdk": "6.1.0",
       "@iota/iota-sdk": "1.11.0",
-      "ethers": "6.16.0",
-      "@coral-xyz/anchor": "0.32.1"
+      "ethers": "6.13.1",
+      "@coral-xyz/anchor": "0.31.1"
+    }
+  },
+  "observed_example_versions": {
+    "npm": {
+      "@switchboard-xyz/on-demand": [
+        {
+          "version": "^3.9.0",
+          "references": [
+            "common",
+            "solana/feeds/basic",
+            "solana/feeds/advanced",
+            "solana/prediction-market",
+            "solana/randomness/coin-flip",
+            "solana/surge",
+            "solana/x402",
+            "sui/feeds/basic",
+            "sui/surge/basic"
+          ]
+        }
+      ],
+      "@switchboard-xyz/common": [
+        {
+          "version": "^5.7.0",
+          "references": [
+            "common",
+            "common/twitter-follower-count",
+            "evm/price-feeds",
+            "evm/randomness",
+            "evm/randomness/coin-flip",
+            "evm/randomness/pancake-stacker",
+            "solana/feeds/basic",
+            "solana/feeds/advanced",
+            "solana/prediction-market",
+            "solana/randomness/coin-flip",
+            "solana/surge",
+            "solana/x402"
+          ]
+        }
+      ],
+      "@switchboard-xyz/on-demand-solidity": [
+        {
+          "version": "^0.0.4",
+          "references": [
+            "evm/price-feeds"
+          ]
+        },
+        {
+          "version": "^1.1.0",
+          "references": [
+            "evm/randomness/coin-flip",
+            "evm/randomness/pancake-stacker"
+          ]
+        }
+      ],
+      "@switchboard-xyz/sui-sdk": [
+        {
+          "version": "^0.1.14",
+          "references": [
+            "sui/feeds/basic",
+            "sui/surge/basic"
+          ]
+        }
+      ],
+      "@mysten/sui": [
+        {
+          "version": "^1.38.0",
+          "references": [
+            "sui/feeds/basic",
+            "sui/surge/basic"
+          ]
+        }
+      ],
+      "@solana/web3.js": [
+        {
+          "version": "^1.98.0",
+          "references": [
+            "solana/feeds/basic",
+            "solana/feeds/advanced",
+            "solana/prediction-market",
+            "solana/surge",
+            "solana/x402"
+          ]
+        },
+        {
+          "version": "^1.98.2",
+          "references": [
+            "solana/randomness/coin-flip"
+          ]
+        },
+        {
+          "version": "^1.98.4",
+          "references": [
+            "sui/surge/basic"
+          ]
+        }
+      ],
+      "@coral-xyz/anchor": [
+        {
+          "version": "^0.31.1",
+          "references": [
+            "solana/feeds/basic",
+            "solana/feeds/advanced",
+            "solana/prediction-market",
+            "solana/randomness/coin-flip",
+            "solana/surge",
+            "solana/x402"
+          ]
+        }
+      ],
+      "ethers": [
+        {
+          "version": "^6.13.1",
+          "references": [
+            "evm/price-feeds"
+          ]
+        },
+        {
+          "version": "^6.15.0",
+          "references": [
+            "evm/randomness/coin-flip",
+            "evm/randomness/pancake-stacker"
+          ]
+        },
+        {
+          "version": "^6.16.0",
+          "references": [
+            "evm/randomness"
+          ]
+        }
+      ]
+    },
+    "crates": {
+      "switchboard-on-demand": [
+        {
+          "version": "0.11.3",
+          "references": [
+            "common/rust-feed-creation"
+          ]
+        },
+        {
+          "version": "=0.10.3",
+          "references": [
+            "solana/feeds/basic",
+            "solana/feeds/advanced",
+            "solana/prediction-market"
+          ]
+        },
+        {
+          "version": "0.10.0",
+          "references": [
+            "solana/randomness/coin-flip"
+          ]
+        }
+      ],
+      "switchboard-protos": [
+        {
+          "version": "^0.2.1",
+          "references": [
+            "solana/prediction-market"
+          ]
+        }
+      ]
     }
   },
   "toolchains": {
@@ -47,7 +209,7 @@
   },
   "verification": {
     "source_repo": "../sb-on-demand-examples",
-    "last_verified": "2026-03-03",
+    "last_verified": "2026-03-24",
     "commands": [
       {
         "id": "rust-common",
@@ -87,7 +249,7 @@
       {
         "id": "sui-feeds",
         "cwd": "sui/feeds/basic",
-        "command": "npm install && npm run build"
+        "command": "npm install && npm run build:testnet"
       },
       {
         "id": "sui-surge-ts",
@@ -121,7 +283,9 @@
       }
     ],
     "notes": [
+      "Current TypeScript example manifests are aligned on @switchboard-xyz/on-demand@^3.9.0 and @switchboard-xyz/common@^5.7.0; see observed_example_versions for the full per-package breakdown.",
       "@mysten/sui latest (2.x) is not yet compatible with current docs/examples imports; pinned to 1.38.0.",
+      "@switchboard-xyz/on-demand-solidity remains split across EVM flows: evm/price-feeds uses ^0.0.4 while the randomness examples use ^1.1.0.",
       "solana/prediction-market build-sbf can fail on edition2024 transitive crates under current Solana toolchain cargo; verify with fallback host cargo check if encountered.",
       "sui/feeds/basic contains an upstream failing Move unit test; treat build/typecheck as the dependency compatibility gate."
     ]

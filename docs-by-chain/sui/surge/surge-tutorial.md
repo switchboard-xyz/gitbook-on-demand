@@ -65,7 +65,7 @@ import {
 } from '@switchboard-xyz/sui-sdk';
 import { fromB64 } from '@mysten/bcs';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { Keypair as SolanaKeypair } from '@solana/web3.js';
+import { Connection, Keypair as SolanaKeypair } from '@solana/web3.js';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -74,6 +74,7 @@ import { Transaction } from '@mysten/sui/transactions';
 // Initialize Sui clients
 const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 
 // Oracle mapping cache
 const oracleMapping = new Map<string, string>();
@@ -221,7 +222,7 @@ if (!solanaKeypair) {
 
   // Initialize Surge with Solana keypair (subscription owner)
   const surge = new sb.Surge({
-    connection: suiClient,
+    connection: solanaConnection,
     keypair: solanaKeypair!,
     signatureScheme: 'ed25519',
   });
@@ -269,15 +270,16 @@ if (!solanaKeypair) {
 ```typescript
 const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 ```
 
-Initialize the Sui and Switchboard clients. For testnet, use `https://fullnode.testnet.sui.io:443`.
+Initialize the Sui client you will submit transactions through, plus a Solana RPC connection for Surge authentication. For Sui testnet, use `https://fullnode.testnet.sui.io:443`.
 
 #### Creating Surge Connection
 
 ```typescript
 const surge = new sb.Surge({
-  connection: suiClient,
+  connection: solanaConnection,
   keypair: solanaKeypair!,
   signatureScheme: 'ed25519',
 });
@@ -285,7 +287,7 @@ const surge = new sb.Surge({
 await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
 ```
 
-- `connection`: Your SuiClient instance
+- `connection`: Your Solana `Connection` instance
 - `keypair`: Your Solana keypair (must have an active Surge subscription)
 - `signatureScheme`: Use `'ed25519'` for Solana keypairs
 - `connectAndSubscribe()`: Connects and subscribes to specified feeds
@@ -332,9 +334,10 @@ The mainnet and testnet examples are nearly identical with these differences:
 ```typescript
 // Testnet setup
 const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 
 const surge = new sb.Surge({
-  connection: suiClient,
+  connection: solanaConnection,
   keypair: solanaKeypair!,
   signatureScheme: 'ed25519',
 });
@@ -405,12 +408,14 @@ import * as sb from '@switchboard-xyz/on-demand';
 import { SuiClient } from '@mysten/sui/client';
 import { SwitchboardClient, emitSurgeQuote } from '@switchboard-xyz/sui-sdk';
 import { Transaction } from '@mysten/sui/transactions';
+import { Connection } from '@solana/web3.js';
 
 const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 
 const surge = new sb.Surge({
-  connection: suiClient,
+  connection: solanaConnection,
   keypair: solanaKeypair, // Solana keypair with active Surge subscription
   signatureScheme: 'ed25519',
 });
