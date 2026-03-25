@@ -4,6 +4,14 @@ Learn how to build and use programs that call Switchboard data feeds on EVM chai
 
 If you need to create a custom data feed, check out the [custom feeds section](../../custom-feeds/build-and-deploy-feed/README.md).
 
+If you are integrating a Feed Builder feed or any `bytes32` feed ID from the explorer on EVM, use the v2 feed-hash flow:
+
+1. Fetch the definition with `/v2/fetch/{feedId}`
+2. Simulate with `/v2/simulate/{feedHashes}` or `CrossbarClient.simulateFeed(...)`
+3. Build the on-chain payload with `/v2/update/{feedHashes}?chain=evm&network=mainnet|testnet&use_timestamp=true`
+
+The legacy `/simulate/evm` and `/updates/evm` routes are only for older aggregator-based integrations.
+
 ## Monad Example Network Switch
 
 The packaged Monad examples in `sb-on-demand-examples/evm` now share one network selector:

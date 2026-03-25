@@ -1,6 +1,6 @@
 # Monad Integration
 
-Monad is the primary EVM network exercised by the current `sb-on-demand-examples` repo. The runnable EVM examples now share a single network switch:
+Monad is the primary EVM network exercised by the current `sb-on-demand-examples` repo. The packaged EVM examples now share a single network switch:
 
 - `NETWORK=monad-testnet`
 - `NETWORK=monad-mainnet`
@@ -67,22 +67,10 @@ NETWORK=monad-mainnet bun run deploy
 NETWORK=monad-mainnet bun run example
 ```
 
-The packaged script handles the current Crossbar Monad testnet rollout by falling back to the network-agnostic oracle quote endpoint if the chain-specific feed lookup is unavailable.
-
-## Quick Start: Direct Randomness
+## Quick Start: Randomness
 
 ```bash
-cd ../randomness
-bun install
-PRIVATE_KEY=0xyour_private_key_here bun run example
-```
-
-That helper talks directly to the Switchboard proxy, creates a randomness request, waits for the settlement window, resolves through Crossbar, and settles on-chain. It also supports `hyperliquid-mainnet` in addition to Monad.
-
-## Quick Start: Coin Flip
-
-```bash
-cd coin-flip
+cd ../randomness/coin-flip
 bun install
 forge build
 cp .env.example .env
@@ -101,40 +89,6 @@ Run on mainnet:
 NETWORK=monad-mainnet bun run deploy
 NETWORK=monad-mainnet bun run flip
 ```
-
-After deployment, fund the example contract with a small bankroll so it can pay winning flips:
-
-```bash
-cast send $COIN_FLIP_CONTRACT_ADDRESS \
-  --rpc-url ${RPC_URL:-https://testnet-rpc.monad.xyz} \
-  --private-key $PRIVATE_KEY \
-  --value 0.05ether
-```
-
-## Quick Start: Pancake Stacker
-
-```bash
-cd ../pancake-stacker
-bun install
-forge build
-cp .env.example .env
-```
-
-Run on testnet:
-
-```bash
-bun run deploy
-bun run flip
-```
-
-Run on mainnet:
-
-```bash
-NETWORK=monad-mainnet bun run deploy
-NETWORK=monad-mainnet bun run flip
-```
-
-If a previous run already created a pending flip, the packaged script resumes settlement instead of failing.
 
 ## Integration Example
 
@@ -143,7 +97,7 @@ import { ethers } from "ethers";
 import { CrossbarClient } from "@switchboard-xyz/common";
 
 const networkName = process.env.NETWORK || "monad-testnet";
-const chainId = networkName === "monad-mainnet" ? 143 : 10143;
+const crossbarNetwork = networkName === "monad-mainnet" ? "mainnet" : "testnet";
 const rpcUrl =
   process.env.RPC_URL ||
   (networkName === "monad-mainnet"
@@ -171,19 +125,36 @@ const priceConsumer = new ethers.Contract(
 
 const feedHash = "0xa0950ee5ee117b2e2c30f154a69e17bfb489a7610c508dc5f67eb2a14616d8ea";
 const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
-const { encoded } = await crossbar.fetchEVMResults({
-  chainId,
-  aggregatorIds: [feedHash],
+
+// Useful when validating a custom Feed Builder feed before sending a transaction.
+await crossbar.simulateFeed(feedHash, false, undefined, crossbarNetwork);
+
+const response = await crossbar.fetchV2Update([feedHash], {
+  chain: "evm",
+  network: crossbarNetwork,
+  use_timestamp: true,
 });
 
-const fee = await switchboard.getFee(encoded);
-const tx = await priceConsumer.updatePrices(encoded, [feedHash], { value: fee });
+if (!response.encoded) {
+  throw new Error("Crossbar returned no encoded update payload");
+}
+
+const updates = [response.encoded];
+const fee = await switchboard.getFee(updates);
+const tx = await priceConsumer.updatePrices(updates, [feedHash], { value: fee });
 await tx.wait();
 ```
 
+## Custom Feed Troubleshooting
+
+- Feed Builder custom feeds do not require a separate activation or permission toggle on Monad.
+- Use the same `bytes32` feed hash/feed ID from Feed Builder or Explorer for the full v2 flow:
+  - `GET /v2/fetch/{feedId}`
+  - `GET /v2/simulate/{feedId}?network=testnet|mainnet`
+  - `GET /v2/update/{feedId}?chain=evm&network=testnet|mainnet&use_timestamp=true`
+- If `v2/fetch` and `v2/simulate` succeed but `v2/update` returns `ORACLE_UNAVAILABLE`, the issue is managed oracle or gateway availability for that feed, not a missing deployment step or permission.
+
 ## Notes
 
-- `MON` is the native gas token on Monad.
 - Testnet MON is available from the [Monad faucet](https://faucet.monad.xyz).
-- The generic randomness helper at `evm/randomness/randomness.ts` still supports `hyperliquid-mainnet` in addition to Monad.
-- The current examples repo is organized as standalone subprojects under `evm/price-feeds`, `evm/randomness`, `evm/randomness/coin-flip`, and `evm/randomness/pancake-stacker`.
+- The generic randomness helper at `evm/randomness/randomness.ts` still supports `hyperliquid-mainnet` in addition to Monad. Run it from `evm/randomness` after `bun install`.

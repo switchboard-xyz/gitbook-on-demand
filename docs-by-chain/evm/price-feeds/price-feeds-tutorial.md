@@ -37,25 +37,34 @@ This pattern ensures prices are cryptographically verified on-chain while keepin
 
 ### The CrossbarClient
 
-The `CrossbarClient` from `@switchboard-xyz/common` is your interface to fetch oracle data:
+The `CrossbarClient` from `@switchboard-xyz/common` is your interface to fetch oracle data for the v2 feed-hash flow used by current Monad integrations and Feed Builder feeds:
 
 ```typescript
 import { CrossbarClient } from "@switchboard-xyz/common";
 
 const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
-const { encoded } = await crossbar.fetchEVMResults({
-  chainId: 999,  // Your chain ID
-  aggregatorIds: [feedId],
+const response = await crossbar.fetchV2Update([feedId], {
+  chain: "evm",
+  network: "mainnet",
+  use_timestamp: true,
 });
+
+if (!response.encoded) {
+  throw new Error("Crossbar returned no encoded update payload");
+}
+
+const updates = [response.encoded];
 ```
+
+If you are using a `bytes32` feed ID from Explorer or Feed Builder, this is the path you want. Legacy `fetchEVMResults()` and `/updates/evm/...` routes remain available for older aggregator-based integrations, but they are not the primary flow for custom feeds.
 
 ### Fee Handling
 
 Some networks require a fee for oracle updates. Always check before submitting:
 
 ```typescript
-const fee = await switchboard.getFee(encoded);
-await contract.updatePrices(encoded, { value: fee });
+const fee = await switchboard.getFee(updates);
+await contract.updatePrices(updates, [feedId], { value: fee });
 ```
 
 ## The Smart Contract
@@ -306,6 +315,7 @@ async function main() {
 
   const consumerAbi = [
     "function updatePrices(bytes[] calldata updates, bytes32[] calldata feedIds) external payable",
+    "function getPrice(bytes32 feedId) external view returns (int128 value, uint256 timestamp, uint64 slotNumber)",
     "event PriceUpdated(bytes32 indexed feedId, int128 oldPrice, int128 newPrice, uint256 timestamp, uint64 slotNumber)"
   ];
   const switchboardAbi = [
@@ -320,16 +330,26 @@ async function main() {
   const feedId = "0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
 
   // Step 1: Fetch signed oracle data from Crossbar
-  const { encoded } = await crossbar.fetchEVMResults({
-    chainId: 999,  // HyperEVM mainnet
-    aggregatorIds: [feedId],
+  const response = await crossbar.fetchV2Update([feedId], {
+    chain: "evm",
+    network: "mainnet",
+    use_timestamp: true,
   });
 
-  console.log("Fetched", encoded.length, "encoded updates");
+  if (!response.encoded) {
+    throw new Error("Crossbar returned no encoded update payload");
+  }
+
+  const updates = [response.encoded];
+  const median = response.medianResponses[0];
+
+  console.log("Fetched", updates.length, "encoded updates");
+  console.log("Median value:", median?.value);
+  console.log("Oracle timestamp:", new Date(response.timestamp * 1000).toISOString());
 
   // Step 2: Submit to your contract
-  const fee = await switchboard.getFee(encoded);
-  const tx = await contract.updatePrices(encoded, [feedId], { value: fee });
+  const fee = await switchboard.getFee(updates);
+  const tx = await contract.updatePrices(updates, [feedId], { value: fee });
   console.log("Transaction hash:", tx.hash);
 
   // Step 3: Wait for confirmation
@@ -368,22 +388,30 @@ main().catch(console.error);
 #### Step 1: Fetch Oracle Data
 
 ```typescript
-const { encoded } = await crossbar.fetchEVMResults({
-  chainId: 999,
-  aggregatorIds: [feedId],
+const response = await crossbar.fetchV2Update([feedId], {
+  chain: "evm",
+  network: "mainnet",
+  use_timestamp: true,
 });
+
+if (!response.encoded) {
+  throw new Error("Crossbar returned no encoded update payload");
+}
+
+const updates = [response.encoded];
 ```
 
-The `fetchEVMResults` call returns encoded oracle data signed by Switchboard oracles. This data includes:
-- The price value
-- Timestamp
-- Oracle signatures
+The `fetchV2Update` call returns:
+- `medianResponses` with one consensus value per feed
+- `timestamp` for the signed oracle consensus
+- `oracleResponses` for per-oracle detail
+- `encoded`, the EVM payload you wrap into `bytes[]` for `getFee` and `updateFeeds`
 
 #### Step 2: Submit to Contract
 
 ```typescript
-const fee = await switchboard.getFee(encoded);
-const tx = await contract.updatePrices(encoded, [feedId], { value: fee });
+const fee = await switchboard.getFee(updates);
+const tx = await contract.updatePrices(updates, [feedId], { value: fee });
 ```
 
 Your contract receives the encoded data, submits it to Switchboard for verification, then stores the result.
@@ -483,10 +511,16 @@ Switch to Monad mainnet without changing the script:
 NETWORK=monad-mainnet bun run example
 ```
 
+For Feed Builder or custom feeds, it is useful to preflight before sending a transaction:
+
+```typescript
+await crossbar.simulateFeed(feedId, false, undefined, "testnet");
+```
+
 ### Expected Output
 
 ```
-Aggregator ID: 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+Feed ID: 0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
 Encoded updates length: 1
 Transaction hash: 0x...
 Transaction confirmed in block: 12345678
@@ -494,7 +528,6 @@ Transaction confirmed in block: 12345678
 === Feed Update Event ===
 Price: 97234500000000000000000
 Timestamp: 2024-12-18T10:30:00.000Z
-Oracle ID: 0x...
 
 === Latest Update Details ===
 Result: 97234500000000000000000
@@ -616,6 +649,7 @@ Popular feeds include:
 | `PriceDeviationTooHigh` | Normal during high volatility; adjust `maxDeviationBps` if needed |
 | `PriceTooOld` | Fetch fresh data from Crossbar; adjust `maxPriceAge` if needed |
 | `InvalidFeedId` | Ensure the feed ID exists and has been updated at least once |
+| `ORACLE_UNAVAILABLE` | If `simulateFeed` works but `fetchV2Update` fails, treat it as oracle or gateway availability rather than a missing deployment step |
 | Build errors | Run `forge clean && forge build` |
 
 ## Next Steps

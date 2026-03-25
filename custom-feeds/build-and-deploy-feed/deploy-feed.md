@@ -198,18 +198,41 @@ contract Example {
 Use Crossbar to fetch oracle-signed updates (encoded) for submission:
 
 ```ts
-import * as ethers from "ethers";
-import { CrossbarClient } from "@switchboard-xyz/on-demand";
+import { CrossbarClient } from "@switchboard-xyz/common";
+
+const feedId = "0x...your_feed_id...";
+const crossbarNetwork = "testnet"; // or "mainnet"
 
 const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
 
-const { encoded } = await crossbar.fetchEVMResults({
-  chainId: 421614, // example: Arbitrum Sepolia
-  aggregatorIds: ["0x...your_feed_id..."],
+// Recommended preflight for Feed Builder feeds:
+await crossbar.fetchOracleFeed(feedId);
+await crossbar.simulateFeed(feedId, false, undefined, crossbarNetwork);
+
+const response = await crossbar.fetchV2Update([feedId], {
+  chain: "evm",
+  network: crossbarNetwork,
+  use_timestamp: true,
 });
 
-// submit `encoded` to your contract method that calls updateFeeds(...)
+if (!response.encoded) {
+  throw new Error("Crossbar returned no encoded update payload");
+}
+
+const updates = [response.encoded];
+
+// submit `updates` to your contract method that calls updateFeeds(...)
 ```
+
+Recommended EVM preflight order for custom feeds:
+
+1. `GET /v2/fetch/{feedId}` or `crossbar.fetchOracleFeed(feedId)` to confirm the definition exists
+2. `GET /v2/simulate/{feedId}?network=testnet|mainnet` or `crossbar.simulateFeed(...)` to confirm the jobs resolve
+3. `GET /v2/update/{feedId}?chain=evm&network=testnet|mainnet&use_timestamp=true` or `crossbar.fetchV2Update(...)` to obtain the EVM payload
+
+Use the same deterministic `feedId` / feed hash from Feed Builder or Explorer for all three steps.
+
+> Do not pass a Feed Builder `bytes32` feed ID into `fetchEVMResults()` or `simulateEVMFeeds()` unless you are intentionally using the legacy aggregator-based EVM flow.
 
 ---
 
@@ -221,4 +244,3 @@ If you’re targeting a non-Solana chain, treat “deployment” as:
 
 1. Create/publish a feed definition and get its feed ID/address.
 2. Use the chain’s SDK to fetch and verify oracle results in your transaction flow.
-
