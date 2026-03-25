@@ -261,15 +261,10 @@ async function main() {
 ### Step 2: Request Randomness (Flip the Pancake)
 
 ```typescript
-    const [, hasPendingFlip] = await contract.getPlayerStats(wallet.address);
-
-    if (hasPendingFlip) {
-        console.log("Found pending flip, resuming settlement...");
-    } else {
-        const tx = await contract.flipPancake();
-        await tx.wait();
-        console.log("Flip requested:", tx.hash);
-    }
+    // Call flipPancake() to request randomness
+    const tx = await contract.flipPancake();
+    await tx.wait();
+    console.log("Flip requested:", tx.hash);
 ```
 
 This triggers the **Request Randomness** phase on-chain.
@@ -305,8 +300,6 @@ The contract returns:
 ```
 
 This is where **Crossbar** talks to the **Oracle** and returns the encoded randomness proof.
-
-In practice you should wait until `rollTimestamp + minSettlementDelay` before calling Crossbar. The packaged example script adds a small buffer and resumes an already-pending flip if a previous run stopped after requesting randomness.
 
 ### Step 5: Settle On-Chain (Catch the Pancake)
 
@@ -435,7 +428,8 @@ The contract gracefully handles settlement failures by catching exceptions and r
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
 cd sb-on-demand-examples/evm/randomness/pancake-stacker
-bun install
+bun install  # or npm install
+[ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git --shallow
 forge build
 ```
 
@@ -482,7 +476,6 @@ Current stack: 0 pancakes
 Flipping pancake...
 Flip requested: 0x...
 
-Waiting 10s for randomness settlement window...
 Resolving randomness...
 Catching pancake...
 
