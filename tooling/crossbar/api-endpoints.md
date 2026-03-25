@@ -29,6 +29,15 @@ For machine-readable schema and live testing:
 | `GET` | `/debug/cid/{hash}` | CID conversion/debug |
 | `GET` | `/debug/bnb` | Binance debug endpoint |
 
+## EVM Route Selection
+
+Use different Crossbar routes depending on whether you are integrating a current Feed Builder/custom feed or an older aggregator-based EVM integration.
+
+| Use case | Use these routes | Identifier | Notes |
+| --- | --- | --- | --- |
+| Feed Builder/custom feed on EVM | `/v2/fetch/{feed_id}`, `/v2/simulate/{feedHashes}`, `/v2/update/{feedHashes}` | deterministic `bytes32` feed ID / feed hash | Recommended flow for Monad and current custom-feed integrations. Use `chain=evm`, `network=mainnet|testnet`, and usually `use_timestamp=true` on `/v2/update`. |
+| Legacy aggregator-based EVM integration | `/simulate/evm/{network}/{aggregator_ids}`, `/updates/evm/{chainId}/{aggregatorIds}` | legacy aggregator ID | Compatibility flow for older EVM integrations. Do not use this as the primary path for Feed Builder custom feeds. |
+
 ## Simulation Endpoints
 
 ### Generic
@@ -283,6 +292,58 @@ Response (`200`):
 ```
 
 ### Updates
+
+#### `GET /v2/update/{feedHashes}`
+
+Purpose: build a chain-specific consensus payload for one or more v2 feed hashes.
+
+Path:
+
+- `feedHashes`: comma-separated deterministic feed IDs / feed hashes
+
+Query:
+
+- `chain` (`string`, required for chain-specific payloads; use `evm` for EVM)
+- `network` (`string`, optional; `mainnet` or `testnet`)
+- `use_timestamp` (`bool`, optional)
+- `num_oracles` (`u32`, optional)
+- `gateway` (`string`, optional)
+
+Response (`200`): object
+
+```json
+{
+  "medianResponses": [
+    {
+      "value": "123450000000000000000",
+      "feedHash": "0xfd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c",
+      "numOracles": 3
+    }
+  ],
+  "oracleResponses": [],
+  "timestamp": 1730000000,
+  "slot": 0,
+  "recentHash": "0xabc123...",
+  "encoded": "0x8f6f2b7c..."
+}
+```
+
+V2 update response schema:
+
+- `medianResponses`: one consensus value per requested feed hash
+- `oracleResponses`: per-oracle response detail
+- `timestamp`: signed consensus timestamp
+- `slot`: slot or sequence metadata from the gateway
+- `recentHash`: recent hash used for the signed payload
+- `encoded`: chain-specific encoded update payload
+
+For EVM, wrap `encoded` into a one-element `bytes[]` when calling `getFee` or `updateFeeds`.
+
+Monad example:
+
+```bash
+curl "http://localhost:8080/v2/update/0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812?chain=evm&network=testnet&use_timestamp=true"
+```
 
 #### `GET /updates/solana/{network}/{feedPubkeys}`
 
@@ -654,6 +715,12 @@ Fetch EVM updates:
 
 ```bash
 curl "http://localhost:8080/updates/evm/1116/0xfd2b067707a96e5b67a7500e56706a39193f956a02e9c0a744bf212b19c7246c"
+```
+
+Fetch a Monad custom-feed payload with the v2 route:
+
+```bash
+curl "http://localhost:8080/v2/update/0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812?chain=evm&network=testnet&use_timestamp=true"
 ```
 
 Discover gateways:

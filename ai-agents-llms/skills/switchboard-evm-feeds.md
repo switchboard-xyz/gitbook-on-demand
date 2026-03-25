@@ -75,12 +75,18 @@ import { CrossbarClient } from "@switchboard-xyz/common";
 const crossbarUrl = process.env.CROSSBAR_URL ?? "https://crossbar.switchboard.xyz";
 const crossbar = new CrossbarClient(crossbarUrl);
 
-// Method naming differs across SDK versions.
-// Treat the result as `updates: bytes[]` suitable for `updateFeeds`.
-const { encoded: updates } = await crossbar.fetchEVMResults({
-  chainId,
-  aggregatorIds: [feedId],
+// For Feed Builder/custom feeds, use the v2 feed-hash flow.
+await crossbar.simulateFeed(feedId, false, undefined, network);
+
+const response = await crossbar.fetchV2Update([feedId], {
+  chain: "evm",
+  network,
+  use_timestamp: true,
 });
+
+if (!response.encoded) throw new Error("Crossbar returned no encoded update payload");
+
+const updates = [response.encoded];
 ~~~
 
 ### 3) Contract-side recommended pattern (atomic update+use)
@@ -127,7 +133,17 @@ Crank loop:
 
 ~~~ts
 async function crankOnce(feedIds: string[]) {
-  const { updates } = await crossbar.fetchEvmUpdates({ chainId, feedIds });
+  const response = await crossbar.fetchV2Update(feedIds, {
+    chain: "evm",
+    network,
+    use_timestamp: true,
+  });
+
+  if (!response.encoded) {
+    throw new Error("Crossbar returned no encoded update payload");
+  }
+
+  const updates = [response.encoded];
 
   const fee = await switchboard.getFee(updates);
   const tx = await switchboard.updateFeeds(updates, { value: fee });
@@ -158,6 +174,8 @@ Produce an `EvmFeedIntegrationPlan` including:
 - Fee too low → always call `getFee(updates)` and set `msg.value`
 - Stale timestamp → fetch fresh updates; raise max age only for non-critical paths
 - Wrong feed/network → verify feedId and deployment match chainId/network
+- Feed Builder custom feed on EVM → use `simulateFeed(...)` and `fetchV2Update(...)`, not `fetchEVMResults(...)`
+- `ORACLE_UNAVAILABLE` after successful simulation → treat as managed oracle/gateway availability, not a missing permission
 
 ## References
 

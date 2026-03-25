@@ -55,13 +55,21 @@ const priceConsumer = new ethers.Contract(
 const crossbar = new CrossbarClient("https://crossbar.switchboard.xyz");
 const btcFeedHash = "0x4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
 
-const { encoded } = await crossbar.fetchEVMResults({
-  chainId: 999,
-  aggregatorIds: [btcFeedHash],
+await crossbar.simulateFeed(btcFeedHash, false, undefined, "mainnet");
+
+const response = await crossbar.fetchV2Update([btcFeedHash], {
+  chain: "evm",
+  network: "mainnet",
+  use_timestamp: true,
 });
 
-const fee = await switchboard.getFee(encoded);
-const tx = await priceConsumer.updatePrices(encoded, [btcFeedHash], { value: fee });
+if (!response.encoded) {
+  throw new Error("Crossbar returned no encoded update payload");
+}
+
+const updates = [response.encoded];
+const fee = await switchboard.getFee(updates);
+const tx = await priceConsumer.updatePrices(updates, [btcFeedHash], { value: fee });
 await tx.wait();
 ```
 
