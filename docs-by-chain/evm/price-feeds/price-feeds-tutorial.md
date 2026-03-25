@@ -481,6 +481,10 @@ cd sb-on-demand-examples/evm/price-feeds
 
 ```bash
 bun install
+(
+  cd ../randomness/coin-flip
+  [ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git --shallow
+)
 forge build
 ```
 
@@ -500,6 +504,8 @@ CONTRACT_ADDRESS=0x...
 ```
 
 ### 4. Run the Example
+
+If `CONTRACT_ADDRESS` is unset, the script deploys a fresh consumer contract before it fetches the v2 update and submits it on-chain:
 
 ```bash
 bun run example
@@ -650,7 +656,7 @@ Popular feeds include:
 | `PriceTooOld` | Fetch fresh data from Crossbar; adjust `maxPriceAge` if needed |
 | `InvalidFeedId` | Ensure the feed ID exists and has been updated at least once |
 | `ORACLE_UNAVAILABLE` | If `simulateFeed` works but `fetchV2Update` fails, treat it as oracle or gateway availability rather than a missing deployment step |
-| Build errors | Run `forge clean && forge build` |
+| Build errors | Bootstrap `forge-std` in `../randomness/coin-flip`, then rerun `forge build` |
 
 ## Next Steps
 

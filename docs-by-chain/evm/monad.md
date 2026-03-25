@@ -49,29 +49,40 @@ Before broadcasting transactions, the packaged scripts verify:
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples.git
 cd sb-on-demand-examples/evm/price-feeds
 bun install
+(
+  cd ../randomness/coin-flip
+  [ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git --shallow
+)
 forge build
 cp .env.example .env
 ```
 
-Run on testnet:
+Fastest testnet path:
+
+```bash
+bun run example
+```
+
+If `CONTRACT_ADDRESS` is unset, `bun run example` deploys a fresh consumer before submitting the v2 update. If you want to deploy separately first:
 
 ```bash
 bun run deploy
+# Save the emitted address into CONTRACT_ADDRESS in .env, then rerun:
 bun run example
 ```
 
 Flip to mainnet with one env var:
 
 ```bash
-NETWORK=monad-mainnet bun run deploy
 NETWORK=monad-mainnet bun run example
 ```
 
-## Quick Start: Randomness
+## Quick Start: Coin Flip
 
 ```bash
 cd ../randomness/coin-flip
 bun install
+[ -d lib/forge-std ] || forge install foundry-rs/forge-std --no-git --shallow
 forge build
 cp .env.example .env
 ```
@@ -80,6 +91,20 @@ Run on testnet:
 
 ```bash
 bun run deploy
+```
+
+Save the emitted contract address into `COIN_FLIP_CONTRACT_ADDRESS`, then fund the contract bankroll before the first flip. The contract accepts any positive wager, and the packaged CLI uses `0.01 MON` by default:
+
+```bash
+cast send $COIN_FLIP_CONTRACT_ADDRESS \
+  --rpc-url ${RPC_URL:-https://testnet-rpc.monad.xyz} \
+  --private-key $PRIVATE_KEY \
+  --value 0.01ether
+```
+
+Then run the CLI flow:
+
+```bash
 bun run flip
 ```
 
@@ -87,6 +112,7 @@ Run on mainnet:
 
 ```bash
 NETWORK=monad-mainnet bun run deploy
+# Save COIN_FLIP_CONTRACT_ADDRESS in .env, fund the bankroll on mainnet, then:
 NETWORK=monad-mainnet bun run flip
 ```
 
@@ -157,4 +183,4 @@ await tx.wait();
 ## Notes
 
 - Testnet MON is available from the [Monad faucet](https://faucet.monad.xyz).
-- The generic randomness helper at `evm/randomness/randomness.ts` still supports `hyperliquid-mainnet` in addition to Monad. Run it from `evm/randomness` after `bun install`.
+- The generic randomness helper at `evm/randomness/randomness.ts` still supports `hyperliquid-mainnet` in addition to Monad. Run it from `evm/randomness` after `bun install`, `cp .env.example .env`, and `bun run example`.
