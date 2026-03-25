@@ -12,6 +12,8 @@ This tutorial walks you through implementing Switchboard Surge for real-time pri
 - Solana keypair with an active Surge subscription ([subscribe here](https://explorer.switchboardlabs.xyz/subscriptions))
 - Basic TypeScript knowledge
 
+On Surge devnet, the Solana subscription owner still authenticates the session, but all tiers currently run at `2s` and subscription creation does not require SWTCH. See the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md) for the network-specific subscription rules.
+
 ## Installation
 
 ```bash

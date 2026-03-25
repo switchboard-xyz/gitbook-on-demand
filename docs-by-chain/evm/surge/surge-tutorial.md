@@ -20,6 +20,8 @@ A TypeScript script that:
 
 If you're also streaming Surge updates yourself, note that the SDK authenticates by signing with a Solana keypair that has an active Surge subscription. Without an active subscription, `connectAndSubscribe` will fail.
 
+On Surge devnet, that Solana-side subscription does not require SWTCH and all tiers currently use the same `2s` delay. See the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md) for the environment-specific subscription rules.
+
 ## The Conversion Flow
 
 ```
@@ -336,10 +338,10 @@ bun install
 
 ```bash
 # With sample data
-bun examples/surgeToEvmConversion.ts
+bun scripts/surgeToEvmConversion.ts
 
 # With custom surge data file
-SURGE_DATA_FILE=path/to/surge-data.json bun examples/surgeToEvmConversion.ts
+SURGE_DATA_FILE=path/to/surge-data.json bun scripts/surgeToEvmConversion.ts
 ```
 
 ### Expected Output

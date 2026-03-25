@@ -23,6 +23,8 @@ A TypeScript application that:
 
 Surge subscriptions are currently Solana-only; you cannot subscribe with a Sui keypair yet.
 
+On Surge devnet, the Solana subscription owner still authenticates the session, but subscription creation does not require SWTCH and all tiers currently use the same `2s` delay.
+
 ## Key Concepts
 
 ### Surge vs On-Demand Quotes
@@ -65,7 +67,7 @@ import {
 } from '@switchboard-xyz/sui-sdk';
 import { fromB64 } from '@mysten/bcs';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { Keypair as SolanaKeypair } from '@solana/web3.js';
+import { Connection, Keypair as SolanaKeypair } from '@solana/web3.js';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -74,6 +76,7 @@ import { Transaction } from '@mysten/sui/transactions';
 // Initialize Sui clients
 const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 
 // Oracle mapping cache
 const oracleMapping = new Map<string, string>();
@@ -221,7 +224,7 @@ if (!solanaKeypair) {
 
   // Initialize Surge with Solana keypair (subscription owner)
   const surge = new sb.Surge({
-    connection: suiClient,
+    connection: solanaConnection,
     keypair: solanaKeypair!,
     signatureScheme: 'ed25519',
   });
@@ -269,15 +272,16 @@ if (!solanaKeypair) {
 ```typescript
 const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 ```
 
-Initialize the Sui and Switchboard clients. For testnet, use `https://fullnode.testnet.sui.io:443`.
+Initialize the Sui client you will submit transactions through, plus a Solana RPC connection for Surge authentication. For Sui testnet, use `https://fullnode.testnet.sui.io:443`.
 
 #### Creating Surge Connection
 
 ```typescript
 const surge = new sb.Surge({
-  connection: suiClient,
+  connection: solanaConnection,
   keypair: solanaKeypair!,
   signatureScheme: 'ed25519',
 });
@@ -285,7 +289,7 @@ const surge = new sb.Surge({
 await surge.connectAndSubscribe([{ symbol: 'BTC/USD' }]);
 ```
 
-- `connection`: Your SuiClient instance
+- `connection`: Your Solana `Connection` instance
 - `keypair`: Your Solana keypair (must have an active Surge subscription)
 - `signatureScheme`: Use `'ed25519'` for Solana keypairs
 - `connectAndSubscribe()`: Connects and subscribes to specified feeds
@@ -326,15 +330,19 @@ The mainnet and testnet examples are nearly identical with these differences:
 |---------|---------|---------|
 | RPC URL | `https://fullnode.mainnet.sui.io:443` | `https://fullnode.testnet.sui.io:443` |
 | Oracle Mapping | `/oracles/sui` | `/oracles/sui/testnet` |
+| Surge Subscription Semantics | Determined by your Solana-side Surge environment | Determined by your Solana-side Surge environment |
+
+Sui mainnet vs testnet does not change the Solana-side Surge subscription rules. If you authenticate against Surge devnet, all tiers currently use the same `2s` delay and subscriptions do not require SWTCH. See the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md) for the subscription-side details.
 
 ### Testnet Configuration
 
 ```typescript
 // Testnet setup
 const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 
 const surge = new sb.Surge({
-  connection: suiClient,
+  connection: solanaConnection,
   keypair: solanaKeypair!,
   signatureScheme: 'ed25519',
 });
@@ -405,12 +413,14 @@ import * as sb from '@switchboard-xyz/on-demand';
 import { SuiClient } from '@mysten/sui/client';
 import { SwitchboardClient, emitSurgeQuote } from '@switchboard-xyz/sui-sdk';
 import { Transaction } from '@mysten/sui/transactions';
+import { Connection } from '@solana/web3.js';
 
 const suiClient = new SuiClient({ url: 'https://fullnode.mainnet.sui.io:443' });
 const switchboardClient = new SwitchboardClient(suiClient);
+const solanaConnection = new Connection('https://api.mainnet-beta.solana.com');
 
 const surge = new sb.Surge({
-  connection: suiClient,
+  connection: solanaConnection,
   keypair: solanaKeypair, // Solana keypair with active Surge subscription
   signatureScheme: 'ed25519',
 });

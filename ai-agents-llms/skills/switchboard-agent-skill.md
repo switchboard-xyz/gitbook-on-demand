@@ -1,7 +1,7 @@
 ---
 name: switchboard
-version: 1.0.3
-updated: 2026-03-03
+version: 1.0.4
+updated: 2026-03-24
 ---
 
 # Switchboard Skill
@@ -212,6 +212,10 @@ Feature routing:
 - Streaming (Surge) → `switchboard-surge`
 - Randomness → `switchboard-randomness`
 - X402 micropayments → `switchboard-x402`
+
+Surge routing note:
+- When the request targets Surge on `devnet`, do not assume SWTCH purchase or paid-tier timing differences.
+- Defer subscription semantics to `switchboard-surge`, which carries the current mainnet-vs-devnet rules.
 
 ### Step 3: common multi-skill sequences
 

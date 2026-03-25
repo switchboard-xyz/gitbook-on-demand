@@ -4,7 +4,22 @@ This guide explains how to subscribe to Switchboard Surge programmatically on So
 
 ## Overview
 
-Surge subscriptions are managed entirely on Solana via the Surge program (`orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz`). The subscription flow is:
+Surge subscriptions are managed entirely on Solana via the Surge program (`orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz`).
+
+## Mainnet vs Devnet
+
+Surge subscription behavior depends on the Solana-side Surge environment you are using:
+
+| Environment | Tier Behavior | Delay | SWTCH Required | Pricing Table Applies |
+|-------------|---------------|-------|----------------|-----------------------|
+| **Mainnet** | Plug / Pro / Enterprise have different limits and timing | Tier-specific | Yes | Yes |
+| **Devnet** | All tiers currently behave the same | 2s for every tier | No | No |
+
+Use the mainnet pricing flow below only when you are subscribing on mainnet. On devnet, you still authenticate with a Solana keypair, but you should not assume SWTCH purchase is required or that tier selection changes the delay.
+
+## Overview of the Mainnet Paid Flow
+
+On mainnet, the subscription flow is:
 
 1. Choose a tier
 2. Acquire SWTCH tokens
@@ -38,7 +53,7 @@ Tiers are on-chain PDA accounts with the seed `[TIER, tier_id_bytes]`, created b
 
 **Public tiers** (tier IDs 1-9) are open to all wallets. Tier IDs 10+ require admin approval.
 
-### Current Tiers
+### Mainnet Public Tiers
 
 | Tier | Tier ID | Approx. Cost | Quote Interval | Max Feeds | Max Connections |
 |------|---------|---------------|----------------|-----------|-----------------|
@@ -57,15 +72,17 @@ const [tierPda] = PublicKey.findProgramAddressSync(
 
 ---
 
-## Step 2: Get SWTCH Tokens
+## Step 2: Get SWTCH Tokens (Mainnet only)
 
-All subscription payments must be in **SWTCH tokens**. The program enforces this check:
+Mainnet subscription payments must be in **SWTCH tokens**. The paid mainnet flow enforces this check:
 
 ```rust
 require!(payment_mint.key() == state.swtch_mint, SubscriberError::MustPayWithSwtch);
 ```
 
-Acquire SWTCH tokens via any Solana DEX (e.g., Jupiter, Raydium) before initiating the subscription.
+Acquire SWTCH tokens via any Solana DEX (e.g., Jupiter, Raydium) before initiating the mainnet subscription.
+
+On devnet, SWTCH funding is not required for subscription creation.
 
 ---
 
@@ -83,6 +100,8 @@ Send a transaction with the `subscription_init` instruction. The instruction tak
 | `contact_email` | `Option<String>` | Optional contact email metadata |
 
 ### Required Accounts
+
+The account list below describes the paid mainnet flow.
 
 | Account | Description | Derivation |
 |---------|-------------|------------|
@@ -125,9 +144,9 @@ const [subscriptionPda] = PublicKey.findProgramAddressSync(
 
 ---
 
-## Step 4: On-Chain Pricing
+## Step 4: On-Chain Pricing (Mainnet only)
 
-The program does **not** use a hardcoded SWTCH price. Instead, it reads the live SWTCH/USDT price from a Switchboard oracle quote passed as an account in the transaction.
+The program does **not** use a hardcoded SWTCH price. Instead, the paid mainnet flow reads the live SWTCH/USDT price from a Switchboard oracle quote passed as an account in the transaction.
 
 ### Pricing Logic
 
@@ -166,9 +185,9 @@ Once the transaction succeeds, a subscription PDA is created at `[SUBSCRIPTION, 
 
 ---
 
-## Providing the Oracle Quote
+## Providing the Oracle Quote (Mainnet only)
 
-The SWTCH/USDT price quote is the most important piece of the subscription transaction. You need to pass a valid, fresh Switchboard oracle quote for the SWTCH/USDT feed.
+For mainnet subscriptions, the SWTCH/USDT price quote is the most important piece of the subscription transaction. You need to pass a valid, fresh Switchboard oracle quote for the SWTCH/USDT feed.
 
 ### Using the Switchboard SDK
 
@@ -195,7 +214,7 @@ Include the quote instruction(s) in the same transaction as `subscription_init` 
 
 ---
 
-## Full Transaction Assembly
+## Full Transaction Assembly (Mainnet paid flow)
 
 A complete subscription transaction includes:
 
@@ -276,15 +295,16 @@ console.log("End epoch:", subscriptionAccount.subscriptionEndEpoch.toString());
 | Item | Value |
 |------|-------|
 | Surge Program ID | `orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz` |
-| SWTCH Token Mint | Stored in program state (`state.swtch_mint`) |
-| SWTCH/USDT Feed ID | Stored in program state (`state.swtch_feed_id`) |
+| SWTCH Token Mint | Stored in program state (`state.swtch_mint`) for mainnet paid subscriptions |
+| SWTCH/USDT Feed ID | Stored in program state (`state.swtch_feed_id`) for mainnet paid subscriptions |
 
 ---
 
 ## Notes for AI Agents
 
-- **Fresh quotes are mandatory**: The oracle quote account must contain a recent SWTCH/USDT price. Include the quote verification instruction in the same transaction.
+- **Devnet subscriptions**: On devnet, all tiers currently use the same `2s` delay and subscribing does not require SWTCH.
+- **Fresh quotes are mandatory on mainnet**: The oracle quote account must contain a recent SWTCH/USDT price. Include the quote verification instruction in the same transaction.
 - **Epoch amounts**: Valid range is 1-146 epochs. One Solana epoch is approximately 2-3 days, so 146 epochs covers roughly one year.
-- **Free tier**: The Plug tier (tier ID 1) is free but still requires calling `subscription_init` with a valid oracle quote (the transfer amount will be zero).
+- **Mainnet free tier**: The Plug tier (tier ID 1) is free but still uses the mainnet `subscription_init` path with a valid oracle quote (the transfer amount will be zero).
 - **Subscription PDA is unique per wallet**: Each wallet can have only one subscription at `[SUBSCRIPTION, owner_pubkey]`.
 - **Managing users**: After subscribing, use `subscription_manage_users` to authorize up to 16 additional wallets to use the subscription.

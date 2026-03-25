@@ -1,7 +1,7 @@
 ---
 name: switchboard-surge
-version: 1.0.2
-updated: 2026-02-18
+version: 1.0.3
+updated: 2026-03-24
 depends_on:
   - switchboard
 ---
@@ -27,7 +27,7 @@ Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md
 ## Preconditions
 
 - `OperatorPolicy` exists.
-- If creating/modifying a paid subscription, explicit approval is required.
+- If creating or modifying a paid mainnet subscription, explicit approval is required.
 
 ## Inputs to Collect
 
@@ -74,17 +74,33 @@ surge.on("signedPriceUpdate", (update: sb.SurgeUpdate) => {
 
 Surge subscriptions are managed **on Solana** via the Surge program (`orac1eFjzWL5R3RbbdMV68K9H6TaCVVcL6LjvQQWAbz`). To subscribe programmatically:
 
+#### Mainnet vs Devnet
+
+| Environment | Tier Behavior | Delay | SWTCH Required |
+|-------------|---------------|-------|----------------|
+| **Mainnet** | Plug / Pro / Enterprise differ by limits and timing | Tier-specific | Yes |
+| **Devnet** | All tiers currently behave the same | 2s for every tier | No |
+
+Mainnet paid flow:
+
 1. **Choose a tier** (Plug/Pro/Enterprise). Tiers are on-chain PDAs.
-2. **Acquire SWTCH tokens** (payments are in SWTCH only).
+2. **Acquire SWTCH tokens** for the subscription wallet.
 3. **Fetch a fresh SWTCH/USDT oracle quote** and include it in the same transaction.
 4. **Call `subscription_init`** with `tier_id` and `epoch_amount`. The program prices the subscription in SWTCH using the live quote and creates your subscription PDA.
 
+Devnet flow:
+
+1. **Choose a tier** for compatibility, but do not assume it changes delay.
+2. **Do not require SWTCH funding** as a prerequisite.
+3. **Use the public docs as the source of truth** for current devnet subscription behavior before automating any funding or pricing logic.
+
 Key notes:
 - If the keypair has no active subscription, `connectAndSubscribe` fails.
-- Tiers and limits are enforced on-chain (max feeds, connections, min delay).
+- Mainnet tiers and limits are enforced on-chain; on devnet, do not assume the mainnet timing differences apply.
 - For UI-free flows, derive PDAs (`STATE`, `TIER`, `SUBSCRIPTION`) and pass required accounts.
+- Canonical docs: [Programmatic Surge Subscription Guide](../surge-subscription-guide.md)
 
-Minimal sketch (quote + `subscription_init` in one tx):
+Minimal mainnet sketch (quote + `subscription_init` in one tx):
 
 ~~~ts
 import * as sb from "@switchboard-xyz/on-demand";

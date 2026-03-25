@@ -56,6 +56,8 @@ Surge works the same way regardless of your target chain:
 
 Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions](https://explorer.switchboardlabs.xyz/subscriptions). If you are an AI agent or wish to subscribe programmatically rather than through the UI, see the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md).
 
+> **Devnet Note:** On Surge devnet, all tiers currently use the same `2s` delay and subscriptions do not require SWTCH. The pricing table below is mainnet-only.
+
 ### 2. Install the SDK
 
 ```bash
@@ -102,7 +104,7 @@ surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
 });
 ```
 
-## Pricing & Limits
+## Mainnet Pricing & Limits
 
 | Plan | Price | Quote Interval | Max Feeds | Max Connections |
 |------|-------|----------------|-----------|-----------------|
@@ -110,7 +112,7 @@ surge.on('signedPriceUpdate', (response: sb.SurgeUpdate) => {
 | **Pro** | ~$3,000/mo | 450ms | 100 | 10 |
 | **Enterprise** | ~$7,500/mo | 0ms | 300 | 15 |
 
-Subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz).
+On mainnet, subscriptions are paid in SWTCH tokens. For custom limits or dedicated support, contact [sales@switchboard.xyz](mailto:sales@switchboard.xyz). For devnet behavior, see the [Surge Subscription Guide](../../../ai-agents-llms/surge-subscription-guide.md).
 
 ## Primary Use Cases
 
