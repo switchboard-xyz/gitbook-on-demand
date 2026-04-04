@@ -197,14 +197,14 @@ Bounding can be applied:
 
 Switchboard supports many task types, including:
 
-- HttpTask (REST)
-- JsonParseTask (JSONPath extraction)
-- MedianTask (sub-aggregation inside a job)
-- JupiterSwapTask (Solana DEX price simulation)
-- SecretsTask (secure secret retrieval)
+- [HttpTask](../task-types.md#httptask) (REST)
+- [JsonParseTask](../task-types.md#jsonparsetask) (JSONPath extraction)
+- [MedianTask](../task-types.md#mediantask) (sub-aggregation inside a job)
+- [JupiterSwapTask](../task-types.md#jupiterswaptask) (Solana DEX price simulation)
+- [SecretsTask](../task-types.md#secretstask) (secure secret retrieval)
 
 Full task docs:
-- https://protos.docs.switchboard.xyz/
+- [Task Types Reference](../task-types.md)
 
 ---
 
@@ -220,6 +220,8 @@ Do **not** use variables for anything that changes feed logic (URLs, JSON paths,
 ### SecretsTask
 
 If you need to retrieve secrets from a dedicated secrets server at runtime, include a SecretsTask at the top of the job, then use the unwrapped variables in downstream tasks.
+
+For a higher-level overview of hosted vs self-hosted secrets, see [Switchboard Secrets](../../product-documentation/data-feeds/optional-features/switchboard-secrets.md).
 
 (See `SecretsTask` docs in the task reference above.)
 

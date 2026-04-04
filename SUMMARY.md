@@ -54,6 +54,7 @@
   * [Time-Weighted Average Prices](custom-feeds/advanced-feed-configuration/twap.md)
   * [FAQ](custom-feeds/advanced-feed-configuration/faq.md)
 * [Task Types Reference](custom-feeds/task-types.md)
+* [Switchboard Secrets](product-documentation/data-feeds/optional-features/switchboard-secrets.md)
 
 ## How it Works
 
