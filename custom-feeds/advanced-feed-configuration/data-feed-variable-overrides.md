@@ -757,4 +757,5 @@ const tx = await asV0Tx({
 
 * [Variables with CacheTask](variables-with-cachetask.md) - For internal variable management
 * [REST APIs with HttpTask](rest-apis-with-httptask.md) - HTTP request configuration
-* [Oracle Job Documentation](https://protos.docs.switchboard.xyz/protos/OracleJob) - Full job specification
+* [Build with TypeScript](../build-and-deploy-feed/build-with-typescript.md) - Oracle Jobs, simulation, and task composition
+* [Task Types Reference](../task-types.md) - Full task reference and examples

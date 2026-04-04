@@ -39,7 +39,7 @@ Switchboard feeds are composed of Oracle Jobs, a schema designed for efficient a
 }
 ```
 
-Oracle Jobs are composed of tasks. Tasks are like instructions to fetch data or compute certain outputs. There are several [Task Types](https://protos.docs.switchboard.xyz/protos/Task) available, and they can be strung together to create some complex logic.
+Oracle Jobs are composed of tasks. Tasks are like instructions to fetch data or compute certain outputs. There are several [Task Types](../task-types.md) available, and they can be strung together to create some complex logic.
 
 #### Oracle Jobs Schema
 

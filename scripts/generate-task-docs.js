@@ -197,14 +197,16 @@ function cleanDocumentation(doc) {
 
   // Clean up the documentation
   let cleaned = doc
-    // Remove leading asterisks from each line (for /* * style comments)
-    .replace(/^\s*\*\s?/gm, '')
+    // Remove the block-comment prefix from lines like " * text" without
+    // stripping intentional markdown such as "**bold**".
+    .replace(/^\s*\*(?!\*)\s?/gm, '')
     // Normalize whitespace
     .replace(/\r\n/g, '\n')
     .trim();
 
   // Format JSON code blocks for better readability
   cleaned = formatJsonCodeBlocks(cleaned);
+  cleaned = demoteInternalHeadings(cleaned);
 
   return cleaned;
 }
@@ -221,6 +223,15 @@ function formatJsonCodeBlocks(text) {
       // If parsing fails, return original
       return match;
     }
+  });
+}
+
+function demoteInternalHeadings(text) {
+  // Task pages already provide the primary heading structure. Converting nested
+  // headings inside proto comments to bold labels keeps GitBook's page nav from
+  // treating them as top-level sections.
+  return text.replace(/^(#{2,6})\s+(.+)$/gm, (_, __, headingText) => {
+    return `**${headingText.trim()}**`;
   });
 }
 

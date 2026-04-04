@@ -109,7 +109,7 @@ Example tasks (conceptual):
 ]
 ```
 
-> Task reference: https://protos.docs.switchboard.xyz/
+> Task reference: [Task Types Reference](../task-types.md)
 
 ### 4) Configure feed-level validation and freshness
 
@@ -183,4 +183,4 @@ If you need authenticated APIs:
 
 - [Build with code](build-with-typescript.md)
 - [Deploy on-chain](deploy-feed.md)
-- [Task reference](https://protos.docs.switchboard.xyz/)
+- [Task Types Reference](../task-types.md)
