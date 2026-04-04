@@ -2117,21 +2117,21 @@ _**Returns**_: A positive Decimal number with 18 decimal places (scale 18)
 
 ---
 
-## Hash-to-Decimal Conversion Algorithm
+**Hash-to-Decimal Conversion Algorithm**
 
-### Step-by-Step Process
-*1. Compute BLAKE2b-128 hash** (produces 16 bytes / 128 bits)
+**Step-by-Step Process**
+**1. Compute BLAKE2b-128 hash** (produces 16 bytes / 128 bits)
    ```
    Input:  "Hello, World!"
    Output: 3895c59e4aeb0903396b5be3fbec69fe
    ```
-*2. Truncate to 96 bits (12 bytes)** - keep the **most significant** bits
+**2. Truncate to 96 bits (12 bytes)** - keep the **most significant** bits
    ```
    KEPT (first 12 bytes):      3895c59e4aeb0903396b5be3
    DISCARDED (last 4 bytes):   fbec69fe
    ```
    This follows cryptographic standards where truncation keeps the leftmost/most significant bits.
-*3. Pad to 16 bytes** for u128 representation
+**3. Pad to 16 bytes** for u128 representation
    ```
    Add 4 zero bytes at the BEGINNING:
 
@@ -2140,13 +2140,13 @@ _**Returns**_: A positive Decimal number with 18 decimal places (scale 18)
    padding      first 12 bytes
    (4 bytes)    (most significant)
    ```
-*4. Interpret as u128 using big-endian** byte order
+**4. Interpret as u128 using big-endian** byte order
    ```
    Hex:     0x000000003895c59e4aeb0903396b5be3
    Decimal: 17512223723299011049621773283
    ```
    Big-endian is the standard for cryptographic hash representations.
-*5. Convert to Decimal** with scale 18 (18 decimal places)
+**5. Convert to Decimal** with scale 18 (18 decimal places)
    ```
    Value:  17512223723299011049621773283
    Scaled: 17512223723.299011049621773283 (divided by 10^18)
@@ -2156,11 +2156,11 @@ _**Returns**_: A positive Decimal number with 18 decimal places (scale 18)
 
 ---
 
-## Reproducibility
+**Reproducibility**
 
 To reproduce this conversion in **any programming language**:
 
-### Python Example
+**Python Example**
 ```python
 import hashlib
 from decimal import Decimal
@@ -2185,7 +2185,7 @@ result = Decimal(value) / Decimal(10**18)
 # Result: Decimal('17512223723.299011049621773283')
 ```
 
-### JavaScript Example
+**JavaScript Example**
 ```javascript
 const crypto = require('crypto');
 
@@ -2213,7 +2213,7 @@ const result = Number(value) / 1e18;
 // Result: 17512223723.299011 (note: JS loses precision beyond ~15 digits)
 ```
 
-### Rust Example
+**Rust Example**
 ```rust
 use blake2::{Blake2b, Digest};
 use blake2::digest::consts::U16;
@@ -2241,7 +2241,7 @@ let result = Decimal::from_i128_with_scale(value as i128, 18);
 
 ---
 
-## Why This Approach?
+**Why This Approach?**
 
 ✅ **Cryptographic Standard**: Follows the same truncation method as SHA-224, BLAKE2s-128, etc.
 ✅ **Preserves Entropy**: Keeps the most significant/diverse bits of the hash
@@ -2404,6 +2404,8 @@ _**Example**_: Returns the numerical result from the conditionalTask's subtasks,
 
 Securely request secrets from a Switchboard SecretsServer that are owned by a specific authority. Any secrets that are returned for the current feed will then be unwrapped into variables to be accessed later.
 
+Use this when your job needs credentials such as API keys, auth headers, or other sensitive values that should not live directly in the feed definition.
+
 _**Input**_: None
 
 _**Returns**_: The input
@@ -2422,6 +2424,29 @@ _**Example**_: SecretsTask
 |-------|------|-------------|
 | `authority` | string | The authority of the secrets that are to be requested. |
 | `url` | string | The url of the server to request secrets from. The default is https://api.secrets.switchboard.xyz. |
+
+**How it fits into a feed**
+
+`SecretsTask` is typically placed near the top of a job. The returned secrets are then referenced later via variable expansion such as `${API_KEY}` in downstream tasks.
+
+Typical flow:
+
+1. Create a user profile for the wallet that owns the secrets.
+2. Add one or more named secrets to that profile.
+3. Add `SecretsTask` to the job with the secret authority.
+4. Reference the secret values in later tasks using `${SECRET_NAME}`.
+5. Whitelist the relevant measurement / MrEnclave values that should be allowed to access that secret.
+
+**Hosted vs self-hosted**
+
+- Hosted app: [https://secrets.switchboard.xyz/connect](https://secrets.switchboard.xyz/connect)
+- Self-hosted server: [https://github.com/switchboard-xyz/sbv3/tree/main/apps/secrets-server](https://github.com/switchboard-xyz/sbv3/tree/main/apps/secrets-server)
+
+**Related resources**
+
+- [Build with TypeScript](build-and-deploy-feed/build-with-typescript.md#secretstask)
+- [Data Feed Variable Overrides](advanced-feed-configuration/data-feed-variable-overrides.md)
+- [Secrets example repository](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secret/sb-on-demand-secrets)
 
 ---
 

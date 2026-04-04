@@ -221,7 +221,7 @@ Do **not** use variables for anything that changes feed logic (URLs, JSON paths,
 
 If you need to retrieve secrets from a dedicated secrets server at runtime, include a SecretsTask at the top of the job, then use the unwrapped variables in downstream tasks.
 
-For a higher-level overview of hosted vs self-hosted secrets, see [Switchboard Secrets](../../product-documentation/data-feeds/optional-features/switchboard-secrets.md).
+For hosted vs self-hosted secrets setup details, see the [`SecretsTask` reference](../task-types.md#secretstask).
 
 (See `SecretsTask` docs in the task reference above.)
 
