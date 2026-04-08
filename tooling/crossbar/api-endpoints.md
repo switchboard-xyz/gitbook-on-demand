@@ -366,97 +366,37 @@ Response (`200`): array of update objects
   {
     "success": true,
     "pullIxns": [
-      {
-        "keys": [
-          {
-            "pubkey": "acf6ac33e6e7ac61fc2753cb2b47461aa25aecf4309b48fd5aec01c9d898d391",
-            "isSigner": false,
-            "isWritable": true
-          },
-          {
-            "pubkey": "86807068432f186a147cf0b13a30067d386204ea9d6c8b04743ac2ef010b0752",
-            "isSigner": false,
-            "isWritable": false
-          }
-        ],
-        "programId": "0673bd46f2e47e04f12bd92fb731968ecd9d9757c274da87476f465c040c6573",
-        "data": "9616d7a68f5d3089728139110000000001000000761474bfb3cb6c060000000000000000ac95d3645aa39944c6c61ab056d05c27ae359ae45c25108946c7b6fe6e555e0d7ef033918d2ae6887af8bf1d44bd815f5d1a4772e46ffec2d01d01af896476ce0100"
-      }
+      "0673bd46f2e47e04f12bd92fb731968ecd9d9757c274da87476f465c040c6573050000000000000089e0fecf1c1b3a11e77b9d1048192288ae1d8ada0e19ff95d737c4e5afb583f70001d284bd424eb258f1f502c95ff334245b64af7df6b14435d1ea46d10fb3ac68b6000086807068432f186a147cf0b13a30067d386204ea9d6c8b04743ac2ef010b075200007752c55e8b0a7079ad51975736764e45f56d61ebd15aa96d55f7ca86d5b5e387010100000000000000000000000000000000000000000000000000000000000000000000310000000000000001020304050607081d3c620d5670b1b26d0d3c7c27cb75a5187d99b8ccf8850d5b79d573b81bff7c030000009600000000"
     ],
     "responses": [
       {
-        "oracle": "8Vjo4QEbmB9QhhBu6QiTy66G1tw8WomtFVWECMi3a71y",
-        "result": 0.46296883458395865,
-        "errors": "[]"
+        "oracle": "9pPCSotuPGUDgdYUtngMCemNi3KHdWFvwLhqx57KkbXb",
+        "result": 1.1067679409326794,
+        "errors": ""
       }
     ],
     "lookupTables": [
-      "DY5XyWFyLAy9LU2riqbmxZTB5KvQkvzvzTqFiQRpZYFB",
-      "GZamopFRG3Nih67i7YdCEdMNRmGVkwXgxn3T3uNfT5YQ"
+      "A43DyUGA7s8eXPxqEjJY6EBu1KKbNgfxF8h17VAHn13w"
     ]
   }
 ]
 ```
 
-`pullIxns` object schema:
+`pullIxns` wire format:
 
-- `keys`: account metas for the instruction.
-- `keys[].pubkey`: 32-byte pubkey encoded as lowercase hex (64 chars, no `0x`).
-- `keys[].isSigner`: signer flag for that account.
-- `keys[].isWritable`: writable flag for that account.
-- `programId`: 32-byte program ID encoded as lowercase hex (64 chars, no `0x`).
-- `data`: instruction data bytes encoded as lowercase hex.
+- Each array entry is a hex-encoded `bincode` serialization of `solana_sdk::instruction::Instruction`.
+- Raw HTTP responses return these serialized strings directly.
+- SDK helpers such as `CrossbarClient.fetchSolanaUpdates` may decode them into native instruction objects before returning to your application.
+- `lookupTables` are still returned separately for address lookup table usage in versioned transactions.
 
-Required accounts behavior (important):
-
-- There is no separate `requiredAccounts` field for this endpoint.
-- The canonical account list is `pullIxns[i].keys`.
-- Account order is significant and must be preserved exactly.
-- `isSigner` and `isWritable` flags are part of the instruction contract and must be preserved exactly.
-- Do not reorder, sort, dedupe, or recompute account metas when reconstructing the instruction.
-- `lookupTables` are provided separately for address lookup table usage in versioned transactions; they do not replace `keys`.
-
-Non-JS deserialization flow:
-
-1. Decode hex fields to bytes.
-2. Convert `programId` and each `keys[].pubkey` from 32-byte arrays into native pubkey types.
-3. Build account metas from `isSigner` + `isWritable` in the same order as returned.
-4. Use decoded `data` bytes as instruction payload.
-
-Example (Rust):
+Rust decode example:
 
 ```rust
-use solana_program::{instruction::{AccountMeta, Instruction}, pubkey::Pubkey};
+use solana_sdk::instruction::Instruction;
 
-fn pubkey_from_hex(s: &str) -> anyhow::Result<Pubkey> {
-    let bytes = hex::decode(s)?;
-    let arr: [u8; 32] = bytes.try_into()
-        .map_err(|_| anyhow::anyhow!("expected 32-byte pubkey"))?;
-    Ok(Pubkey::new_from_array(arr))
-}
-
-fn build_instruction(
-    program_id_hex: &str,
-    keys: Vec<(String, bool, bool)>,
-    data_hex: &str,
-) -> anyhow::Result<Instruction> {
-    let program_id = pubkey_from_hex(program_id_hex)?;
-    let accounts = keys
-        .into_iter()
-        .map(|(pubkey_hex, is_signer, is_writable)| -> anyhow::Result<AccountMeta> {
-            Ok(AccountMeta {
-                pubkey: pubkey_from_hex(&pubkey_hex)?,
-                is_signer,
-                is_writable,
-            })
-        })
-        .collect::<anyhow::Result<Vec<_>>>()?;
-
-    Ok(Instruction {
-        program_id,
-        accounts,
-        data: hex::decode(data_hex)?,
-    })
+fn decode_instruction(ix_hex: &str) -> anyhow::Result<Instruction> {
+    let bytes = hex::decode(ix_hex)?;
+    Ok(bincode::deserialize(&bytes)?)
 }
 ```
 
@@ -465,7 +405,7 @@ fn build_instruction(
 Response schema is the same as `/updates/solana/{network}/{feedPubkeys}`:
 
 - `success`: `bool`
-- `pullIxns`: array of instruction objects (`keys`, `programId`, `data`)
+- `pullIxns`: array of hex-encoded serialized `Instruction` values
 - `responses`: array of oracle responses
 - `lookupTables`: array of address lookup table pubkeys (base58)
 
