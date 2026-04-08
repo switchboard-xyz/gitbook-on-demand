@@ -32,7 +32,7 @@ Switchboard oracles must pass a hardware proof when joining the network, ensurin
 
 **Zero Setup** — No data feed accounts or on-chain deployment needed. Just use your keypair and connection to start streaming.
 
-**Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates. Reduced on-chain costs when submitting to contracts.
+**Cost Efficiency** — Subscription-based pricing with no gas fees for receiving updates off-chain. On-chain submission still pays Sui gas and may include an optional queue-configured verifier fee.
 
 **Seamless Integration** — TypeScript/JavaScript SDK, WebSocket API for any language, and Sui quote conversion for on-chain use.
 
@@ -68,10 +68,16 @@ yarn add @switchboard-xyz/on-demand@3.9.0 @switchboard-xyz/sui-sdk@0.1.14 @myste
 
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
-import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
+import { SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
+import {
+  SwitchboardClient,
+  convertSurgeUpdateToQuotes,
+} from "@switchboard-xyz/sui-sdk";
 
 // Initialize with keypair and connection (uses on-chain subscription)
+const suiClient = new SuiClient({ url: "https://fullnode.mainnet.sui.io:443" });
+const switchboardClient = new SwitchboardClient(suiClient);
 const surge = new sb.Surge({ connection, keypair });
 // `connection` is a Solana RPC Connection from @solana/web3.js (used to verify the Solana subscription),
 // not your Sui client. Keep a separate Sui client for on-chain writes.
@@ -101,7 +107,11 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
 
   // Convert to on-chain Oracle Quote for Sui contracts when needed
   const ptb = new Transaction();
-  const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+  const quoteData = await convertSurgeUpdateToQuotes(
+    switchboardClient,
+    ptb,
+    response
+  );
 
   ptb.moveCall({
     target: `${PACKAGE_ID}::your_module::your_function`,
@@ -109,6 +119,8 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
   });
 });
 ```
+
+> **Queue fees:** `convertSurgeUpdateToQuotes()` uses the same queue-fee resolution as `Quote.fetchUpdateQuote()`. If the queue fee is `0`, no extra params are needed. If the queue accepts SUI as a fee type, the SDK auto-splits the exact fee from `ptb.gas`. Otherwise pass `{ feeCoin, feeType }` as the optional fourth argument using an exact-amount coin type accepted by the queue.
 
 ## Pricing & Limits
 
@@ -128,9 +140,10 @@ Surge is the perfect oracle solution for perpetual trading platforms:
 
 ```typescript
 import * as sb from "@switchboard-xyz/on-demand";
-import { convertSurgeUpdateToQuotes, MAINNET_QUEUE_ID } from "@switchboard-xyz/sui-sdk";
+import { convertSurgeUpdateToQuotes } from "@switchboard-xyz/sui-sdk";
 import { Transaction } from "@mysten/sui/transactions";
 
+// Assumes you already initialized `switchboardClient` as shown above.
 surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
   const metrics = response.getLatencyMetrics();
   if (metrics.isHeartbeat) return;
@@ -147,7 +160,11 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
     const liquidations = await checkLiquidations(feed.symbol, price);
     if (liquidations.length > 0) {
       const ptb = new Transaction();
-      const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+      const quoteData = await convertSurgeUpdateToQuotes(
+        switchboardClient,
+        ptb,
+        response
+      );
       await executeLiquidations(liquidations, ptb, quoteData);
     }
   }
@@ -182,7 +199,11 @@ class OracleAMM {
     const amountOut = amountIn * latestPrice * (1 - this.swapFee);
 
     const ptb = new Transaction();
-    const quoteData = await convertSurgeUpdateToQuotes(ptb, this.latestUpdate, MAINNET_QUEUE_ID);
+    const quoteData = await convertSurgeUpdateToQuotes(
+      switchboardClient,
+      ptb,
+      this.latestUpdate
+    );
 
     ptb.moveCall({
       target: `${PACKAGE_ID}::amm::swap`,
@@ -210,7 +231,11 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
     const spread = Math.abs(dexPrice - oraclePrice) / oraclePrice;
     if (spread > MIN_PROFIT_THRESHOLD) {
       const ptb = new Transaction();
-      const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+      const quoteData = await convertSurgeUpdateToQuotes(
+        switchboardClient,
+        ptb,
+        response
+      );
       await executeArbitrage(ptb, quoteData, calculateOptimalSize(spread));
     }
   }
@@ -234,7 +259,11 @@ surge.on('signedPriceUpdate', async (response: sb.SurgeUpdate) => {
       const ltv = calculateLTV(position, price);
       if (ltv > LIQUIDATION_THRESHOLD) {
         const ptb = new Transaction();
-        const quoteData = await convertSurgeUpdateToQuotes(ptb, response, MAINNET_QUEUE_ID);
+        const quoteData = await convertSurgeUpdateToQuotes(
+          switchboardClient,
+          ptb,
+          response
+        );
         await liquidatePosition(position, ptb, quoteData);
       }
     }
@@ -281,7 +310,7 @@ Surge streams data directly to your application via WebSocket, bypassing the blo
 
 ### Can I use Surge data on-chain?
 
-Yes! Surge updates can be converted to Sui quote format using `convertSurgeUpdateToQuotes()` from the `@switchboard-xyz/sui-sdk` and submitted to your Move contracts.
+Yes. Surge updates can be converted to Sui quote format using `convertSurgeUpdateToQuotes()` from the `@switchboard-xyz/sui-sdk` and submitted to your Move contracts. If the queue uses a non-SUI verifier fee, pass `{ feeCoin, feeType }` as the optional fourth argument.
 
 ### What's the reliability?
 

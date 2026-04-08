@@ -68,12 +68,15 @@ tx.moveCall({
 await suiClient.signAndExecuteTransaction({ signer: keypair, transaction: tx });
 ~~~
 
+`Quote.fetchUpdateQuote()` keeps the zero-fee path unchanged. If the queue accepts SUI as a fee type, the SDK auto-splits the exact fee from `tx.gas`. If the queue requires a non-SUI fee coin, pass `feeCoin` and `feeType` with an exact-amount coin type listed in `queue.feeTypes`.
+
 ## Playbook
 
 ### 1) Resolve queue and feeds
 
 - Fetch Switchboard state to identify `oracleQueueId`.
 - Confirm feed IDs exist for the chosen network.
+- If `queue.fee > 0` and SUI is not in `queue.feeTypes`, prepare an exact-amount non-SUI `feeCoin` and pass both `feeCoin` and `feeType` when fetching quotes.
 
 ### 2) Transaction flow (TypeScript skeleton)
 
