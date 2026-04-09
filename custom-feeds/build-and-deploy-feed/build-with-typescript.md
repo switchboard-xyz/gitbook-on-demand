@@ -197,13 +197,14 @@ Bounding can be applied:
 
 Switchboard supports many task types, including:
 
-- HttpTask (REST)
-- JsonParseTask (JSONPath extraction)
-- MedianTask (sub-aggregation inside a job)
-- JupiterSwapTask (Solana DEX price simulation)
+- [HttpTask](../task-types.md#httptask) (REST)
+- [JsonParseTask](../task-types.md#jsonparsetask) (JSONPath extraction)
+- [MedianTask](../task-types.md#mediantask) (sub-aggregation inside a job)
+- [JupiterSwapTask](../task-types.md#jupiterswaptask) (Solana DEX price simulation)
+- [SecretsTask](../task-types.md#secretstask) (secure secret retrieval)
 
 Full task docs:
-- https://protos.docs.switchboard.xyz/
+- [Task Types Reference](../task-types.md)
 
 ---
 
