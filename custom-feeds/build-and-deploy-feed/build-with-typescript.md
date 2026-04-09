@@ -201,7 +201,6 @@ Switchboard supports many task types, including:
 - JsonParseTask (JSONPath extraction)
 - MedianTask (sub-aggregation inside a job)
 - JupiterSwapTask (Solana DEX price simulation)
-- SecretsTask (secure secret retrieval)
 
 Full task docs:
 - https://protos.docs.switchboard.xyz/
@@ -212,16 +211,12 @@ Full task docs:
 
 ### Variable overrides (`${VAR_NAME}`)
 
-Variable overrides let you inject values at runtime.
+Use variable overrides to insert API keys and auth tokens into tasks at runtime.
+
+See [Data Feed Variable Overrides](../advanced-feed-configuration/data-feed-variable-overrides.md) for the supported pattern and the full security guidance.
 
 **Critical rule:** Only use variables for **authentication** (API keys/tokens).  
 Do **not** use variables for anything that changes feed logic (URLs, JSON paths, multipliers), because consumers cannot cryptographically verify what values were injected at runtime.
-
-### SecretsTask
-
-If you need to retrieve secrets from a dedicated secrets server at runtime, include a SecretsTask at the top of the job, then use the unwrapped variables in downstream tasks.
-
-(See `SecretsTask` docs in the task reference above.)
 
 ---
 

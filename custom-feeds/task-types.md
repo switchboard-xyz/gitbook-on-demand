@@ -2402,13 +2402,17 @@ _**Example**_: Returns the numerical result from the conditionalTask's subtasks,
 
 ### SecretsTask
 
-Securely request secrets from a Switchboard SecretsServer that are owned by a specific authority. Any secrets that are returned for the current feed will then be unwrapped into variables to be accessed later.
+Deprecated compatibility task for the legacy Switchboard secrets-server flow.
+
+`SecretsTask` is no longer officially supported. The hosted secrets service has been taken down, and new integrations should use `variableOverrides` to inject API keys and other authentication credentials at request time.
+
+See the Data Feed Variable Overrides guide for the supported pattern.
 
 _**Input**_: None
 
 _**Returns**_: The input
 
-_**Example**_: SecretsTask
+_**Example**_: Legacy `SecretsTask`
 
 ```json
 {
@@ -2421,7 +2425,7 @@ _**Example**_: SecretsTask
 | Field | Type | Description |
 |-------|------|-------------|
 | `authority` | string | The authority of the secrets that are to be requested. |
-| `url` | string | The url of the server to request secrets from. The default is https://api.secrets.switchboard.xyz. |
+| `url` | string | Legacy server URL override for historical or self-hosted deployments. The old hosted default at https://api.secrets.switchboard.xyz is no longer available. |
 
 ---
 
