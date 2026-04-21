@@ -45,8 +45,8 @@ services:
       WS_PORT: ${WS_PORT:-8081}
       
       # === Blockchain RPCs (Optional - Recommended) ===
-      SOLANA_MAINNET_RPC_URL: ${SOLANA_MAINNET_RPC_URL:-https://api.mainnet-beta.solana.com}
-      SOLANA_DEVNET_RPC_URL: ${SOLANA_DEVNET_RPC_URL:-https://api.devnet.solana.com}
+      SOLANA_MAINNET_RPC: ${SOLANA_MAINNET_RPC:-https://api.mainnet-beta.solana.com}
+      SOLANA_DEVNET_RPC: ${SOLANA_DEVNET_RPC:-https://api.devnet.solana.com}
 
       # === IPFS Configuration (Optional) ===
       IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io}
@@ -65,8 +65,8 @@ services:
 # All environment variables are optional and have sensible defaults
 
 # Recommended for better performance
-SOLANA_MAINNET_RPC_URL=https://api.mainnet-beta.solana.com
-SOLANA_DEVNET_RPC_URL=https://api.devnet.solana.com
+SOLANA_MAINNET_RPC=https://api.mainnet-beta.solana.com
+SOLANA_DEVNET_RPC=https://api.devnet.solana.com
 
 # Optional IPFS configuration
 # PINATA_JWT_KEY="your-pinata-jwt-key"
@@ -124,10 +124,10 @@ This command will stop and remove the containers defined in your `docker-compose
 
 ### Blockchain RPC Configuration
 
-| Variable                 | Type     | Default                               | Description                 |
-| ------------------------ | -------- | ------------------------------------- | --------------------------- |
-| `SOLANA_MAINNET_RPC_URL` | Optional | `https://api.mainnet-beta.solana.com` | Solana mainnet RPC endpoint |
-| `SOLANA_DEVNET_RPC_URL`  | Optional | `https://api.devnet.solana.com`       | Solana devnet RPC endpoint  |
+| Variable             | Type     | Default                               | Description                 |
+| -------------------- | -------- | ------------------------------------- | --------------------------- |
+| `SOLANA_MAINNET_RPC` | Optional | `https://api.mainnet-beta.solana.com` | Solana mainnet RPC endpoint |
+| `SOLANA_DEVNET_RPC`  | Optional | `https://api.devnet.solana.com`       | Solana devnet RPC endpoint  |
 
 ### IPFS Configuration
 
