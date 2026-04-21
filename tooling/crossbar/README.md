@@ -60,8 +60,8 @@ All environment variables are optional and have sensible defaults:
 
 **Blockchain RPCs (Recommended):**
 
-* `SOLANA_MAINNET_RPC_URL` - Solana mainnet RPC
-* `SOLANA_DEVNET_RPC_URL` - Solana devnet RPC
+* `SOLANA_MAINNET_RPC` - Solana mainnet RPC
+* `SOLANA_DEVNET_RPC` - Solana devnet RPC
 
 **IPFS (Optional):**
 
@@ -83,7 +83,7 @@ The public Crossbar endpoint has multiple limit layers. The key limits to plan a
 
 * **Network-level oracle request budget:** default `20 RPS` per user wallet for Switchboard requests; higher limits are available with `svSWTCH` stake. See [The Switchboard NCN](../../how-it-works/switchboard-protocol/re-staking/the-switchboard-ncn.md).
 * **Public edge throttling:** `https://crossbar.switchboard.xyz` enforces additional IP-based throttling and can return `429 Too Many Requests` under burst traffic (especially for `/updates/*` routes).
-* **Surge connection caps:** managed Surge subscriptions have explicit connection limits by plan (`Plug: 1`, `Pro: 10`, `Enterprise: 15`). See [Surge pricing and limits](../../docs-by-chain/solana-svm/surge/README.md).
+* **Surge connection caps:** managed Surge subscriptions have explicit connection limits by plan (`Plug: 1`, `Pro: 10`, `Enterprise: 15`). See [Surge pricing and limits](../../docs-by-chain/solana-svm/surge/).
 
 Practical guidance:
 
