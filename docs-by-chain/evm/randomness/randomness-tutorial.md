@@ -15,6 +15,8 @@ Play Pancake Stacker directly in your browser! Connect your wallet (MetaMask or 
 This tutorial walks you through building **Pancake Stacker**, a simple on-chain game that demonstrates Switchboard's randomness system. You'll learn how to request, resolve, and use verifiable randomness in your EVM smart contracts.
 
 > **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
+>
+> **API note:** The current EVM randomness methods are `createRandomness`, `settleRandomness`, and `getRandomness`. Use the canonical ABI at `@switchboard-xyz/on-demand-solidity/abis/Switchboard.json`. `revealRandomness` and `getRandomnessResult` are not part of the current interface.
 
 ## What You'll Build
 

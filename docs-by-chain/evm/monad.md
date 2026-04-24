@@ -9,12 +9,37 @@ If `NETWORK` is unset, the examples default to `monad-testnet`.
 
 ## Network Information
 
-| Network | Chain ID | Default RPC | Switchboard Contract |
+| Network | Chain ID | Default RPC | Switchboard Proxy |
 | --- | --- | --- | --- |
 | Monad Testnet | `10143` | `https://testnet-rpc.monad.xyz` | `0x6724818814927e057a693f4e3A172b6cC1eA690C` |
 | Monad Mainnet | `143` | `https://rpc.monad.xyz` | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
 
 `RPC_URL` remains available as an override, but it must still resolve to the chain implied by `NETWORK`.
+
+## Monad Mainnet Contract Details
+
+Monad mainnet uses an ERC1967 proxy. The address apps integrate with is the proxy at `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67`, and the user-facing ABI is the Switchboard implementation ABI.
+
+| Item | Value |
+| --- | --- |
+| Proxy address | `0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67` |
+| Proxy code page | [MonadScan proxy code](https://monadscan.com/address/0xB7F03eee7B9F56347e32cC71DaD65B303D5a0E67#code) |
+| Current implementation | `0x140E3f2E66619FE1113D971291990caC0b5b72Fd` |
+| Implementation code page | [MonadScan implementation code](https://monadscan.com/address/0x140E3f2E66619FE1113D971291990caC0b5b72Fd#code) |
+| Canonical ABI | `@switchboard-xyz/on-demand-solidity/abis/Switchboard.json` |
+| ABI source | [Switchboard ABI in `on-demand-solidity`](https://github.com/switchboard-xyz/sbv3/blob/main/javascript/on-demand-solidity/abis/Switchboard.json) |
+
+> MonadScan code visibility for the live mainnet implementation is still being repaired from the exact deployment source. Until that is finished, use the package ABI above instead of guessing from an empty or stale explorer ABI.
+
+## Randomness API Note
+
+The current EVM randomness interface is:
+
+- `createRandomness`
+- `settleRandomness`
+- `getRandomness`
+
+`revealRandomness` and `getRandomnessResult` are not part of the current Switchboard EVM interface on Monad.
 
 ## Shared Env Contract
 

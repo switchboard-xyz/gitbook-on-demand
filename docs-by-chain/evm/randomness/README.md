@@ -33,6 +33,11 @@ This means that Switchboard oracles can generate safe and fair randomness that i
 
 ## How to Use Switchboard Randomness
 
+For the current EVM interface, the public randomness flow uses `createRandomness`, `settleRandomness`, and `getRandomness`.
+`revealRandomness` and `getRandomnessResult` are not current Switchboard methods.
+
+The canonical JS/TS ABI lives at `@switchboard-xyz/on-demand-solidity/abis/Switchboard.json`.
+
 To understand the flow, it's helpful to visualize the following 5 parties.
 
 - **Alice**: blockchain user
