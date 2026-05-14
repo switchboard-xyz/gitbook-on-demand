@@ -35,7 +35,6 @@
 * [Aptos](docs-by-chain/aptos/aptos.md)
 * [Iota](docs-by-chain/iota/iota.md)
 * [Movement](docs-by-chain/movement/movement.md)
-* [SAIL](docs-by-chain/sail.md)
 
 ## Custom Feeds
 
@@ -101,6 +100,7 @@
 ## AI Agents / LLMs
 
 * [Overview](ai-agents-llms/README.md)
+* [SAIL](ai-agents-llms/sail.md)
 * [Switchboard Agent Skill](ai-agents-llms/skills/switchboard-agent-skill.md)
   * [Switchboard Solana/SVM Feeds Skill](ai-agents-llms/skills/switchboard-solana-svm-feeds.md)
   * [Switchboard EVM Feeds Skill](ai-agents-llms/skills/switchboard-evm-feeds.md)
