@@ -1,7 +1,3 @@
----
-hidden: true
----
-
 # SAIL
 
 If you're building decentralised applications that use AI, you've come to the right place!
