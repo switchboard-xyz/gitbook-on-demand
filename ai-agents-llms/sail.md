@@ -1,26 +1,39 @@
 # SAIL
 
-If you're building decentralised applications that use AI, you've come to the right place!
+SAIL is Switchboard's attestation layer for hardware-backed oracle and runtime verification. It uses Trusted Execution Environments (TEEs), currently AMD SEV-SNP, to provide evidence that critical Switchboard runtime code is running in an isolated environment before that runtime is trusted by the network.
 
-The rise of autonomous agents is upon us, promising to reshape industries and redefine how we interact with technology. But this rapid innovation faces a critical challenge: **trust**. As autonomous agents become increasingly powerful and pervasive, the question of accountability becomes paramount. We are, in essence, building incredible structures of AI innovation on foundations of, well, hope. Enter **SAIL** – **The Switchboard Attestation Inference Layer** – here to replace hope with verifiable proof.
+For AI agents and autonomous systems, this matters because the data and services they depend on need a clear trust boundary. SAIL helps answer a narrower, more concrete question: did this Switchboard runtime produce an attestation report showing it is running the expected code in the expected hardware-backed environment?
 
-**The Missing Piece: Provable Autonomy**
+SAIL does not, by itself, prove that an arbitrary AI model made the right decision, that an agent followed every business rule, or that a smart contract is correct. It provides hardware-backed evidence about the runtime that produced or signed data, which applications can combine with normal on-chain checks, quote verification, and application-level authorization.
 
-Currently, there's a fundamental gap in the AI process. We deploy agents, we task them, but we often lack definitive **proof** that they operated as intended, that transactions were executed correctly, and that workflows followed agreed-upon protocols. This lack of verifiable execution hinders wider adoption, particularly as:
+## What SAIL Provides
 
-* **Mounting Regulatory and Enterprise Demands:** Both regulators and enterprises are increasingly requiring verifiable trust and accountability from AI agents, moving beyond reliance on assumptions.
-* **Decentralised Applications require proof**: _“Trust me bro”_ doesn't fly in DeFi, especially with AI agents running wild. Decentralised apps? They _demand_ proof. If you're sticking AI agents in there, verifiable behaviour isn't a nice-to-have, it's the damn point of being on-chain in the first place.
+**Hardware-backed runtime evidence** - Switchboard runtimes can produce AMD SEV-SNP attestation evidence that guardians and other verifiers can inspect before trusting the runtime.
 
-SAIL provides the critical missing link: **verifiable autonomy, mathematically proven.** It is a system that enables you to confidently answer the essential questions:
+**Verified oracle execution** - Switchboard uses attestation to confirm that oracle infrastructure is running approved code before it participates in sensitive network workflows.
 
-* _Was the AI agent operating according to its programmed logic?_
-* _Did the transactions executed by the agent follow the smart contract rules?_
-* _Can we demonstrably prove the agent completed its tasks as intended?_
+**TEE-derived runtime identity** - SAIL exposes helpers for deriving enclave-bound keys, so a runtime can sign or identify itself from material tied to the TEE environment.
 
-**What SAIL Enables:**
+**Runtime randomness helpers** - SAIL includes randomness utilities for code running inside these environments. Treat these as low-level runtime helpers, not a replacement for chain-specific Switchboard randomness products.
 
-SAIL unlocks a new paradigm of accountability and transparency for AI agents, enabling use cases such as:
+## Where SAIL Shows Up Today
 
-* **Transparent Transactions:** Cryptographically prove that payments made to an agent followed the exact terms of the smart contract, ensuring financial integrity and auditability.
-* **Verified Workflows:** Attest to the successful and correct execution of agent tasks, from content generation to complex operational workflows, providing verifiable proof of service delivery.
-* **Enhanced Trust & Compliance:** Build AI-driven applications that meet the growing demands for transparency and accountability, facilitating regulatory compliance and fostering user trust…**or in other words, providing proof your AI ain't gonna rug your users and leave them rekt.**
+SAIL is part of the infrastructure behind Switchboard's verified oracle network.
+
+- The [TEE architecture page](../how-it-works/technical-architecture/trusted-execution-environments-tees.md) explains why Switchboard uses TEEs and AMD SEV-SNP.
+- The Surge docs describe price streaming through a SAIL-verified oracle network for [Solana/SVM](../docs-by-chain/solana-svm/surge/README.md), [EVM](../docs-by-chain/evm/surge/README.md), and [Sui](../docs-by-chain/sui/surge/README.md).
+- The current advanced SDK surface is [`@switchboard-xyz/sail-sdk`](https://www.npmjs.com/package/@switchboard-xyz/sail-sdk). It is intended for low-level attestation and runtime work, not as a beginner application tutorial.
+
+There is not currently a runnable SAIL example in `sb-on-demand-examples`. Start with the linked architecture and product docs unless you are working directly on TEE runtime integration.
+
+## Current Developer Surface
+
+The SAIL SDK exposes low-level primitives used by Switchboard runtime infrastructure:
+
+- AMD SEV-SNP attestation helpers for generating attestation reports/evidence.
+- JSON attestation helpers for newer Confidential Containers (CoCo) environments.
+- Verification helpers for attestation evidence, including an optional verifier feature.
+- Enclave-derived key helpers for Ed25519 and secp256k1 runtime identities.
+- Runtime randomness helpers for TEE-bound code.
+
+These APIs are advanced infrastructure tools. Most application developers should consume Switchboard through the chain-specific feed, randomness, Surge, or Crossbar docs instead of integrating SAIL directly.
