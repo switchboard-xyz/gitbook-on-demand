@@ -2,423 +2,257 @@
 
 > **Example Code**: The complete working example for this tutorial is available at [sb-on-demand-examples/solana/feeds/basic](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/solana/feeds/basic)
 
-This tutorial walks you through the simplest way to integrate Switchboard oracle price feeds into your Solana program. You'll learn how to read verified price data using Switchboard's managed update system.
+This tutorial shows the beginner-first Switchboard flow on Solana: update one feed, read `feeds[0]`, and log a human-readable price inside your program.
 
 > **Version source of truth:** [SDK Version Matrix](../../../tooling/sdk-version-matrix.md)
 
 ## What You'll Build
 
-A minimal Anchor program that reads price feed data from a Switchboard oracle account, plus a TypeScript client that fetches fresh oracle data and calls your program.
+- A minimal Anchor instruction that reads one verified price from a canonical quote account
+- A TypeScript client flow that fetches a fresh managed update and optionally calls the sample consumer program in the same transaction
 
 ## Prerequisites
 
 - Rust and Cargo installed
 - Solana CLI installed and configured
-- Node.js 18+ and npm/pnpm
-- Basic understanding of Anchor framework
-- A Solana keypair with SOL (devnet or mainnet)
+- Node.js 18+
+- A Solana keypair with SOL on devnet or mainnet
 
-## Key Concepts
+## Pick a Feed ID
 
-Before diving into the code, let's understand how Switchboard's managed update system works.
+Every feed has a 32-byte hex ID. For this Solana example, pass feed IDs as bare 64-character hex values.
 
-### Managed Updates
+To find a feed ID:
 
-Switchboard uses a **managed update system** where oracle data is stored in canonical accounts derived deterministically from feed IDs. This means:
+1. Open [Switchboard Explorer](https://explorer.switchboardlabs.xyz/).
+2. Search for the asset you want, for example `SOL`.
+3. Copy the feed ID for the network you are using.
+4. If Explorer shows `0x...`, remove the `0x` prefix before passing it to the example scripts.
 
-- No manual account management needed
-- Same feed IDs always produce the same oracle account address
-- Accounts are created automatically if they don't exist
+Default BTC/USD example feed ID:
 
-### The Two-Instruction Pattern
-
-Every Switchboard oracle update requires two instructions in sequence:
-
-1. **Ed25519 Signature Verification** - Verifies the oracle operator's signature
-2. **Quote Program Storage** - Stores the verified data in the canonical oracle account
-
-Your program then reads from this oracle account as a third instruction in the same transaction.
-
-### Feed IDs
-
-Each price feed has a unique 32-byte hex identifier. You can find feed IDs in the [Switchboard Explorer](https://ondemand.switchboard.xyz/).
-
-Example: BTC/USD feed ID:
-```
+```text
 4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+```
+
+Example SOL/USD devnet feed ID:
+
+```text
+822512ee9add93518eca1c105a38422841a76c590db079eebb283deb2c14caa9
 ```
 
 ## The On-Chain Program
 
-Here's the complete Anchor program that reads oracle data:
+The basic consumer program is intentionally single-feed oriented. It reads `feeds[0]`, logs the human-readable value, and keeps the account surface small.
 
 ```rust
 use anchor_lang::prelude::*;
-use switchboard_on_demand::{
-    SlotHashes, Instructions, default_queue, SwitchboardQuoteExt, SwitchboardQuote
-};
+use switchboard_on_demand::{default_queue, SwitchboardQuote, SwitchboardQuoteExt};
 
-declare_id!("9kVBXoCrvZgKYWTJ74w3S8wAp7daEB7zpG7kwiXxkCVN");
+declare_id!("HWZNh846V4VVdp5mkeYaeYQjGo47F1Uax38ViYY1VvrK");
 
 #[program]
 pub mod basic_oracle_example {
     use super::*;
 
-    /// Read and verify oracle data from the managed oracle account
     pub fn read_oracle_data(ctx: Context<ReadOracleData>) -> Result<()> {
-        // Access the oracle data directly
         let feeds = &ctx.accounts.quote_account.feeds;
+        require!(!feeds.is_empty(), BasicOracleError::MissingFeed);
+        let feed = &feeds[0];
 
-        // Calculate staleness (how old is the data?)
         let current_slot = ctx.accounts.sysvars.clock.slot;
         let quote_slot = ctx.accounts.quote_account.slot;
         let staleness = current_slot.saturating_sub(quote_slot);
 
-        msg!("Number of feeds: {}", feeds.len());
-        msg!("Quote slot: {}, Current slot: {}", quote_slot, current_slot);
-        msg!("Staleness: {} slots", staleness);
-
-        // Process each feed
-        for (i, feed) in feeds.iter().enumerate() {
-            msg!("Feed {}: ID = {}", i, feed.hex_id());
-            msg!("Feed {}: Value = {}", i, feed.value());
-
-            // Your business logic here!
-            // - Store the price in your program state
-            // - Trigger events based on price changes
-            // - Use the price for calculations
+        msg!("Feed count: {}", feeds.len());
+        if feeds.len() > 1 {
+            msg!("Using feed[0] in this basic example");
         }
 
-        msg!("Successfully read {} oracle feeds!", feeds.len());
+        msg!("Quote slot: {}, Current slot: {}", quote_slot, current_slot);
+        msg!("Staleness: {} slots", staleness);
+        let feed_id = feed.hex_id();
+        let feed_id = feed_id.strip_prefix("0x").unwrap_or(feed_id.as_str());
+        msg!("Feed ID: {}", feed_id);
+        msg!("Feed value (human-readable): {}", feed.value());
         Ok(())
     }
 }
 
-/// Account context for reading oracle data
 #[derive(Accounts)]
 pub struct ReadOracleData<'info> {
-    /// The canonical oracle account containing verified quote data
-    /// The address constraint ensures this is the correct canonical account
     #[account(address = quote_account.canonical_key(&default_queue()))]
     pub quote_account: Box<Account<'info, SwitchboardQuote>>,
-
-    /// System variables required for quote verification
     pub sysvars: Sysvars<'info>,
 }
 
-/// System variables required for oracle verification
 #[derive(Accounts)]
 pub struct Sysvars<'info> {
     pub clock: Sysvar<'info, Clock>,
-    pub slothashes: Sysvar<'info, SlotHashes>,
-    pub instructions: Sysvar<'info, Instructions>,
+}
+
+#[error_code]
+pub enum BasicOracleError {
+    #[msg("quote_account did not contain any feeds")]
+    MissingFeed,
 }
 ```
 
-### Code Walkthrough
+### What `feed.value()` returns
 
-#### Imports
+`feed.value()` is already human-readable. Use it when you want to log or inspect the price directly.
 
-```rust
-use switchboard_on_demand::{
-    SlotHashes, Instructions, default_queue, SwitchboardQuoteExt, SwitchboardQuote
-};
-```
+If your protocol stores prices as fixed-point integers, scale and convert that value explicitly in your own logic. The basic example does not hide that conversion for you.
 
-- `SwitchboardQuote` - The account type that holds oracle data
-- `SwitchboardQuoteExt` - Extension trait for accessing feed values
-- `default_queue()` - Returns the default Switchboard queue for the current network
-- `SlotHashes`, `Instructions` - Sysvar types needed for verification
+## Managed Update Flow
 
-#### The Instruction
+The client side follows this sequence:
 
-The `read_oracle_data` instruction:
+1. Load the Switchboard queue for the current network
+2. Derive the canonical quote account for one feed ID
+3. Build the managed update instructions with `fetchManagedUpdateIxs`
+4. Optionally append your consumer instruction
+5. Simulate, send, and confirm the transaction
 
-1. **Accesses feed data** from `quote_account.feeds`
-2. **Calculates staleness** by comparing the quote slot to the current slot
-3. **Iterates through feeds** to extract values using `feed.hex_id()` and `feed.value()`
-
-#### Account Validation
-
-```rust
-#[account(address = quote_account.canonical_key(&default_queue()))]
-pub quote_account: Box<Account<'info, SwitchboardQuote>>,
-```
-
-This constraint ensures the passed account is the legitimate canonical oracle account for the contained feeds. It prevents malicious actors from passing fake oracle data.
-
-#### Sysvars
-
-The program requires three sysvars:
-- `Clock` - For checking the current slot
-- `SlotHashes` - For quote verification
-- `Instructions` - For verifying the Ed25519 instruction was included
-
-## The TypeScript Client
-
-Here's the complete client code that fetches oracle data and calls your program:
+Core TypeScript flow:
 
 ```typescript
+import * as anchor from "@coral-xyz/anchor";
 import * as sb from "@switchboard-xyz/on-demand";
 import { OracleQuote } from "@switchboard-xyz/on-demand";
 
-const FEED_ID = "4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
+const feedId =
+  "4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812";
 
-async function main() {
-  // Step 1: Load environment (auto-detects network)
-  const { program, keypair, connection, crossbar, queue } =
-    await sb.AnchorUtils.loadEnv();
+const { keypair, connection, crossbar, queue } = await sb.AnchorUtils.loadEnv();
+const [quoteAccount] = OracleQuote.getCanonicalPubkey(queue.pubkey, [feedId]);
 
-  console.log("Queue:", queue.pubkey.toBase58());
-  console.log("Network:", crossbar.getNetwork());
+const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
+  instructionIdx: 0,
+  payer: keypair.publicKey,
+});
 
-  // Step 2: Derive the canonical oracle account from feed ID
-  const [quoteAccount] = OracleQuote.getCanonicalPubkey(
-    queue.pubkey,
-    [FEED_ID]
-  );
-  console.log("Quote Account:", quoteAccount.toBase58());
+const readOracleIx = await basicProgram.methods.readOracleData().accounts({
+  quoteAccount,
+  sysvars: {
+    clock: anchor.web3.SYSVAR_CLOCK_PUBKEY,
+  },
+}).instruction();
 
-  // Step 3: Simulate the feed to see current value
-  const simResult = await crossbar.simulateFeed(FEED_ID);
-  console.log("Simulated feed result:", simResult);
+const tx = await sb.asV0Tx({
+  connection,
+  ixs: [...updateIxs, readOracleIx],
+  signers: [keypair],
+});
 
-  // Step 4: Create managed update instructions
-  const updateInstructions = await queue.fetchManagedUpdateIxs(
-    crossbar,
-    [FEED_ID],
-    {
-      variableOverrides: {},
-      instructionIdx: 0,  // Ed25519 instruction index
-      payer: keypair.publicKey,
-    }
-  );
-
-  // Step 5: Create your program's instruction
-  const readOracleIx = await program.methods
-    .readOracleData()
-    .accounts({
-      quoteAccount: quoteAccount,
-      // Sysvars are added automatically by Anchor
-    })
-    .instruction();
-
-  // Step 6: Build and send the transaction
-  const tx = await sb.asV0Tx({
-    connection,
-    ixs: [...updateInstructions, readOracleIx],
-    signers: [keypair],
-    computeUnitPrice: 20_000,
-    computeUnitLimitMultiple: 1.1,
-  });
-
-  // Step 7: Simulate and send
-  const sim = await connection.simulateTransaction(tx);
-  console.log(sim.value.logs?.join("\n"));
-
-  if (!sim.value.err) {
-    const sig = await connection.sendTransaction(tx);
-    console.log("Transaction:", sig);
-  }
+const sim = await connection.simulateTransaction(tx);
+if (!sim.value.err) {
+  const sig = await connection.sendTransaction(tx);
+  await connection.confirmTransaction(sig, "confirmed");
 }
-
-main();
 ```
-
-### Client Code Walkthrough
-
-#### Step 1: Load Environment
-
-```typescript
-const { program, keypair, connection, crossbar, queue } =
-  await sb.AnchorUtils.loadEnv();
-```
-
-This auto-detects whether you're on mainnet or devnet based on your RPC endpoint and loads the appropriate Switchboard queue.
-
-#### Step 2: Derive Canonical Account
-
-```typescript
-const [quoteAccount] = OracleQuote.getCanonicalPubkey(queue.pubkey, [FEED_ID]);
-```
-
-The canonical account is a PDA derived from the queue public key and feed IDs. This ensures the same inputs always produce the same account address.
-
-#### Step 3: Simulate Feed (Optional)
-
-```typescript
-const simResult = await crossbar.simulateFeed(FEED_ID);
-```
-
-You can simulate a feed to see what value the oracle would return before submitting a transaction.
-
-#### Step 4: Create Update Instructions
-
-```typescript
-const updateInstructions = await queue.fetchManagedUpdateIxs(
-  crossbar,
-  [FEED_ID],
-  {
-    variableOverrides: {},
-    instructionIdx: 0,
-    payer: keypair.publicKey,
-  }
-);
-```
-
-This returns an array of instructions:
-1. Ed25519 signature verification instruction
-2. Quote program `verified_update` instruction
-
-#### Step 5-7: Build and Send Transaction
-
-The transaction includes:
-1. Ed25519 verification instruction
-2. Quote program update instruction
-3. Your program's instruction
-
-All three must be in the same transaction for the verification to work.
 
 ## Running the Example
 
-### 1. Clone the Examples Repository
+### 1. Clone the examples repo
 
 ```bash
 git clone https://github.com/switchboard-xyz/sb-on-demand-examples
 cd sb-on-demand-examples/solana/feeds/basic
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configure Your Environment
-
-Create or update your Solana CLI config to point to devnet:
+### 3. Configure Solana for devnet
 
 ```bash
 solana config set --url devnet
-```
-
-Ensure your keypair has SOL:
-
-```bash
 solana airdrop 2
 ```
 
-### 4. Build and Deploy the Program
+If you are running in CI or a container, you can set `ANCHOR_PROVIDER_URL` and
+`ANCHOR_WALLET` instead of relying on the Solana CLI config file.
 
-This step is optional only if you want to smoke-test the managed update flow by
-itself.
+### 4. Run the basic managed update
 
-If you want the example to invoke `read_oracle_data` after the quote update, you
-must deploy the sample Anchor program first:
-
-```bash
-anchor build
-anchor deploy
-```
-
-### 5. Run the Example
+Default BTC/USD flow:
 
 ```bash
-# Using default BTC/USD feed
 npm run update
-
-# Using a custom feed ID
-npm run update -- --feedId YOUR_FEED_ID_HERE
 ```
 
-`npm run update` always fetches a fresh managed update and submits the
-Switchboard transaction.
+SOL/USD flow:
 
-If the example program is not deployed, the script logs that it skipped the
-consumer-program step and only updates the quote account. If the program is
-deployed, the same command also appends the `read_oracle_data` instruction.
+```bash
+npm run update -- --feedId 822512ee9add93518eca1c105a38422841a76c590db079eebb283deb2c14caa9
+```
 
-### Expected Output
+This always updates the canonical quote account. If the sample consumer program is not built and deployed yet, the script still submits the managed update and tells you it skipped the consumer step.
 
-If the example program is not deployed yet, you should see output like:
+### 5. Optional: build and deploy the sample consumer
+
+If you want the example transaction to call `read_oracle_data` after the quote update:
+
+```bash
+npm run build
+solana program deploy --program-id target/deploy/basic_oracle_example-keypair.json target/deploy/basic_oracle_example.so
+```
+
+Then run `npm run update` again. The same command will now append the sample consumer instruction and you should see the on-chain logs in the simulated output.
+
+### Expected output
+
+Without the sample consumer deployed, you should see output like:
 
 ```text
-ℹ️  Skipping crank: basic_oracle_example program not deployed
+✨ Generated instructions: 2
 ✅ Transaction sent: 5c...
 ✅ Managed update confirmed
 ℹ️  The quote account was updated without the example consumer instruction
 ```
 
-With the example program deployed, you should also see logs like:
+With the sample consumer deployed, you should also see logs like:
 
-```
-Queue: FdRnYujMnYbAJp5P2rkEYZCbF2TKs2D2yXZ7MYq89Hms
-Network: devnet
-Quote Account: 8Js7NsQ7sF3WLJN3JC4LJQGz8kHiEJwZ7sdGTtJC5J7d
-Simulated feed result: { value: 97234.5, ... }
-Number of feeds: 1
+```text
+Feed count: 1
 Quote slot: 123456789, Current slot: 123456790
 Staleness: 1 slots
-Feed 0: ID = 4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
-Feed 0: Value = 97234.50
-Successfully read 1 oracle feeds!
+Feed ID: 4cd1cad962425681af07b9254b7d804de3ca3446fbfd1371bb258d2c75059812
+Feed value (human-readable): 97234.5
 ```
 
-## Adding to Your Program
+## Add This to Your Program
 
-To integrate Switchboard into your own program:
-
-### 1. Add Dependencies
-
-In your `Cargo.toml`:
-
-```toml
-[dependencies]
-switchboard-on-demand = { version = "=0.10.3", features = ["anchor", "devnet"] }
-```
-
-The example program pins `=0.10.3` on devnet. If you are targeting a different Solana cluster, swap the cluster feature to match your deployment.
-
-### 2. Add the Account Struct
+Use the same account pattern in your own Anchor instruction:
 
 ```rust
-use switchboard_on_demand::{
-    SlotHashes, Instructions, default_queue, SwitchboardQuoteExt, SwitchboardQuote
-};
-
 #[derive(Accounts)]
 pub struct YourInstruction<'info> {
     #[account(address = quote_account.canonical_key(&default_queue()))]
     pub quote_account: Box<Account<'info, SwitchboardQuote>>,
-
-    pub clock: Sysvar<'info, Clock>,
-    pub slothashes: Sysvar<'info, SlotHashes>,
-    pub instructions: Sysvar<'info, Instructions>,
-
-    // ... your other accounts
+    pub sysvars: Sysvars<'info>,
 }
 ```
 
-### 3. Read the Price
+Then read the first feed:
 
 ```rust
 pub fn your_instruction(ctx: Context<YourInstruction>) -> Result<()> {
     let feeds = &ctx.accounts.quote_account.feeds;
+    require!(!feeds.is_empty(), YourError::MissingFeed);
 
-    // Get the first feed's value
     let price = feeds[0].value();
-
-    // Use the price in your logic
-    // ...
-
+    msg!("Price: {}", price);
     Ok(())
 }
 ```
 
 ## Next Steps
 
-- **Multiple Feeds**: Pass multiple feed IDs to `fetchManagedUpdateIxs` to update several prices in one transaction
-- **Staleness Checks**: Add maximum staleness requirements for your use case
-- **Authority-Updated Feeds**: Publish quotes from your own trusted wallet or PDA in the [Authority-Updated Feeds](authority-updated-feeds.md) guide
-- **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) section
-- **Advanced Patterns**: See the Advanced Price Feed tutorial for more complex integration patterns
+- **Another asset**: Search [Switchboard Explorer](https://explorer.switchboardlabs.xyz/) and swap the feed ID
+- **Multiple feeds**: Batch multiple IDs in one managed update transaction once the single-feed path is clear
+- **Advanced verification**: Move to the [Advanced Price Feed Tutorial](advanced-price-feed.md) if you need stricter account validation or more control over update policy
