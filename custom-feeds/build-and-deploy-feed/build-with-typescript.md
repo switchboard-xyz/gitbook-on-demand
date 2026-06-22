@@ -191,6 +191,8 @@ Bounding can be applied:
 - within a job (reject a single bad API response)
 - at the feed level (reject updates when jobs disagree too much)
 
+> Feed-level validation fields use different units depending on the surface. Raw v2 `OracleFeed.maxJobRangePct` is scaled by `1e9` (`1_000_000_000` = `1%`), while `MedianTask.max_range_percent` is a human percent string. See [Feed Parameter Units](../advanced-feed-configuration/feed-parameter-units.md) before publishing a feed definition.
+
 ---
 
 ## Task reference

@@ -129,6 +129,8 @@ The Feed Builder exposes common feed-level configuration knobs:
 
 These parameters are your “guardrails”—they trade off liveness vs correctness. Start conservative, then tune based on observed behavior.
 
+> Feed parameter units are surface-specific. Raw v2 `maxJobRangePct` is scaled by `1e9`, while some UI and SDK fields accept human percentages. See [Feed Parameter Units](../advanced-feed-configuration/feed-parameter-units.md) before copying values between surfaces.
+
 ### 5) Simulate and debug
 
 Use the UI’s simulation flow to validate:

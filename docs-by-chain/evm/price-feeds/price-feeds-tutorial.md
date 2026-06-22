@@ -655,7 +655,7 @@ Popular feeds include:
 | `PriceDeviationTooHigh` | Normal during high volatility; adjust `maxDeviationBps` if needed |
 | `PriceTooOld` | Fetch fresh data from Crossbar; adjust `maxPriceAge` if needed |
 | `InvalidFeedId` | Ensure the feed ID exists and has been updated at least once |
-| `ORACLE_UNAVAILABLE` | If `simulateFeed` works but `fetchV2Update` fails, treat it as oracle or gateway availability rather than a missing deployment step |
+| `ORACLE_UNAVAILABLE` | If `simulateFeed` works but `fetchV2Update` fails, it is not a missing deployment step. Check oracle/gateway availability and oracle-side validation errors such as `RangeExceeded`, especially if raw v2 `maxJobRangePct` was not scaled by `1e9`; see [Feed Parameter Units](../../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md) |
 | Build errors | Bootstrap `forge-std` in `../randomness/coin-flip`, then rerun `forge build` |
 
 ## Next Steps

@@ -203,7 +203,7 @@ await tx.wait();
   - `GET /v2/fetch/{feedId}`
   - `GET /v2/simulate/{feedId}?network=testnet|mainnet`
   - `GET /v2/update/{feedId}?chain=evm&network=testnet|mainnet&use_timestamp=true`
-- If `v2/fetch` and `v2/simulate` succeed but `v2/update` returns `ORACLE_UNAVAILABLE`, the issue is managed oracle or gateway availability for that feed, not a missing deployment step or permission.
+- If `v2/fetch` and `v2/simulate` succeed but `v2/update` returns `ORACLE_UNAVAILABLE`, the issue is not a missing deployment step or permission. It can be managed oracle/gateway availability, or oracle-side validation rejecting the feed result. Check oracle errors for `RangeExceeded`, especially if raw v2 `maxJobRangePct` was not scaled by `1e9`; see [Feed Parameter Units](../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md).
 
 ## Notes
 

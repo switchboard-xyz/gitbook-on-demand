@@ -199,7 +199,7 @@ curl -s "$CROSSBAR/updates/evm/1116/$AGGREGATOR_ID" | jq .
 - IPFS store fails → verify IPFS credentials and outbound access
 - simulation intermittent errors → endpoints unstable; add source diversity/fallbacks
 - update fetch fails → network mismatch, RPC unreachable, queue mismatch
-- `ORACLE_UNAVAILABLE` on `/v2/update` after successful `/v2/fetch` and `/v2/simulate` → treat as managed oracle/gateway availability, not a missing permission
+- `ORACLE_UNAVAILABLE` on `/v2/update` after successful `/v2/fetch` and `/v2/simulate` -> check managed oracle/gateway availability and oracle-side validation errors such as `RangeExceeded`; raw v2 `maxJobRangePct` must be scaled by `1e9`
 - EVM custom feed not resolving → confirm you are using `/v2/fetch`, `/v2/simulate`, and `/v2/update`, not the legacy aggregator route
 - rate limits → self-host + caching + reduce polling
 

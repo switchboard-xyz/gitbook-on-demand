@@ -109,7 +109,7 @@ async function convertSurgeToEvm() {
 
   // Perform the conversion
   const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
-    minOracleSamples: 1
+    minOracleSamples: 1 // unscaled oracle-sample quorum
   });
 
   console.log('Encoded Data:', evmEncoded);
@@ -127,7 +127,7 @@ convertSurgeToEvm();
 import { EVMUtils } from '@switchboard-xyz/common';
 
 const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
-  minOracleSamples: 1  // Minimum oracle samples required
+  minOracleSamples: 1  // Minimum oracle samples required; unscaled count
 });
 ```
 
@@ -261,7 +261,7 @@ async function submitSurgeUpdate(
 ) {
   // Convert Surge update to EVM format
   const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
-    minOracleSamples: 1
+    minOracleSamples: 1 // unscaled oracle-sample quorum
   });
 
   // Get fee and submit
@@ -291,7 +291,7 @@ async function handleSurgeUpdate(surgeData: SurgeRawGatewayResponse) {
   try {
     // Convert to EVM format
     const evmEncoded = EVMUtils.convertSurgeUpdateToEvmFormat(surgeData, {
-      minOracleSamples: 1
+      minOracleSamples: 1 // unscaled oracle-sample quorum
     });
 
     // Submit to chain

@@ -26,6 +26,8 @@ If you haven't designed and simulated your jobs yet, start here:
 - [Build with TypeScript](build-with-typescript.md) (code-first)
 - [Build with UI](build-with-ui.md) (UI-first)
 
+Before you publish a v2 feed definition, confirm the feed parameter units. Raw `OracleFeed.maxJobRangePct` is scaled by `1e9`, so `1_000_000_000` means `1%`. See [Feed Parameter Units](../advanced-feed-configuration/feed-parameter-units.md).
+
 ---
 
 # Solana / SVM: Deploy with Managed Updates

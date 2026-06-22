@@ -43,6 +43,7 @@
   * [Build with TypeScript](custom-feeds/build-and-deploy-feed/build-with-typescript.md)
   * [Deploy Feed](custom-feeds/build-and-deploy-feed/deploy-feed.md)
 * [Advanced Feed Configuration](custom-feeds/advanced-feed-configuration/README.md)
+  * [Feed Parameter Units](custom-feeds/advanced-feed-configuration/feed-parameter-units.md)
   * [Data Feed Variable Overrides](custom-feeds/advanced-feed-configuration/data-feed-variable-overrides.md)
   * [Variables with CacheTask](custom-feeds/advanced-feed-configuration/variables-with-cachetask.md)
   * [REST APIs with HttpTask](custom-feeds/advanced-feed-configuration/rest-apis-with-httptask.md)

@@ -29,6 +29,8 @@ For machine-readable schema and live testing:
 | `GET` | `/debug/cid/{hash}` | CID conversion/debug |
 | `GET` | `/debug/bnb` | Binance debug endpoint |
 
+Parameter units are surface-specific. Raw v2 `OracleFeed.maxJobRangePct` and raw gateway `max_variance` values are percentages scaled by `1e9`; `1_000_000_000` means `1%`. See [Feed Parameter Units](../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md).
+
 ## EVM Route Selection
 
 Use different Crossbar routes depending on whether you are integrating a current Feed Builder/custom feed or an older aggregator-based EVM integration.
@@ -532,6 +534,8 @@ Response (`200`):
 #### `POST /gateways/fetch_signatures`
 
 Purpose: fetch signatures for a single feed/jobs request. Supports both legacy and new request shapes.
+
+`maxVariance` in these raw gateway request bodies is already scaled by `1e9`; `50_000_000` means `0.05%`.
 
 Legacy body (feed-hash based):
 
