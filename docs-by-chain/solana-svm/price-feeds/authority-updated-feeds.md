@@ -226,7 +226,7 @@ const ix = OracleQuote.buildFeedAuthorityUpdateInstruction({
 });
 ```
 
-If you set `minOracleSamples` explicitly, use the same ordered feed list for both payload construction and PDA derivation.
+If you set `minOracleSamples` explicitly, treat it as an unscaled oracle-sample count and use the same ordered feed list for both payload construction and PDA derivation.
 
 ## Rust SDK Helpers
 

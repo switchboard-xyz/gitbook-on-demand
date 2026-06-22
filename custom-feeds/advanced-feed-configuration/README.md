@@ -8,6 +8,8 @@ Switchboard Feeds enable seamless access to data from any API, oracle, major DeF
 
 Switchboard data feeds are composed of [Oracle Jobs](../build-and-deploy-feed/build-with-typescript.md#oracle-jobs-are-pipelines), which define where to source data. Feeds specify a list of different [Task Types](../task-types.md), which are used as instructions to fetch data.
 
+If you are configuring feed validation, start with [Feed Parameter Units](feed-parameter-units.md). Raw v2 `maxJobRangePct` is scaled by `1e9`, while task-level percent fields and SDK helper fields may use human percentages.
+
 This section will explore different task types and give an in-depth explanation on how to build oracle jobs.
 
 ## Task Runner

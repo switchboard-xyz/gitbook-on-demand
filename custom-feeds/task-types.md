@@ -836,6 +836,8 @@ _**Example**_: Returns the median numerical result of 3 jobs.
 | `min_successful_required` | int32 | The minimum number of values before a successful median can be yielded. |
 | `max_range_percent` | string | The maximum range between the minimum and maximum values before a successful median can be yielded. |
 
+`max_range_percent` is a human percent string for this `MedianTask` only. It is not scaled like feed-level raw v2 `OracleFeed.maxJobRangePct`; see [Feed Parameter Units](advanced-feed-configuration/feed-parameter-units.md).
+
 ---
 
 ### MinTask

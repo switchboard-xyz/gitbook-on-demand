@@ -196,9 +196,9 @@ fn create_kalshi_feed_id(order_id: &str) -> Result<[u8; 32]> {
                 weight: None,
             }
         ],
-        min_job_responses: Some(1),
-        min_oracle_samples: Some(1),
-        max_job_range_pct: Some(0),
+        min_job_responses: Some(1), // unscaled job/source quorum
+        min_oracle_samples: Some(1), // unscaled oracle/signature quorum
+        max_job_range_pct: Some(0), // Intentional for this single-source verification; use a positive scaled value for normal multi-source feeds.
     };
 
     // Encode as protobuf and hash
@@ -293,9 +293,9 @@ async function verifyKalshiFeed(
   // Step 3: Define the oracle feed
   const oracleFeed = {
     name: "Kalshi Order Price",
-    minJobResponses: 1,
-    minOracleSamples: 1,
-    maxJobRangePct: 0,
+    minJobResponses: 1, // unscaled job/source quorum
+    minOracleSamples: 1, // unscaled oracle/signature quorum
+    maxJobRangePct: 0, // Intentional for this single-source verification; use a positive scaled value for normal multi-source feeds.
     jobs: [
       {
         tasks: [

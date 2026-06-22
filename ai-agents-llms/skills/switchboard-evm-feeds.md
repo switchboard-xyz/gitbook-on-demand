@@ -175,7 +175,7 @@ Produce an `EvmFeedIntegrationPlan` including:
 - Stale timestamp → fetch fresh updates; raise max age only for non-critical paths
 - Wrong feed/network → verify feedId and deployment match chainId/network
 - Feed Builder custom feed on EVM → use `simulateFeed(...)` and `fetchV2Update(...)`, not `fetchEVMResults(...)`
-- `ORACLE_UNAVAILABLE` after successful simulation → treat as managed oracle/gateway availability, not a missing permission
+- `ORACLE_UNAVAILABLE` after successful simulation -> check managed oracle/gateway availability and oracle-side validation errors such as `RangeExceeded`; raw v2 `maxJobRangePct` must be scaled by `1e9`
 
 ## References
 

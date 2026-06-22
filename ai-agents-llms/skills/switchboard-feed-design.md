@@ -151,7 +151,7 @@ Template 2: 3-source median (production minimum, 2 of 3 required)
 }
 ~~~
 
-Template 3: 5-source with fallback tolerance (production recommended)
+Template 3: 5-source with fallback tolerance (production recommended). In `MedianTask`, `max_range_percent` is a human percent string.
 
 ~~~json
 {
@@ -256,7 +256,7 @@ Variable override rule reminder:
 ### 4) Error handling and rate limiting
 
 - set `min_successful_required` so one source outage does not break updates (for example 2-of-3, 3-of-5)
-- set `max_range_percent` for drift/outlier protection before median is accepted
+- set `max_range_percent` for drift/outlier protection before median is accepted; this `MedianTask` field is a human percent string, not the raw v2 feed-level `maxJobRangePct` scale
 - stagger polling and cap request rate to provider quotas (especially free tiers)
 - back off exponentially on HTTP 429/5xx and keep at least 3 independent sources
 

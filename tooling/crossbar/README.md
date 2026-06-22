@@ -18,6 +18,8 @@ Crossbar aims to streamline the Switchboard experience, offering the following c
 * **Store Jobs:** Store feed definitions using your configured IPFS node (requires Piñata credentials or a Kubo node).
 * **Simulate Feeds by Feed Hash:** Simulate multiple feeds simultaneously using their feed hashes, enabling off-chain tracking of custom price feeds for bot automation.
 
+> Crossbar exposes both simulation and signed-update paths. Simulation can succeed even when signed updates fail oracle-side validation. For validation units such as raw v2 `maxJobRangePct` and gateway `max_variance`, see [Feed Parameter Units](../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md).
+
 ### Blockchain-Specific Features
 
 Crossbar provides tailored features for specific blockchains:

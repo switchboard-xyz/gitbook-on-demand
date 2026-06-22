@@ -140,7 +140,8 @@ Notes:
 - These are starter defaults, not a bypass of required policy capture.
 - For non-Solana chains, keep the same safety posture and translate native token/key custody fields to chain-appropriate values.
 - Solana slot values are approximate mappings for documentation convenience (~400ms/slot).
-- `maxVariance` is chain-native and kept at `1e9` baseline unless explicitly overridden.
+- `maxVariance` is chain-native and kept at `1e9` baseline unless explicitly overridden; for these chain parameters, `1e9` means `1%`.
+- Raw v2 `OracleFeed.maxJobRangePct` uses the same `1e9` percent scale, but `MedianTask.max_range_percent` is a human percent string. See `custom-feeds/advanced-feed-configuration/feed-parameter-units.md` for the surface-specific units.
 
 ### Secret handling (mandatory)
 
