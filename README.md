@@ -9,11 +9,10 @@ Why use Switchboard? Our protocol is designed around 4 principles:
 * **Fastest Oracle Updates**
   * With latencies of 2-5ms with Surge, or 400ms with our standard oracles, no one beats Switchboard's speeds. In the fast-paced world of DeFi, faster price updates directly translate to increased security and higher returns.
 * **Low Costs**
-  * With pull feeds, feeds are created and used only when needed. This eliminates constant data streaming and _significantly_ reduces latency and costs.
+  * With on-demand feeds, feeds are created and used only when needed. This eliminates constant data streaming and _significantly_ reduces latency and costs.
 * **Permissionless and Flexible**
   * Deploy your new data feed, stream from any source on or off-chain, and set the exact parameters that you need. No need to wait for contracts or red tape.
 * **Secure and Private**
   * Switchboard prevents anyone, including node operators, from altering, exposing or frontrunning your data. Inside Trusted Execution Environments (TEEs), your code and data stay safe and secure.
 
 The Switchboard Protocol is [open-source](https://github.com/switchboard-xyz) and contributions are welcome. Need help using Switchboard? Our support team is available around the clock on [Discord](https://discord.gg/TJAv6ZYvPC).
-

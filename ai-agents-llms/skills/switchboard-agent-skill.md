@@ -314,6 +314,11 @@ curl -sS "$CROSSBAR/simulate/$FEED_ID" | jq .
 
 ### Step 4: Run minimal Solana update+read transaction
 
+For new Solana/SVM feed-hash integrations, use managed quote-program updates
+and canonical quote accounts. Do not suggest `PullFeed.fetchUpdateIx(...)`
+unless the user is maintaining an existing classic PullFeed account and has
+confirmed queue/gateway support for that legacy path.
+
 ~~~ts
 import * as sb from "@switchboard-xyz/on-demand";
 import { OracleQuote } from "@switchboard-xyz/on-demand";

@@ -31,6 +31,10 @@ For machine-readable schema and live testing:
 
 Parameter units are surface-specific. Raw v2 `OracleFeed.maxJobRangePct` and raw gateway `max_variance` values are percentages scaled by `1e9`; `1_000_000_000` means `1%`. See [Feed Parameter Units](../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md).
 
+Use `/v2/fetch/{feed_id}` for v2 feed IDs created by Feed Builder or
+Crossbar v2 storage. The older `/fetch/{hash}` route is for v1 feed definitions
+and legacy compatibility.
+
 ## EVM Route Selection
 
 Use different Crossbar routes depending on whether you are integrating a current Feed Builder/custom feed or an older aggregator-based EVM integration.
@@ -39,6 +43,18 @@ Use different Crossbar routes depending on whether you are integrating a current
 | --- | --- | --- | --- |
 | Feed Builder/custom feed on EVM | `/v2/fetch/{feed_id}`, `/v2/simulate/{feedHashes}`, `/v2/update/{feedHashes}` | deterministic `bytes32` feed ID / feed hash | Recommended flow for Monad and current custom-feed integrations. Use `chain=evm`, `network=mainnet|testnet`, and usually `use_timestamp=true` on `/v2/update`. |
 | Legacy aggregator-based EVM integration | `/simulate/evm/{network}/{aggregator_ids}`, `/updates/evm/{chainId}/{aggregatorIds}` | legacy aggregator ID | Compatibility flow for older EVM integrations. Do not use this as the primary path for Feed Builder custom feeds. |
+
+## Solana/SVM Route Selection
+
+For new Solana/SVM feed-hash integrations, prefer the SDK managed update path:
+`queue.fetchManagedUpdateIxs(...)`. It fetches Ed25519 oracle signatures and
+builds the quote-program `verified_update` instruction that writes the
+canonical `OracleQuote` account.
+
+The classic `PullFeed.fetchUpdateIx(...)` and Crossbar `/updates/solana/...`
+flows target legacy PullFeed accounts and `pullFeedSubmitResponseConsensus`.
+Use them only for existing classic PullFeed integrations where the selected
+queue/gateway environment supports that path.
 
 ## Simulation Endpoints
 
