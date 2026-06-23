@@ -40,3 +40,9 @@ const feed = {
 Use `maxJobRangePct: 0` only when the flow intentionally expects a single successful job/source or identical outputs. For normal multi-source feeds, set a positive scaled tolerance.
 
 Simulation can succeed even when signed updates fail. Simulation proves the jobs can resolve off-chain; signed updates also require oracle-side feed validation to pass. If update fetching returns `ORACLE_UNAVAILABLE` after successful simulation, inspect oracle errors for validation failures such as `RangeExceeded`, then check whether `maxJobRangePct` was scaled correctly.
+
+This feed-validation failure is separate from using the wrong Solana/SVM update
+path. If `PullFeed.fetchUpdateIx(...)` or `pullFeedSubmitResponseConsensus`
+returns `ORACLE_UNAVAILABLE` while `queue.fetchManagedUpdateIxs(...)` returns
+Ed25519 quote-program instructions, move the integration to canonical
+quote-program accounts; see [Quote Program Accounts](../../docs-by-chain/solana-svm/price-feeds/quote-program-accounts.md).

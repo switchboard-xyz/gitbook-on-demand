@@ -43,6 +43,11 @@ On Solana, deployment means:
 
 The canonical account is created automatically on first use—no explicit initialization transaction required.
 
+For new Solana/SVM feed-hash integrations, this quote-program path is the
+supported default. Do not use `PullFeed.fetchUpdateIx(...)` unless you are
+maintaining an existing classic PullFeed account and the selected queue/gateway
+environment explicitly supports the legacy PullFeed update flow.
+
 ## Requirements
 
 - A funded Solana keypair file (payer)
@@ -118,6 +123,9 @@ const sig = await connection.sendTransaction(tx);
 console.log("Transaction signature:", sig);
 console.log("Feed deployed! Quote account:", quoteAccount.toBase58());
 ```
+
+To read the stored quote account, parse it with the SDK/Rust quote-account
+types instead of fixed byte offsets. See [Quote Program Accounts](../../docs-by-chain/solana-svm/price-feeds/quote-program-accounts.md).
 
 ### Using validation parameters
 

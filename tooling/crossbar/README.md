@@ -20,13 +20,19 @@ Crossbar aims to streamline the Switchboard experience, offering the following c
 
 > Crossbar exposes both simulation and signed-update paths. Simulation can succeed even when signed updates fail oracle-side validation. For validation units such as raw v2 `maxJobRangePct` and gateway `max_variance`, see [Feed Parameter Units](../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md).
 
+For current Solana/SVM feed-hash integrations, use the SDK managed update path
+(`queue.fetchManagedUpdateIxs(...)`) and canonical quote-program accounts. The
+classic `PullFeed.fetchUpdateIx(...)` and `/updates/solana/...` flows are
+legacy PullFeed compatibility paths and require queue/gateway support for that
+account scheme.
+
 ### Blockchain-Specific Features
 
 Crossbar provides tailored features for specific blockchains:
 
 **Solana and Aptos/Sui:**
 
-* **Fetch Encoded Update Instructions:** Retrieve update instructions from live oracles for Solana feeds (available on devnet and mainnet).
+* **Fetch Encoded Update Instructions:** Retrieve update instructions from live oracles. For Solana/SVM feed-hash integrations, prefer managed quote-program updates through the SDK; Crossbar's classic Solana update routes are for legacy PullFeed accounts.
 * **Fetch Simulated Results for Feeds:** Fetch current prices for feeds. This is a useful feature for tracking custom price feeds off-chain, for triggering an action that the bots can use.
 
 **Ethereum Virtual Machine (EVM):**

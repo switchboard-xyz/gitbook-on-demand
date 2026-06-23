@@ -45,6 +45,7 @@ This skill is about integration correctness, not designing new feed definitions 
 
 - Consumer instruction must occur after Switchboard verification/update instructions in the same transaction.
 - Use deterministic/canonical accounts; do not accept arbitrary “quote accounts” without canonical checks.
+- New feed-hash integrations use `queue.fetchManagedUpdateIxs(...)` and canonical quote-program accounts. Do not suggest `PullFeed.fetchUpdateIx(...)` unless the user is maintaining an existing classic PullFeed account and confirms queue/gateway support for that legacy path.
 - Variable overrides are secrets-only (never selectors/URLs/paths/IDs/multipliers).
 
 ## Minimal Example
@@ -191,6 +192,8 @@ Produce a `SolanaFeedIntegrationPlan` including:
 - Signature verification index mismatch → re-check `instructionIdx` vs final tx instruction order
 - Missing sysvars → include SlotHashes + Instructions sysvars in accounts
 - Non-canonical quote account → derive canonical address; reject non-canonical inputs
+- `pullFeedSubmitResponseConsensus` or `PullFeed.fetchUpdateIx(...)` returns `ORACLE_UNAVAILABLE`, but managed Ed25519 quote updates work → user is on the legacy PullFeed path; move to `queue.fetchManagedUpdateIxs(...)` and canonical quote accounts
+- Successful simulation but signed updates fail with `RangeExceeded` → feed validation issue; check raw v2 `maxJobRangePct` scaling separately from PullFeed-vs-quote-program routing
 - Compute limits → add compute budget ixs; reduce feeds/oracles per tx
 
 ## References

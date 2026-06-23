@@ -382,6 +382,11 @@ async function main() {
 }
 ```
 
+`OracleQuote.decode(...)` parses the Ed25519 quote instruction payload. Stored
+quote-program accounts are variable-length; read them with the Rust
+`SwitchboardQuote`/`PackedFeedInfo` account types instead of fixed offsets. See
+[Quote Program Accounts](quote-program-accounts.md).
+
 ## Running the Example
 
 ### 1. Clone the Examples Repository

@@ -39,6 +39,11 @@ Every Switchboard oracle update requires two instructions in sequence:
 
 Your program then reads from this oracle account as a third instruction in the same transaction.
 
+This is the current path for new Solana/SVM feed-hash integrations. The older
+`PullFeed.fetchUpdateIx(...)` path writes classic PullFeed accounts and depends
+on queue/gateway support for that legacy flow. Use managed quote-program
+updates unless you are maintaining an existing classic PullFeed integration.
+
 ### Feed IDs
 
 Each price feed has a unique 32-byte hex identifier. You can find feed IDs in the [Switchboard Explorer](https://ondemand.switchboard.xyz/).
@@ -415,10 +420,22 @@ pub fn your_instruction(ctx: Context<YourInstruction>) -> Result<()> {
 }
 ```
 
+Quote accounts are variable-length. Do not read values by fixed byte offsets
+from one simulation result; parse them with `SwitchboardQuote` and
+`PackedFeedInfo`. See [Quote Program Accounts](quote-program-accounts.md).
+
+## Troubleshooting
+
+| Symptom | What it means |
+| --- | --- |
+| `pullFeedSubmitResponseConsensus` or `PullFeed.fetchUpdateIx(...)` returns `ORACLE_UNAVAILABLE`, but `queue.fetchManagedUpdateIxs(...)` returns Ed25519 + quote-program instructions | The integration is using the legacy PullFeed path against quote-program infrastructure. Use managed quote-program updates and read the canonical quote account. |
+| Simulation succeeds, but signed update fetching fails with oracle validation errors such as `RangeExceeded` | This is a feed validation issue, not a PullFeed-vs-quote-program issue. Check feed parameter units, especially raw v2 `maxJobRangePct`; see [Feed Parameter Units](../../../custom-feeds/advanced-feed-configuration/feed-parameter-units.md). |
+
 ## Next Steps
 
 - **Multiple Feeds**: Pass multiple feed IDs to `fetchManagedUpdateIxs` to update several prices in one transaction
 - **Staleness Checks**: Add maximum staleness requirements for your use case
+- **Quote Program Accounts**: Read canonical quote accounts safely in the [Quote Program Accounts](quote-program-accounts.md) guide
 - **Authority-Updated Feeds**: Publish quotes from your own trusted wallet or PDA in the [Authority-Updated Feeds](authority-updated-feeds.md) guide
 - **Custom Feeds**: Learn how to create custom data feeds in the [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md) section
 - **Advanced Patterns**: See the Advanced Price Feed tutorial for more complex integration patterns
