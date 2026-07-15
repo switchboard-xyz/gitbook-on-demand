@@ -1,761 +1,124 @@
 ---
-description: >-
-  Using variable overrides in data feeds for dynamic configuration and secure
-  API integration
+description: Configure request-scoped values in oracle jobs without hardcoding credentials.
 ---
 
 # Data Feed Variable Overrides
 
-Variable overrides provide a powerful mechanism for dynamically configuring oracle jobs without hardcoding sensitive information like API keys or frequently changing parameters. This feature enables secure, flexible data feed configuration for both testing and production environments.
+Variable overrides substitute request-scoped values into string fields in an oracle job. Put a placeholder such as `${MARKET_DATA_API_KEY}` in the job definition, then provide the matching non-empty value in `variableOverrides` when requesting execution.
 
-## What are Variable Overrides?
+Overrides are a general substitution feature. They can represent credentials, URLs, symbols, paths, headers, query parameters, or other string values. Whether a particular override is appropriate depends on who controls updates and what feed consumers trust.
 
-Variable overrides allow you to inject values into oracle job definitions at runtime using the `${VARIABLE_NAME}` syntax.
+## Trust Model
 
-## Security Warning: Variables Are Not Verifiable
+The concrete override map is execution-scoped. It is not included in the feed ID or the signed checksum. A consumer can identify the job definition containing `${VARIABLE_NAME}`, but cannot recover or independently verify the value substituted for that placeholder from the feed identity or signature.
 
-Variable overrides are **not part of the cryptographic verification process**. The oracle signatures only verify the job structure, not the variable values injected at runtime. This means:
+TEE-backed execution protects how selected oracle software handles a request, but it does not make override values part of the feed definition. The execution nodes necessarily receive values that their tasks must use, so credentials should be scoped to the intended API and request path.
 
-* Variables can be manipulated by whoever controls the execution environment
-* Feed consumers cannot verify what variable values were used
-* Use variables only for authentication (API keys and tokens)
-* Never use variables for URLs, paths, parameters, calculations, or data selection logic
+Choose override values according to the update model:
 
-### Safe Uses
+| Update model | Appropriate use |
+| --- | --- |
+| Permissionless feed updates | Prefer credentials and other values that do not intentionally change the data source, selected market, extraction path, or calculation. Keep semantic inputs fixed in the job definition. |
+| Controlled updater | Semantic values such as a URL, symbol, or path are supported when the caller controls every execution request and consumers intentionally trust that caller to select them. |
 
-* API keys: `${API_KEY}`
-* Authentication tokens: `${AUTH_TOKEN}`
+One execution request should represent one customer or security domain. Do not combine unrelated customers' jobs and credentials in one request.
 
-### Unsafe Uses
+## Credential Example
 
-* Base URLs: `${BASE_URL}` (changes data source)
-* API versions: `${API_VERSION}` (could return different data formats)
-* Price multipliers: `${MULTIPLIER}` (affects calculations)
-* JSON paths: `${JSON_PATH}` (changes what data is extracted)
-* Any parameter that affects data traversal, extraction, or calculation
-
-## Primary Use Case: Secure Credential Management
-
-The main purpose of variable overrides is to keep sensitive credentials out of job definitions while maintaining feed verifiability:
-
-* **Secure API Key Management**: Keep sensitive credentials out of job definitions
-* **Environment-Specific Authentication**: Use different tokens for testing vs production
-
-## Basic Syntax
-
-Variables in oracle jobs use the template syntax `${VARIABLE_NAME}` and are replaced at execution time:
+Keep the data source and extraction logic fixed while substituting only the credential:
 
 ```typescript
-// In your oracle job definition
-{
-  httpTask: {
-    url: "https://api.example.com/v1/btc-price?key=${API_KEY}",  // Hardcoded symbol
-    method: "GET"
-  }
+const apiKey = process.env.MARKET_DATA_API_KEY;
+if (!apiKey) {
+  throw new Error("MARKET_DATA_API_KEY is required");
 }
-```
 
-```typescript
-// When fetching signatures, provide the overrides
-import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
-import * as sb from "@switchboard-xyz/on-demand";
-
-const { program } = await sb.AnchorUtils.loadEnv();
-const queue = await sb.Queue.loadDefault(program!);
-const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
-const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
-
-const res = await queue.fetchSignaturesConsensus({
-  gateway,
-  feedConfigs: [{
-    feed: {
-      jobs: [yourJob],
+const job = {
+  tasks: [
+    {
+      httpTask: {
+        url: "https://api.example.com/v1/markets/BTC-USD/price",
+        headers: [
+          {
+            key: "authorization",
+            value: "Bearer ${MARKET_DATA_API_KEY}",
+          },
+        ],
+      },
     },
-  }],
-  numSignatures: 1,
-  useEd25519: true,
+    {
+      jsonParseTask: {
+        path: "$.price",
+      },
+    },
+  ],
+};
+
+const response = await gateway.fetchSignaturesConsensus({
+  // ...feed request fields containing job
   variableOverrides: {
-    "API_KEY": process.env.API_KEY!  // Only authentication
+    MARKET_DATA_API_KEY: apiKey,
   },
 });
 ```
 
-## Common Use Cases
+Placeholder names are case-sensitive and must match the map key exactly. Use environment variables or a secret manager as the source of credential values. Never hardcode credentials in a job, commit them, include them in errors, or log override values.
 
-### 1. API Authentication
+## Semantic Overrides
 
-Secure API integration using environment variables:
+Semantic overrides are valid for a controlled caller. For example, a backend that owns the request and whose consumers trust its market selection can use:
 
 ```typescript
-function getPolygonStockJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",  // Hardcoded symbol
-          method: "GET",
-        }
+const job = {
+  tasks: [
+    {
+      httpTask: {
+        url: "https://api.example.com/v1/markets/${MARKET}/price",
       },
-      {
-        jsonParseTask: {
-          path: "$.results.p",
-        }
-      }
-    ]
-  });
-  return job;
-}
+    },
+    {
+      jsonParseTask: {
+        path: "$.price",
+      },
+    },
+  ],
+};
 
-// Usage with variable overrides
-const res = await queue.fetchSignaturesConsensus({
-  // ... other config
+const response = await gateway.fetchSignaturesConsensus({
+  // ...feed request fields containing job
   variableOverrides: {
-    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!  // Only API key
+    MARKET: "BTC-USD",
   },
 });
 ```
 
-### 2. Recommended: API Key Only Usage
+This request can produce a different result for each `MARKET` value while retaining the same feed identity. Do not use this pattern on a permissionless update path where an untrusted updater could select the value.
 
-The safest and recommended approach - only use variables for API keys:
+## Jupiter and Pyth API Keys
 
-```typescript
-function getSecurePriceJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          // Everything hardcoded except API key
-          url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&apikey=${API_KEY}",
-          method: "GET"
-        }
-      },
-      {
-        jsonParseTask: {
-          // Hardcoded path - verifiable data extraction
-          path: "$.data.rates.USD",
-        }
-      }
-    ]
-  });
-  return job;
-}
+Jupiter and Pyth both support customer-provided API keys, but their fallback rules differ:
 
-// Usage - ONLY API key as variable
-variableOverrides: {
-  "API_KEY": process.env.COINBASE_API_KEY!  // Only credential management
-}
-```
+| Task | Preferred task field | Override behavior |
+| --- | --- | --- |
+| JupiterSwapTask | `apiKey: "${JUPITER_API_KEY}"` | `JUPITER_API_KEY` is a conventional example name, not reserved. The override is applied only when the field contains the matching placeholder. An unresolved placeholder fails before contacting Jupiter. If the field is omitted or empty, the oracle's configured Jupiter key is used when available. |
+| OracleTask with `pythAddress` | `pythConfigs.apiKey: "${PYTH_API_KEY}"` | A non-empty task field takes precedence. If it is omitted or empty, the reserved request override `PYTH_API_KEY` is a compatibility fallback for every eligible `pythAddress` task in that request. The fallback is not shared with another request or customer. |
+| OracleTask with `pythPushFeedId` | None | The task reads an on-chain account and does not use Hermes authentication. |
 
-### 3. Multiple API Authentication Headers
+For new Pyth feed definitions, use the explicit task placeholder. The request-wide `PYTH_API_KEY` fallback exists so existing `pythAddress` jobs can adopt authenticated Hermes access without changing each stored job during the Pyth Core transition.
 
-When you need multiple authentication parameters:
+See [Jupiter API keys](decentralized-exchanges.md#jupiter-exchange-aggregator), [Pyth authentication and push feeds](oracle-aggregator.md#pyth), [JupiterSwapTask](../task-types.md#jupiterswaptask), and [OracleTask](../task-types.md#oracletask) for task-specific examples and fields.
 
-```typescript
-function getMultiAuthJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          // Hardcoded endpoint and path - verifiable
-          url: "https://api.example.com/v1/btc-price",
-          method: "GET",
-          headers: [
-            {
-              key: "Authorization",
-              value: "Bearer ${AUTH_TOKEN}"  // Auth only
-            },
-            {
-              key: "X-API-Key", 
-              value: "${API_KEY}"           // Auth only
-            }
-          ]
-        }
-      },
-      {
-        jsonParseTask: {
-          // Hardcoded path - verifiable data extraction
-          path: "$.price",
-        }
-      }
-    ]
-  });
-  return job;
-}
+## Operational Guidance
 
-// Usage - only authentication credentials as variables
-variableOverrides: {
-  "AUTH_TOKEN": process.env.BEARER_TOKEN!,
-  "API_KEY": process.env.API_KEY!
-}
-```
-
-### 4. Simple Value Substitution
-
-For testing or static value injection:
-
-```typescript
-function getValueJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        valueTask: {
-          big: "${VALUE}",
-        },
-      },
-    ],
-  });
-  return job;
-}
-
-// Usage for testing
-variableOverrides: {
-  "VALUE": "12345.67"
-}
-```
-
-## Variable Override Patterns
-
-> Only use variables for API keys and authentication tokens. Everything else should be hardcoded to ensure feed verifiability.
-
-### HTTP Headers with Authentication (Recommended Pattern)
-
-```typescript
-{
-  httpTask: {
-    url: "https://api.specificprovider.com/v1/btc-usd",  // Hardcoded endpoint
-    method: "GET",
-    headers: [
-      {
-        key: "Authorization",
-        value: "Bearer ${ACCESS_TOKEN}"  // Only auth token variable
-      },
-      {
-        key: "X-API-Key",
-        value: "${API_KEY}"             // Only API key variable
-      },
-      {
-        key: "User-Agent",
-        value: "Switchboard-Oracle/1.0"  // Hardcoded
-      }
-    ]
-  }
-}
-```
-
-### POST Request Bodies (Auth Only)
-
-```typescript
-{
-  httpTask: {
-    url: "https://api.specificprovider.com/v1/query",  // Hardcoded
-    method: "POST",
-    headers: [
-      {
-        key: "Content-Type",
-        value: "application/json"
-      }
-    ],
-    // Only API key as variable, symbol hardcoded and verifiable
-    body: '{"symbol": "BTCUSD", "apiKey": "${API_KEY}"}'
-  }
-}
-```
-
-### JSON Paths (No Variables Recommended)
-
-```typescript
-{
-  jsonParseTask: {
-    // Completely hardcoded path - fully verifiable
-    path: "$.data.price_usd"
-  }
-}
-
-// Don't do this - affects data extraction:
-// path: "$.${ROOT_KEY}.${DATA_KEY}[${INDEX}].${FIELD}"
-```
-
-## Testing and Development Workflow
-
-### 1. Local Development Script
-
-Create a testing script similar to the example:
-
-```typescript
-// scripts/test-job.ts
-import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
-import * as sb from "@switchboard-xyz/on-demand";
-
-// Insecure example - do not use in production
-// This example violates security warnings and is for educational purposes only
-function getDangerousJob(): OracleJob {
-  // WARNING: This pattern is NOT RECOMMENDED
-  // Variables for URLs and paths make feeds unverifiable
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          url: "${BASE_URL}/api/data?key=${API_KEY}&symbol=${SYMBOL}",  // Unverifiable
-          method: "GET",
-        }
-      },
-      {
-        jsonParseTask: {
-          path: "${JSON_PATH}",  // Unverifiable data extraction
-        }
-      }
-    ]
-  });
-  return job;
-}
-
-// RECOMMENDED SECURE VERSION
-function getSecureJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          url: "https://api.coinbase.com/v2/exchange-rates?currency=BTC&key=${API_KEY}",  // Hardcoded
-          method: "GET",
-        }
-      },
-      {
-        jsonParseTask: {
-          path: "$.data.rates.USD",  // Hardcoded path
-        }
-      }
-    ]
-  });
-  return job;
-}
-
-(async function main() {
-  const { program } = await sb.AnchorUtils.loadEnv();
-  const queue = await sb.Queue.loadDefault(program!);
-  const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
-  const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
-  
-  // Insecure - uses unverifiable job
-  const dangerousRes = await queue.fetchSignaturesConsensus({
-    gateway,
-    feedConfigs: [{
-      feed: {
-        jobs: [getDangerousJob()],  // Not recommended
-      },
-    }],
-    numSignatures: 1,
-    useEd25519: true,
-    variableOverrides: {
-      "BASE_URL": process.env.BASE_URL!,      // Unverifiable
-      "API_KEY": process.env.API_KEY!,        // OK for auth
-      "SYMBOL": process.env.SYMBOL || "BTC",  // Data selection
-      "JSON_PATH": process.env.JSON_PATH || "$.price"  // Data extraction
-    },
-  });
-  
-  // RECOMMENDED - Uses secure job
-  const secureRes = await queue.fetchSignaturesConsensus({
-    gateway,
-    feedConfigs: [{
-      feed: {
-        jobs: [getSecureJob()],  // Secure and verifiable
-      },
-    }],
-    numSignatures: 1,
-    useEd25519: true,
-    variableOverrides: {
-      "API_KEY": process.env.API_KEY!  // Only authentication
-    },
-  });
-  
-  console.log("Oracle responses:", res.median_responses);
-})();
-```
-
-### 2. Running Tests
-
-```bash
-# Not recommended - testing with unverifiable variables
-# BASE_URL=https://api.example.com \
-# API_KEY=your_api_key_here \
-# SYMBOL=BTC \
-# JSON_PATH=$.result.price \
-# bun run scripts/test-job.ts
-
-# Recommended - testing with only auth variables
-API_KEY=your_api_key_here bun run scripts/test-job.ts
-```
-
-### 3. Environment File Approach
-
-```bash
-# Not recommended .env setup
-# echo "BASE_URL=https://api.example.com" >> .env  # Unverifiable
-# echo "SYMBOL=BTC" >> .env                        # Data selection
-# echo "JSON_PATH=$.result.price" >> .env         # Data extraction
-
-# Recommended .env setup - only authentication
-echo "API_KEY=your_api_key_here" >> .env
-echo "AUTH_TOKEN=your_auth_token" >> .env
-
-# Load automatically with dotenv
-bun run scripts/test-job.ts
-```
-
-## Security Best Practices
-
-### 1. Never Hardcode Secrets
-
-**Don't do this:**
-
-```typescript
-variableOverrides: {
-  "API_KEY": "sk_1234567890abcdef", // Hardcoded secret
-}
-```
-
-**Do this instead:**
-
-```typescript
-variableOverrides: {
-  "API_KEY": process.env.API_KEY!, // From environment
-}
-```
-
-### 2. Validate Required Variables
-
-```typescript
-function validateEnvironment() {
-  const required = ['API_KEY', 'BASE_URL'];
-  for (const key of required) {
-    if (!process.env[key]) {
-      throw new Error(`Missing required environment variable: ${key}`);
-    }
-  }
-}
-
-// Call before using overrides
-validateEnvironment();
-```
-
-### 3. Use Different Keys for Different Environments
-
-```bash
-# Development
-DEV_API_KEY=dev_key_here
-
-# Production  
-PROD_API_KEY=prod_key_here
-```
-
-```typescript
-const apiKey = process.env.NODE_ENV === 'production' 
-  ? process.env.PROD_API_KEY 
-  : process.env.DEV_API_KEY;
-
-variableOverrides: {
-  "API_KEY": apiKey!
-}
-```
-
-## Error Handling and Debugging
-
-### Common Issues
-
-#### 1. Missing Variables
-
-```bash
-Error: Cannot read property 'undefined' of process.env
-```
-
-**Solution:** Ensure all referenced variables are defined:
-
-```bash
-# Check what variables your job needs
-grep '\${' your-job-file.ts
-
-# Set missing variables
-export MISSING_VAR=value
-```
-
-#### 2. Incorrect Variable Names
-
-Variables are case-sensitive and must match exactly:
-
-```typescript
-// Job definition uses
-url: "${API_KEY}"
-
-// Override must use same case
-variableOverrides: {
-  "API_KEY": "value" // Correct
-  "api_key": "value" // Wrong case
-}
-```
-
-#### 3. JSON Path Issues
-
-When using variables in JSON paths, ensure the resulting path is valid:
-
-```typescript
-// This creates: "$.data.undefined.price" if FIELD is not set
-path: "$.data.${FIELD}.price"
-
-// Better: provide defaults
-variableOverrides: {
-  "FIELD": process.env.FIELD || "defaultField"
-}
-```
-
-### Debugging Tips
-
-1. **Log Variable Overrides**
-
-```typescript
-console.log("Variable overrides:", {
-  ...Object.fromEntries(
-    Object.entries(variableOverrides).map(([k, v]) => 
-      [k, k.includes('KEY') || k.includes('TOKEN') ? '***' : v]
-    )
-  )
-});
-```
-
-2. **Test API Endpoints Manually**
-
-```bash
-# Test your API endpoint with curl
-curl "https://api.example.com/v1/data?key=YOUR_KEY"
-```
-
-3. **Validate JSON Paths**
-
-```bash
-# Test JSON path extraction
-curl "your_api_endpoint" | jq "$.path.you.want"
-```
-
-## Real-World Examples
-
-### Example 1: Polygon.io Stock Prices
-
-Get stock prices from Polygon.io API with secure API key management:
-
-```typescript
-import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
-import * as sb from "@switchboard-xyz/on-demand";
-
-function getPolygonStockJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          // Hardcoded endpoint and symbol - verifiable data source
-          url: "https://api.polygon.io/v2/last/trade/AAPL?apiKey=${POLYGON_API_KEY}",
-          method: "GET",
-        }
-      },
-      {
-        jsonParseTask: {
-          // Hardcoded path - verifiable data extraction
-          path: "$.results.p",
-        }
-      }
-    ]
-  });
-  return job;
-}
-
-// Usage with secure API key management
-const { program } = await sb.AnchorUtils.loadEnv();
-const queue = await sb.Queue.loadDefault(program!);
-const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
-const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
-
-const res = await queue.fetchSignaturesConsensus({
-  gateway,
-  feedConfigs: [{
-    feed: {
-      jobs: [getPolygonStockJob()],
-    },
-  }],
-  numSignatures: 1,
-  useEd25519: true,
-  variableOverrides: {
-    "POLYGON_API_KEY": process.env.POLYGON_API_KEY!,  // Only API key
-  },
-});
-```
-
-### Example 2: ESPN Sports Scores
-
-Get NFL final scores from ESPN API:
-
-```typescript
-import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
-import * as sb from "@switchboard-xyz/on-demand";
-
-function getESPNFootballScoreJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          // Hardcoded specific game endpoint
-          url: "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard/401547439?apikey=${ESPN_API_KEY}",
-          method: "GET",
-        }
-      },
-      {
-        jsonParseTask: {
-          // Hardcoded path to home team final score
-          path: "$.events[0].competitions[0].competitors[0].score",
-        }
-      }
-    ]
-  });
-  return job;
-}
-
-// Usage
-const { program } = await sb.AnchorUtils.loadEnv();
-const queue = await sb.Queue.loadDefault(program!);
-const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
-const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
-
-const res = await queue.fetchSignaturesConsensus({
-  gateway,
-  feedConfigs: [{
-    feed: {
-      jobs: [getESPNFootballScoreJob()],
-    },
-  }],
-  numSignatures: 1,
-  useEd25519: true,
-  variableOverrides: {
-    "ESPN_API_KEY": process.env.ESPN_API_KEY!,  // Only API key
-  },
-});
-```
-
-### Example 3: Twitter Follower Count
-
-Get follower count for a specific Twitter account:
-
-```typescript
-import { OracleJob, CrossbarClient } from "@switchboard-xyz/common";
-import * as sb from "@switchboard-xyz/on-demand";
-
-function getTwitterFollowersJob(): OracleJob {
-  const job = OracleJob.fromObject({
-    tasks: [
-      {
-        httpTask: {
-          // Hardcoded user ID - verifiable target account
-          url: "https://api.twitter.com/2/users/783214",  // Twitter's official account
-          method: "GET",
-          headers: [
-            {
-              key: "Authorization",
-              value: "Bearer ${TWITTER_BEARER_TOKEN}"  // Only auth token
-            }
-          ]
-        }
-      },
-      {
-        jsonParseTask: {
-          // Hardcoded path to follower count
-          path: "$.data.public_metrics.followers_count",
-        }
-      }
-    ]
-  });
-  return job;
-}
-
-// Usage
-const { program } = await sb.AnchorUtils.loadEnv();
-const queue = await sb.Queue.loadDefault(program!);
-const crossbar = new CrossbarClient("http://crossbar.switchboard.xyz");
-const gateway = await queue.fetchGatewayFromCrossbar(crossbar);
-
-const res = await queue.fetchSignaturesConsensus({
-  gateway,
-  feedConfigs: [{
-    feed: {
-      jobs: [getTwitterFollowersJob()],
-    },
-  }],
-  numSignatures: 1,
-  useEd25519: true,
-  variableOverrides: {
-    "TWITTER_BEARER_TOKEN": process.env.TWITTER_BEARER_TOKEN!,  // Only auth token
-  },
-});
-```
-
-### Key Principles in These Examples
-
-1. **Hardcoded Data Sources**: URLs specify exact endpoints and parameters
-2. **Hardcoded Data Paths**: JSON paths are fixed, ensuring consistent data extraction
-3. **Authentication Only Variables**: Only API keys and tokens use variable substitution
-4. **Verifiable Logic**: Feed consumers can verify exactly what data is being fetched and how
-
-### Environment Setup for Examples
-
-```bash
-# Create .env file with your API keys
-echo "POLYGON_API_KEY=your_polygon_key_here" >> .env
-echo "ESPN_API_KEY=your_espn_key_here" >> .env
-echo "TWITTER_BEARER_TOKEN=your_twitter_token_here" >> .env
-```
-
-```bash
-# Run examples
-POLYGON_API_KEY=your_key bun run scripts/job-testing/runJob.ts
-ESPN_API_KEY=your_key bun run scripts/job-testing/runJob.ts
-TWITTER_BEARER_TOKEN=your_token bun run scripts/job-testing/runJob.ts
-```
-
-## Integration with Production Systems
-
-### Oracle Quotes Integration
-
-When using variable overrides with Oracle Quotes:
-
-```typescript
-// Client-side: fetch Oracle Quote with variable overrides
-const [sigVerifyIx, oracleQuote] = await queue.fetchUpdateQuoteIx(
-  gateway,
-  crossbar,
-  feedHashes,
-  {
-    variableOverrides: {
-      "API_KEY": process.env.API_KEY!,
-      "AUTH_TOKEN": process.env.AUTH_TOKEN!
-    }
-  }
-);
-
-// Use in your Solana program
-const tx = await asV0Tx({
-  connection,
-  ixs: [sigVerifyIx, yourProgramIx],
-  signers: [wallet],
-});
-```
-
-### Production Considerations
-
-1. **Secret Management**: Use secure secret management systems
-2. **Variable Validation**: Implement runtime validation
-3. **Fallback Values**: Provide sensible defaults where appropriate
-4. **Monitoring**: Log variable usage for debugging (without exposing secrets)
-5. **Documentation**: Clearly document required variables for each job
+* Validate that every required override is present and non-empty before sending the request.
+* Use least-privilege, rate-limited credentials and rotate them through your secret manager.
+* Log placeholder names or whether configuration is present, never override values.
+* Keep one customer's jobs and credentials within that customer's execution request.
+* For permissionless feeds, keep the endpoint, selected data, parsing path, and calculations fixed in the job definition.
 
 ## Related Resources
 
-* [Variables with CacheTask](variables-with-cachetask.md) - For internal variable management
-* [REST APIs with HttpTask](rest-apis-with-httptask.md) - HTTP request configuration
-* [Build with TypeScript](../build-and-deploy-feed/build-with-typescript.md) - Oracle Jobs, simulation, and task composition
-* [Task Types Reference](../task-types.md) - Full task reference and examples
+* [REST APIs with HttpTask](rest-apis-with-httptask.md)
+* [Variables with CacheTask](variables-with-cachetask.md)
+* [Build with TypeScript](../build-and-deploy-feed/build-with-typescript.md)
+* [Task Types Reference](../task-types.md)

@@ -57,13 +57,11 @@ const CATEGORIES = {
 };
 
 async function fetchProto() {
-  // Try local file first
   if (fs.existsSync(LOCAL_PROTO_PATH)) {
     console.log(`Using local proto file: ${LOCAL_PROTO_PATH}`);
     return fs.readFileSync(LOCAL_PROTO_PATH, 'utf-8');
   }
 
-  // Fall back to GitHub
   console.log(`Fetching from GitHub: ${PROTO_URL}`);
   const response = await fetch(PROTO_URL);
   if (!response.ok) {
@@ -72,139 +70,191 @@ async function fetchProto() {
   return response.text();
 }
 
+function countBraces(line) {
+  let count = 0;
+  for (const char of line) {
+    if (char === '{') count++;
+    if (char === '}') count--;
+  }
+  return count;
+}
+
+function findBlockEnd(lines, startIndex) {
+  let depth = 0;
+  let started = false;
+
+  for (let i = startIndex; i < lines.length; i++) {
+    if (lines[i].includes('{')) started = true;
+    const delta = countBraces(lines[i]);
+    depth += delta;
+
+    if (started && depth === 0) return i;
+  }
+
+  throw new Error(`Unclosed proto block starting on line ${startIndex + 1}`);
+}
+
+function collectFieldDescription(lines, fieldIndex) {
+  const comments = [];
+  let i = fieldIndex - 1;
+
+  while (i >= 0 && lines[i].trim().startsWith('///')) {
+    comments.unshift(lines[i].trim().replace(/^\/\/\/\s?/, ''));
+    i--;
+  }
+
+  if (comments.length > 0) {
+    return collapseTableProse(comments.join('\n'));
+  }
+
+  const inlineComment = lines[fieldIndex].match(/\/\/\s*(.+)$/);
+  return inlineComment ? collapseTableProse(inlineComment[1]) : '';
+}
+
+function collapseTableProse(text) {
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function parseField(lines, fieldIndex) {
+  const fieldMatch = lines[fieldIndex].match(
+    /^\s*(?:optional|repeated|required)?\s*([.\w]+)\s+(\w+)\s*=\s*\d+/
+  );
+  if (!fieldMatch) return null;
+
+  return {
+    type: fieldMatch[1],
+    name: fieldMatch[2],
+    description: collectFieldDescription(lines, fieldIndex)
+  };
+}
+
+function extractFieldsFromRange(lines, startIndex, endIndex) {
+  const fields = [];
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const declaration = lines[i].match(/^\s*(message|enum|oneof)\s+\w+\s*\{/);
+    if (declaration) {
+      const blockEnd = findBlockEnd(lines, i);
+      if (declaration[1] === 'oneof') {
+        fields.push(...extractFieldsFromRange(lines, i + 1, blockEnd));
+      }
+      i = blockEnd;
+      continue;
+    }
+
+    const field = parseField(lines, i);
+    if (field) fields.push(field);
+  }
+
+  return fields;
+}
+
+function parseMessageDefinition(lines, messageStartIndex) {
+  const messageMatch = lines[messageStartIndex].match(/^\s*message\s+(\w+)\s*\{/);
+  if (!messageMatch) {
+    throw new Error(`Expected message declaration on line ${messageStartIndex + 1}`);
+  }
+
+  const endIndex = findBlockEnd(lines, messageStartIndex);
+  const fields = [];
+  const nestedMessages = new Map();
+
+  for (let i = messageStartIndex + 1; i < endIndex; i++) {
+    const declaration = lines[i].match(/^\s*(message|enum|oneof)\s+(\w+)\s*\{/);
+    if (declaration) {
+      const blockEnd = findBlockEnd(lines, i);
+      if (declaration[1] === 'message') {
+        nestedMessages.set(declaration[2], {
+          fields: extractFieldsFromRange(lines, i + 1, blockEnd)
+        });
+      } else if (declaration[1] === 'oneof') {
+        fields.push(...extractFieldsFromRange(lines, i + 1, blockEnd));
+      }
+      i = blockEnd;
+      continue;
+    }
+
+    const field = parseField(lines, i);
+    if (field) fields.push(field);
+  }
+
+  const referencedTypes = new Set(fields.map(field => field.type));
+  const referencedNestedMessages = new Map(
+    [...nestedMessages].filter(([name]) => referencedTypes.has(name))
+  );
+
+  return {
+    name: messageMatch[1],
+    endIndex,
+    fields,
+    nestedMessages: referencedNestedMessages
+  };
+}
+
+function extractTaskDocumentation(lines, messageStartIndex) {
+  let i = messageStartIndex - 1;
+  while (i >= 0 && lines[i].trim() === '') i--;
+
+  if (i >= 0 && lines[i].trim().endsWith('*/')) {
+    const commentEnd = i;
+    while (i >= 0 && !lines[i].includes('/*')) i--;
+    if (i >= 0) {
+      const commentText = lines.slice(i, commentEnd + 1).join('\n');
+      const match = commentText.match(/\/\*\s*([\s\S]*?)\s*\*\//);
+      return match ? cleanDocumentation(match[1]) : null;
+    }
+  }
+
+  if (i >= 0 && lines[i].trim().startsWith('///')) {
+    const comments = [];
+    while (i >= 0 && lines[i].trim().startsWith('///')) {
+      comments.unshift(lines[i].trim().replace(/^\/\/\/\s?/, ''));
+      i--;
+    }
+    return comments.join('\n');
+  }
+
+  return null;
+}
+
 function parseTaskDocumentation(protoContent) {
   const tasks = new Map();
   const lines = protoContent.split('\n');
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const messageMatch = line.match(/^\s*message\s+(\w+Task)\s*\{/);
+    const messageMatch = lines[i].match(/^\s*message\s+(\w+Task)\s*\{/);
+    if (!messageMatch) continue;
 
-    if (messageMatch) {
-      const taskName = messageMatch[1];
-      let doc = null;
-
-      // Look backwards for documentation immediately before this message
-      let j = i - 1;
-
-      // Skip empty lines
-      while (j >= 0 && lines[j].trim() === '') j--;
-
-      // Check for block comment (ends with */)
-      if (j >= 0 && lines[j].trim().endsWith('*/')) {
-        let commentEnd = j;
-        // Search backwards for the matching /*
-        while (j >= 0 && !lines[j].includes('/*')) {
-          j--;
-        }
-        if (j >= 0) {
-          // Extract just this comment block
-          const commentLines = lines.slice(j, commentEnd + 1);
-          const commentText = commentLines.join('\n');
-          const match = commentText.match(/\/\*\s*([\s\S]*?)\s*\*\//);
-          if (match) {
-            doc = cleanDocumentation(match[1]);
-          }
-        }
-      }
-      // Check for /// comments immediately before (existing logic)
-      else if (j >= 0 && lines[j].trim().startsWith('///')) {
-        const tripleSlashComments = [];
-        while (j >= 0 && lines[j].trim().startsWith('///')) {
-          tripleSlashComments.unshift(lines[j].trim().replace(/^\/\/\/\s?/, ''));
-          j--;
-        }
-        doc = tripleSlashComments.join('\n');
-      }
-
-      // Extract fields from the message body
-      const fields = extractFields(lines, i);
-
-      tasks.set(taskName, { doc, fields });
-    }
+    const message = parseMessageDefinition(lines, i);
+    tasks.set(message.name, {
+      doc: extractTaskDocumentation(lines, i),
+      fields: message.fields,
+      nestedMessages: message.nestedMessages
+    });
+    i = message.endIndex;
   }
 
   return tasks;
 }
 
 function extractFields(lines, messageStartIndex) {
-  const fields = [];
-  let braceCount = 0;
-  let insideMessage = false;
-  let nestedDepth = 0;
-
-  for (let i = messageStartIndex; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Count braces
-    for (const char of line) {
-      if (char === '{') {
-        braceCount++;
-        if (!insideMessage) {
-          insideMessage = true;
-        } else {
-          nestedDepth++;
-        }
-      } else if (char === '}') {
-        braceCount--;
-        if (nestedDepth > 0) {
-          nestedDepth--;
-        }
-      }
-    }
-
-    // Exit when we close the main message
-    if (insideMessage && braceCount === 0) break;
-
-    // Skip if we're inside a nested message/enum/oneof
-    if (nestedDepth > 0) continue;
-
-    // Skip nested message/enum/oneof declarations (they open a new brace level)
-    if (line.match(/^\s*(message|enum|oneof)\s+\w+/)) {
-      continue;
-    }
-
-    // Match field definitions: optional/repeated type name = number;
-    const fieldMatch = line.match(/^\s*(optional|repeated|required)?\s*(\w+)\s+(\w+)\s*=\s*\d+/);
-    if (fieldMatch && insideMessage) {
-      const [, , type, name] = fieldMatch;
-
-      // Look for /// comment on the line before
-      let description = '';
-      const prevLine = lines[i - 1] || '';
-      if (prevLine.trim().startsWith('///')) {
-        description = prevLine.trim().replace(/^\/\/\/\s?/, '');
-      }
-      // Also check for inline comment
-      const inlineCommentMatch = line.match(/\/\/\s*(.+)$/);
-      if (inlineCommentMatch && !description) {
-        description = inlineCommentMatch[1];
-      }
-
-      fields.push({
-        name: name,
-        type: type,
-        description: description
-      });
-    }
-  }
-
-  return fields;
+  return parseMessageDefinition(lines, messageStartIndex).fields;
 }
 
 function cleanDocumentation(doc) {
   if (!doc) return null;
 
-  // Clean up the documentation
   let cleaned = doc
-    // Remove the block-comment prefix from lines like " * text" without
-    // stripping intentional markdown such as "**bold**".
     .replace(/^\s*\*(?!\*)\s?/gm, '')
-    // Normalize whitespace
     .replace(/\r\n/g, '\n')
     .trim();
 
-  // Format JSON code blocks for better readability
   cleaned = formatJsonCodeBlocks(cleaned);
   cleaned = demoteInternalHeadings(cleaned);
 
@@ -212,7 +262,6 @@ function cleanDocumentation(doc) {
 }
 
 function formatJsonCodeBlocks(text) {
-  // Match ```json ... ``` code blocks
   return text.replace(/```json\s*([\s\S]*?)```/g, (match, jsonContent) => {
     const trimmed = jsonContent.trim();
     try {
@@ -220,16 +269,12 @@ function formatJsonCodeBlocks(text) {
       const formatted = JSON.stringify(parsed, null, 2);
       return '```json\n' + formatted + '\n```';
     } catch {
-      // If parsing fails, return original
       return match;
     }
   });
 }
 
 function demoteInternalHeadings(text) {
-  // Task pages already provide the primary heading structure. Converting nested
-  // headings inside proto comments to bold labels keeps GitBook's page nav from
-  // treating them as top-level sections.
   return text.replace(/^(#{2,6})\s+(.+)$/gm, (_, __, headingText) => {
     return `**${headingText.trim()}**`;
   });
@@ -237,26 +282,33 @@ function demoteInternalHeadings(text) {
 
 function categorizeTask(taskName) {
   for (const [category, tasks] of Object.entries(CATEGORIES)) {
-    if (tasks.includes(taskName)) {
-      return category;
-    }
+    if (tasks.includes(taskName)) return category;
   }
   return 'Other';
+}
+
+function renderFieldTable(fields) {
+  const documentedFields = fields.filter(field => field.description);
+  if (documentedFields.length === 0) return '';
+
+  let markdown = '| Field | Type | Description |\n';
+  markdown += '|-------|------|-------------|\n';
+  for (const field of documentedFields) {
+    const description = collapseTableProse(field.description).replace(/\|/g, '\\|');
+    markdown += `| \`${field.name}\` | ${field.type} | ${description} |\n`;
+  }
+  return `${markdown}\n`;
 }
 
 function generateMarkdown(tasks) {
   const categorized = {};
 
-  // Categorize all tasks
   for (const [taskName, taskData] of tasks) {
     const category = categorizeTask(taskName);
-    if (!categorized[category]) {
-      categorized[category] = [];
-    }
+    if (!categorized[category]) categorized[category] = [];
     categorized[category].push({ name: taskName, ...taskData });
   }
 
-  // Generate markdown
   let markdown = `# Task Types
 
 > This documentation is automatically generated from the [job_schemas.proto](https://github.com/switchboard-xyz/sbv3/blob/main/protos/job_schemas.proto) source file.
@@ -267,7 +319,6 @@ Some tasks do not consume the running input (such as HttpTask and WebsocketTask)
 
 `;
 
-  // Define category order
   const categoryOrder = [
     'Data Fetching',
     'Parsing',
@@ -286,34 +337,21 @@ Some tasks do not consume the running input (such as HttpTask and WebsocketTask)
     if (!tasksInCategory || tasksInCategory.length === 0) continue;
 
     markdown += `## ${category}\n\n`;
-
-    // Sort tasks alphabetically within category
     tasksInCategory.sort((a, b) => a.name.localeCompare(b.name));
 
-    for (const { name, doc, fields } of tasksInCategory) {
+    for (const { name, doc, fields, nestedMessages } of tasksInCategory) {
       markdown += `### ${name}\n\n`;
+      markdown += doc ? `${doc}\n\n` : '*No description available.*\n\n';
+      markdown += renderFieldTable(fields || []);
 
-      if (doc) {
-        markdown += `${doc}\n\n`;
-      } else {
-        markdown += `*No description available.*\n\n`;
-      }
-
-      // Add field table if there are documented fields
-      if (fields && fields.length > 0) {
-        const documentedFields = fields.filter(f => f.description);
-        if (documentedFields.length > 0) {
-          markdown += `| Field | Type | Description |\n`;
-          markdown += `|-------|------|-------------|\n`;
-          for (const field of documentedFields) {
-            const escapedDesc = field.description.replace(/\|/g, '\\|');
-            markdown += `| \`${field.name}\` | ${field.type} | ${escapedDesc} |\n`;
-          }
-          markdown += `\n`;
+      if (nestedMessages) {
+        for (const [nestedName, nestedMessage] of nestedMessages) {
+          const table = renderFieldTable(nestedMessage.fields || []);
+          if (table) markdown += `**${nestedName} fields**\n\n${table}`;
         }
       }
 
-      markdown += `---\n\n`;
+      markdown += '---\n\n';
     }
   }
 
@@ -344,4 +382,19 @@ async function main() {
   console.log('Done!');
 }
 
-main().catch(console.error);
+module.exports = {
+  collapseTableProse,
+  extractFields,
+  fetchProto,
+  generateMarkdown,
+  main,
+  parseTaskDocumentation,
+  renderFieldTable
+};
+
+if (require.main === module) {
+  main().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

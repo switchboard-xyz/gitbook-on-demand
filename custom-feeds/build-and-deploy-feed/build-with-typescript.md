@@ -214,12 +214,11 @@ Full task docs:
 
 ### Variable overrides (`${VAR_NAME}`)
 
-Use variable overrides to insert API keys and auth tokens into tasks at runtime.
+Use variable overrides to insert request-scoped values into task string fields at runtime. API keys and auth tokens are the safest default because they do not intentionally change feed semantics.
 
 See [Data Feed Variable Overrides](../advanced-feed-configuration/data-feed-variable-overrides.md) for the supported pattern and the full security guidance.
 
-**Critical rule:** Only use variables for **authentication** (API keys/tokens).  
-Do **not** use variables for anything that changes feed logic (URLs, JSON paths, multipliers), because consumers cannot cryptographically verify what values were injected at runtime.
+Override values are not included in the feed ID or signed checksum. Keep data sources, selections, and calculations fixed for permissionlessly updated feeds. Semantic overrides are supported when a controlled updater owns the request and consumers intentionally trust that caller.
 
 ---
 
