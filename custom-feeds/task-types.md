@@ -64,6 +64,13 @@ _**Example**_: HttpTask example with headers
 | `headers` | Header | A list of headers to add to this HttpTask. |
 | `body` | string | A stringified body (if any) to add to this HttpTask. |
 
+**Header fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `key` | string | A header key such as `Authorization` or `Content-Type` |
+| `value` | string | A value for the given header key like `Basic MYAUTHKEY` or `application/json` |
+
 ---
 
 ### SolanaAccountDataFetchTask
@@ -91,6 +98,11 @@ _**Returns**_: The value associated with the token2022 extension.
 ### SplTokenParseTask
 
 Fetch the JSON representation of an SPL token mint.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `token_account_address` | string | The publicKey of a token account to fetch the mintInfo for. |
+| `mint_address` | string | The publicKey of the token mint address. |
 
 ---
 
@@ -120,7 +132,7 @@ _**Example**_: Opens a coinbase websocket
 | `url` | string | The websocket url. |
 | `subscription` | string | The websocket message to notify of a new subscription. |
 | `max_data_age_seconds` | int32 | Minimum amount of time required between when the horses are taking out. |
-| `filter` | string | Example: "$[?(@.channel == 'ticker' && @.market == 'BTC/USD')]" |
+| `filter` | string | Incoming message JSONPath filter. Example: "$[?(@.channel == 'ticker' && @.market == 'BTC/USD')]" |
 
 ---
 
@@ -199,7 +211,7 @@ _**Example**_: Parses the price field from a JSON object
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `path` | string | https://www.npmjs.com/package/jsonpath-plus |
+| `path` | string | JSONPath formatted path to the element. https://t.ly/uLtw https://www.npmjs.com/package/jsonpath-plus |
 | `aggregation_method` | AggregationMethod | The technique that will be used to aggregate the results if walking the specified path returns multiple numerical results. |
 
 ---
@@ -246,8 +258,8 @@ _**Example**_: Extract the first JSON object from a stream
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `pattern` | string | Uses the fancy-regex Rust crate syntax. |
-| `group_number` | int32 | Defaults to 0 if not specified. |
+| `pattern` | string | The regular expression pattern to match against the input string. Uses the fancy-regex Rust crate syntax. |
+| `group_number` | int32 | The capture group number to extract (0 returns full match, 1+ returns respective capture group). Defaults to 0 if not specified. |
 
 ---
 
@@ -329,6 +341,13 @@ _**Example**_: Map HTTP response status with case-sensitive matching
 | `default_value` | string | Optional default value to return if no mapping matches. If not provided and no match is found, the task will fail. |
 | `case_sensitive` | bool | Whether the string matching should be case-sensitive. Defaults to true. |
 | `input` | string | Optional input value to map. If not provided, will use the previous task output. |
+
+**Mapping fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `key` | string | The string key to match against. |
+| `value` | string | The value to return if the key matches. |
 
 ---
 
@@ -424,6 +443,13 @@ _**Example**_: Returns the numerical result by multiplying by a big.
   ]
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `scalar` | double | Specifies a scalar to add by. |
+| `aggregator_pubkey` | string | Specifies an aggregator to add by. |
+| `job` | OracleJob | A job whose result is computed before adding our numerical input by that result. |
+| `big` | string | A stringified big.js. `Accepts variable expansion syntax.` |
 
 ---
 
@@ -551,6 +577,13 @@ _**Example**_: Returns the numerical result by dividing by a big.
   ]
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `scalar` | double | Specifies a basic scalar denominator to divide by. |
+| `aggregator_pubkey` | string | Specifies another aggregator resut to divide by. |
+| `job` | OracleJob | A job whose result is computed before dividing our numerical input by that result. |
+| `big` | string | A stringified big.js. `Accepts variable expansion syntax.` |
 
 ---
 
@@ -836,8 +869,6 @@ _**Example**_: Returns the median numerical result of 3 jobs.
 | `min_successful_required` | int32 | The minimum number of values before a successful median can be yielded. |
 | `max_range_percent` | string | The maximum range between the minimum and maximum values before a successful median can be yielded. |
 
-`max_range_percent` is a human percent string for this `MedianTask` only. It is not scaled like feed-level raw v2 `OracleFeed.maxJobRangePct`; see [Feed Parameter Units](advanced-feed-configuration/feed-parameter-units.md).
-
 ---
 
 ### MinTask
@@ -1025,6 +1056,13 @@ _**Example**_: Returns the numerical result by multiplying by a big.
 }
 ```
 
+| Field | Type | Description |
+|-------|------|-------------|
+| `scalar` | double | Specifies a scalar to multiply by. |
+| `aggregator_pubkey` | string | Specifies an aggregator to multiply by. |
+| `job` | OracleJob | A job whose result is computed before multiplying our numerical input by that result. |
+| `big` | string | A stringified big.js. `Accepts variable expansion syntax.` |
+
 ---
 
 ### PowTask
@@ -1053,6 +1091,12 @@ _**Example**_: Raise 2 to the power of 3, 2^3
   ]
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `scalar` | double | Take the working value to the exponent of value. |
+| `aggregator_pubkey` | string | Take the working value to the exponent of the aggregators value. |
+| `big` | string | A stringified big.js. `Accepts variable expansion syntax.` |
 
 ---
 
@@ -1173,6 +1217,13 @@ _**Example**_: Returns the numerical result by multiplying by a big.
 }
 ```
 
+| Field | Type | Description |
+|-------|------|-------------|
+| `scalar` | double | Specifies a scalar to subtract by. |
+| `aggregator_pubkey` | string | Specifies an aggregator to subtract by. |
+| `job` | OracleJob | A job whose result is computed before subtracting our numerical input by that result. |
+| `big` | string | A stringified big.js. `Accepts variable expansion syntax.` |
+
 ---
 
 ## DeFi & DEX
@@ -1262,12 +1313,48 @@ _**Example**_: Fetch the JupiterSwap price for exchanging 1000 SOL into USDC.
 }
 ```
 
+_**Example**_: Supply a request-scoped Jupiter API key without storing it in the job.
+
+```json
+{
+  "jupiterSwapTask": {
+    "inTokenAddress": "So11111111111111111111111111111111111111112",
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "baseAmountString": "1",
+    "apiKey": "${JUPITER_API_KEY}"
+  }
+}
+```
+
+Pass the matching non-empty value when requesting the feed:
+
+```typescript
+const response = await gateway.fetchSignaturesConsensus({
+  // ...
+  variableOverrides: {
+    JUPITER_API_KEY: process.env.JUPITER_API_KEY!,
+  },
+});
+```
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `in_token_address` | string | The input token address. |
 | `out_token_address` | string | The output token address. |
+| `allow_list` | FilterList | A list of AMM markets to allow. |
+| `deny_list` | FilterList | A list of AMM markets to deny. |
+| `base_amount` | double | The amount of `in_token_address` tokens to swap. |
+| `quote_amount` | double | The amount of `out_token_address` tokens to swap. |
+| `base_amount_string` | string | The amount of `in_token_address` tokens to swap. |
+| `quote_amount_string` | string | The amount of `out_token_address` tokens to swap. |
 | `slippage` | double | The allowable slippage on the swap in decimal form (e.g. 0.5 is 0.5% slippage) |
-| `api_key` | string | Optional API key for authenticated requests |
+| `api_key` | string | Optional Jupiter API key. For a request-scoped key, set this field to a variable placeholder such as `${JUPITER_API_KEY}` and provide the matching non-empty value through `variableOverrides` when requesting the feed. An override is only applied when this field contains a matching placeholder. If the placeholder is unresolved, the task fails before contacting Jupiter. If this field is omitted or empty, the oracle's configured Jupiter key is used when available. Do not hardcode credentials in an oracle job. |
+
+**FilterList fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `labels` | string | A list of Jupiter AMM labels to allow or deny (e.g. 'Raydium', 'Orca') |
 
 ---
 
@@ -1355,6 +1442,13 @@ _**Example**_: Fetch the exchange rate from the Raydium SOL/USDC pool
 |-------|------|-------------|
 | `in_token_address` | string | Used alongside mercurial_pool_address to specify the input token for a swap. |
 | `out_token_address` | string | Used alongside mercurial_pool_address to specify the output token for a swap. |
+| `mercurial_pool_address` | string | Mercurial finance pool address. A full list can be found here: https://github.com/mercurial-finance/stable-swap-n-pool-js |
+| `saber_pool_address` | string | Saber pool address. A full list can be found here: https://github.com/saber-hq/saber-registry-dist |
+| `orca_pool_token_mint_address` | string | **@deprecated** Use orcaPoolAddress |
+| `raydium_pool_address` | string | The Raydium liquidity pool ammId. A full list can be found here: https://raydium.io/pools |
+| `orca_pool_address` | string | Pool address for an Orca LP pool or whirlpool. A full list of Orca LP pools can be found here: https://www.orca.so/pools |
+| `port_reserve_address` | string | The Port reserve pubkey. A full list can be found here: https://api-v1.port.finance/reserves |
+| `defituna_pool_address` | string | DefiTuna Fusion AMM pool address. Program ID: tuna4uSQZncNeeiAMKbstuxA9CUkHH6HmC64wgmnogD |
 
 ---
 
@@ -1363,7 +1457,8 @@ _**Example**_: Fetch the exchange rate from the Raydium SOL/USDC pool
 Fetch LP token price info from a number of supported exchanges.
 
 See our blog post on [Fair LP Token Oracles](/blog/2022/01/20/Fair-LP-Token-Oracles)
-*NOTE**: This is not the swap price but the price of the underlying LP token.
+
+**NOTE**: This is not the swap price but the price of the underlying LP token.
 
 _**Input**_: None
 
@@ -1411,6 +1506,10 @@ _**Example**_: Fetch the fair price Raydium LP token price of the SOL/USDC pool
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `mercurial_pool_address` | string | Mercurial finance pool address. A full list can be found here: https://github.com/mercurial-finance/stable-swap-n-pool-js |
+| `saber_pool_address` | string | Saber pool address. A full list can be found here: https://github.com/saber-hq/saber-registry-dist |
+| `orca_pool_address` | string | Orca pool address. A full list can be found here: https://www.orca.so/pools |
+| `raydium_pool_address` | string | The Raydium liquidity pool ammId. A full list can be found here: https://raydium.io/pools |
 | `price_feed_addresses` | string | A list of Switchboard aggregator accounts used to calculate the fair LP price. This ensures the price is based on the previous round to mitigate flash loan price manipulation. |
 | `price_feed_jobs` | OracleJob | A list of OracleJobs to execute in order to yield the price feed jobs to use for the fair price formula. |
 | `use_fair_price` | bool | If enabled and price_feed_addresses provided, the oracle will calculate the fair LP price based on the liquidity pool reserves. See our blog post for more information: https://switchboardxyz.medium.com/fair-lp-token-oracles-94a457c50239 |
@@ -1455,11 +1554,11 @@ _**Example**_: Fetch a quote with custom slippage and gas price.
 | Field | Type | Description |
 |-------|------|-------------|
 | `from_address` | string | The Ethereum address of the user making the swap (default: zero address). |
-| `token_in` | string | Examples: "native", "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701" |
+| `token_in` | string | The input token identifier (EVM address, "native", or ERC1155 format). Examples: "native", "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701" |
 | `token_out` | string | The output token identifier (EVM address, "native", or ERC1155 format). |
 | `amount` | string | The amount to swap in wei (e.g., "1000000000000000000" for 1 token with 18 decimals). |
 | `slippage_tolerance_bps` | uint32 | Slippage tolerance in basis points (1-10000, e.g., 100 = 1%). Default: 10000 (100%). |
-| `gas_price_wei` | string | Default: "1000000000" (1 Gwei). |
+| `gas_price_wei` | string | Gas price to simulate with in wei. Influences route selection - higher values weight gas usage more. Default: "1000000000" (1 Gwei). |
 | `max_routes` | uint32 | Maximum number of routes to return (default: 1). Routes range from most valuable to most stable. |
 | `input_decimals` | uint32 | Number of decimals for the input token (default: 18). |
 | `output_decimals` | uint32 | Number of decimals for the output token (default: 18). |
@@ -1547,9 +1646,9 @@ Execute a swap task in the Pump AMM based on the given parameters.
 | Field | Type | Description |
 |-------|------|-------------|
 | `pool_address` | string | Required. The address of the liquidity pool in the Pump AMM. |
-| `in_amount` | double | - Default value: `1` (Swap 1 full token). |
-| `max_slippage` | double | - Default value: `3` (3% slippage tolerance). |
-| `is_x_for_y` | bool | - Default value: `true`. |
+| `in_amount` | double | Optional. The input token amount for the swap. - This value should in full units of the input token. - Default value: `1` (Swap 1 full token). |
+| `max_slippage` | double | Optional. The maximum allowed slippage for the swap, expressed as a percentage. - Example: `0.5` represents 0.5% slippage tolerance. - Default value: `3` (3% slippage tolerance). |
+| `is_x_for_y` | bool | Optional. Indicates the swap direction: - `true`: Swapping token X for token Y. - `false`: Swapping token Y for token X. - Default value: `true`. |
 
 ---
 
@@ -1585,18 +1684,13 @@ _**Input**_: None
 
 _**Returns**_: The swap price on Titan for a given input and output token mint address.
 
-_**Important**_: Set `userPublicKey` / `user_public_key` to a valid Solana wallet public key.
-If this is missing or invalid, Titan routing can return no routes and the task can fail.
-`amount` is specified in whole token units (for example, `"1"` for 1 USDC), then converted internally to raw atoms using mint decimals before calling Titan.
-
 _**Example**_: Fetch the Titan price for exchanging 1 SOL into USDC.
 
 ```json
 {
   "titanTask": {
     "inTokenAddress": "So11111111111111111111111111111111111111112",
-    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    "userPublicKey": "7M6M9Ybbp6kAMPxQqvYXvyfZ87Z84qxdjQ671Vkj2rWQ"
+    "outTokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
   }
 }
 ```
@@ -1618,8 +1712,8 @@ _**Example**_: Fetch the Titan price for exchanging 1000 SOL into USDC with slip
 |-------|------|-------------|
 | `in_token_address` | string | The input token mint address (base58 encoded). |
 | `out_token_address` | string | The output token mint address (base58 encoded). |
-| `amount` | string | The amount of input token units to swap (human-readable units, not raw atoms). If omitted, defaults to `1` token unit. |
-| `user_public_key` | string | User wallet public key used for quote/route context (base58 encoded). Required in practice for reliable routing; missing/invalid values can cause quote failures. |
+| `amount` | string | The amount of tokens to swap (raw atoms, not scaled by decimals). |
+| `user_public_key` | string | Optional user public key for transaction generation (base58 encoded). |
 | `swap_mode` | SwapMode | Whether the amount is in terms of input or output token. Defaults to ExactIn. |
 | `slippage_bps` | uint32 | Allowed slippage in basis points (e.g., 50 = 0.5%). |
 | `dexes` | FilterList | If set, constrain quotes to the given set of DEXes. |
@@ -1628,6 +1722,12 @@ _**Example**_: Fetch the Titan price for exchanging 1000 SOL into USDC with slip
 | `providers` | string | If set, limit quotes to the given set of provider IDs. |
 | `access_token` | string | Optional API access token for authenticated requests |
 | `api_endpoint` | string | Optional API endpoint override (defaults to partners.api.titan.exchange) |
+
+**FilterList fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `labels` | string | A list of DEX labels to allow or deny (e.g., 'Raydium', 'Orca') |
 
 ---
 
@@ -1672,7 +1772,7 @@ _**Example**_: Compute the median APY for an LST over the last 100 epochs
 |-------|------|-------------|
 | `lst_mint` | string | Required. The LST mint address for which historical yield data is queried. |
 | `operation` | Operation | Required. The statistical operation to apply to the historical yield dataset. |
-| `epochs` | int32 | - If `epochs > 0`, only the last `epochs` entries will be included. |
+| `epochs` | int32 | Optional. The number of epochs to sample for the computation. - If `epochs = 0`, all available historical data will be used. - If `epochs > 0`, only the last `epochs` entries will be included. |
 
 ---
 
@@ -1700,7 +1800,7 @@ Grab the price of an Sanctum LST relative to SOL.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `lst_mint` | string | e.g. INF - 5oVNBeEEQvYi1cX3ir8Dx5n1P7pdxydbGF2X4TxVusJm |
+| `lst_mint` | string | The address of the LST mint. e.g. INF - 5oVNBeEEQvYi1cX3ir8Dx5n1P7pdxydbGF2X4TxVusJm |
 | `skip_epoch_check` | bool | Allow the check to see if the LST was cranked for the current epoch to be skipped. |
 
 ---
@@ -1781,9 +1881,9 @@ _**Example**_: vSUI (2 shared objects - StakePool + Metadata):
 | `package_id` | string | The package ID containing the exchange rate function. |
 | `module` | string | The module name containing the exchange rate function. |
 | `function` | string | The function name to call (e.g., "get_sui_by_stsui", "from_shares", "get_exchange_rate"). |
-| `shared_objects` | string | These will be resolved to SharedObject arguments with their initial_shared_version. |
-| `provide_lst_amount` | bool | Set to false for functions like "get_exchange_rate(staking)" that return the rate directly. |
-| `rpc_url` | string | If not specified, uses the default mainnet RPC. |
+| `shared_objects` | string | List of shared object IDs to pass as arguments (in order). These will be resolved to SharedObject arguments with their initial_shared_version. |
+| `provide_lst_amount` | bool | If true, appends the LST amount (1e9 = 1 token) as a Pure u64 argument after shared objects. Set to true for functions like "get_sui_by_stsui(staking, amount)" or "from_shares(pool, meta, amount)". Set to false for functions like "get_exchange_rate(staking)" that return the rate directly. |
+| `rpc_url` | string | The Sui RPC endpoint to use for fetching on-chain data. If not specified, uses the default mainnet RPC. |
 
 ---
 
@@ -1795,7 +1895,7 @@ No inputs required - uses hardcoded vSUI pool addresses.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `rpc_url` | string | If not specified, uses the default mainnet RPC. |
+| `rpc_url` | string | The Sui RPC endpoint to use for fetching on-chain data. If not specified, uses the default mainnet RPC. |
 
 ---
 
@@ -1857,6 +1957,35 @@ _**Example**_: The Pyth SOL/USD oracle price.
 }
 ```
 
+_**Example**_: The Pyth SOL/USD oracle price using a Hermes API key supplied at execution time.
+
+```json
+{
+  "oracleTask": {
+    "pythAddress": "H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG",
+    "pythConfigs": {
+      "apiKey": "${PYTH_API_KEY}"
+    }
+  }
+}
+```
+
+Supply the key in the execution request as `"variableOverrides": { "PYTH_API_KEY": "..." }`.
+
+_**Example**_: The Pyth SOL/USD push oracle price.
+
+```json
+{
+  "oracleTask": {
+    "pythPushFeedId": "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+    "pythConfigs": {
+      "pushFeedShardId": 0,
+      "maxStaleSeconds": 75
+    }
+  }
+}
+```
+
 _**Example**_: The Chainlink SOL/USD oracle price.
 
 ```json
@@ -1869,7 +1998,22 @@ _**Example**_: The Chainlink SOL/USD oracle price.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `pyth_allowed_confidence_interval` | double | represent 10%, enter the value as 10, not 0.1. |
+| `switchboard_address` | string | Mainnet address of a Switchboard feed. Switchboard is decentralized and allows anyone to build their own feed. |
+| `pyth_address` | string | Mainnet address for a Pyth feed. A full list can be found here: https://pyth.network/price-feeds/ |
+| `chainlink_address` | string | Mainnet address for a Chainlink feed. A full list can be found here: https://docs.chain.link/docs/solana/data-feeds-solana |
+| `pyth_push_feed_id` | string | Pyth price feed ID for an upgraded Solana push feed. The task derives and reads the on-chain feed account using this ID and pyth_configs.push_feed_shard_id; it does not use Hermes or a Hermes API key. |
+| `pyth_allowed_confidence_interval` | double | Value (as a percentage) that the lower bound confidence interval is of the actual value. Confidence intervals that are larger that this treshold are rejected. The confidence interval should be provided as a raw percentage value. For example, to represent 10%, enter the value as 10, not 0.1. |
+| `pyth_configs` | PythConfigs | Optional settings for Pyth Hermes and on-chain push-feed tasks. |
+
+**PythConfigs fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `hermes_url` | string | Optional Hermes base URL used by pyth_address tasks. |
+| `pyth_allowed_confidence_interval` | double | Preferred Pyth confidence interval setting, expressed as a raw percentage. For example, use 10 to represent 10%, not 0.1. |
+| `max_stale_seconds` | int32 | Maximum accepted price age in seconds. Defaults to 15 seconds for pyth_address and 75 seconds for pyth_push_feed_id. |
+| `push_feed_shard_id` | uint32 | Pyth push-feed shard used only by pyth_push_feed_id. Defaults to shard 0. |
+| `api_key` | string | Optional API key for authenticated Pyth Hermes requests made by pyth_address tasks. Use a variable placeholder such as `${PYTH_API_KEY}` and supply a matching non-empty variableOverrides value at execution time; do not hardcode credentials. This field takes precedence when it is non-empty. If it is omitted or empty, variableOverrides.PYTH_API_KEY is accepted as a compatibility fallback. That fallback is request-wide: the same value is used by every pyth_address task in the execution that does not configure its own api_key. Pyth push-feed tasks read on-chain accounts and do not use this API key. |
 
 ---
 
@@ -2092,6 +2236,13 @@ specified strategy.
 
 Fetch the current price of a perpetual market.
 
+| Field | Type | Description |
+|-------|------|-------------|
+| `mango_market_address` | string | Market address for a mango perpetual market. A full list can be found here: https://github.com/blockworks-foundation/mango-client-v3/blob/main/src/ids.json |
+| `drift_market_address` | string | Market address for a drift perpetual market. A full list can be found here: https://github.com/drift-labs/protocol-v1/blob/master/sdk/src/constants/markets.ts |
+| `zeta_market_address` | string | Market address for a zeta perpetual market. |
+| `zo_market_address` | string | Market address for a 01 protocol perpetual market. |
+
 ---
 
 ### TurboEthRedemptionRateTask
@@ -2122,17 +2273,20 @@ _**Returns**_: A positive Decimal number with 18 decimal places (scale 18)
 **Hash-to-Decimal Conversion Algorithm**
 
 **Step-by-Step Process**
+
 **1. Compute BLAKE2b-128 hash** (produces 16 bytes / 128 bits)
    ```
    Input:  "Hello, World!"
    Output: 3895c59e4aeb0903396b5be3fbec69fe
    ```
+
 **2. Truncate to 96 bits (12 bytes)** - keep the **most significant** bits
    ```
    KEPT (first 12 bytes):      3895c59e4aeb0903396b5be3
    DISCARDED (last 4 bytes):   fbec69fe
    ```
    This follows cryptographic standards where truncation keeps the leftmost/most significant bits.
+
 **3. Pad to 16 bytes** for u128 representation
    ```
    Add 4 zero bytes at the BEGINNING:
@@ -2142,12 +2296,14 @@ _**Returns**_: A positive Decimal number with 18 decimal places (scale 18)
    padding      first 12 bytes
    (4 bytes)    (most significant)
    ```
+
 **4. Interpret as u128 using big-endian** byte order
    ```
    Hex:     0x000000003895c59e4aeb0903396b5be3
    Decimal: 17512223723299011049621773283
    ```
    Big-endian is the standard for cryptographic hash representations.
+
 **5. Convert to Decimal** with scale 18 (18 decimal places)
    ```
    Value:  17512223723299011049621773283
@@ -2323,6 +2479,13 @@ _**Example**_: CacheTask storing ${ONE} = 1
 |-------|------|-------------|
 | `cache_items` | CacheItem | A list of cached variables to reference in the job with `${VARIABLE_NAME}`. |
 
+**CacheItem fields**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `variable_name` | string | The name of the variable to store in cache to reference later with `${VARIABLE_NAME}`. |
+| `job` | OracleJob | The OracleJob to execute to yield the value to store in cache. |
+
 ---
 
 ### ComparisonTask
@@ -2350,6 +2513,10 @@ _**Example**_: Return 1 if lhs > rhs else 0
 | Field | Type | Description |
 |-------|------|-------------|
 | `op` | Operation | The type of operator to use on the left (lhs) and right (rhs) operand. |
+| `lhs` | OracleJob | OracleJob where the executed result is equal to the left hand side operand. |
+| `lhs_value` | string | String or `${CACHE_KEY}` representing the left hand side operand. |
+| `rhs` | OracleJob | OracleJob where the executed result is equal to the right hand side operand. |
+| `rhs_value` | string | String or `${CACHE_KEY}` representing the right hand side operand. |
 | `on_true` | OracleJob | The OracleJob to execute if the condition evaluates to true. |
 | `on_true_value` | string | The result to use if the condition evaluates to true. Can be set to a `${CACHE_KEY}`. |
 | `on_false` | OracleJob | The OracleJob to execute if the condition evaluates to false. |
@@ -2398,7 +2565,7 @@ _**Example**_: Returns the numerical result from the conditionalTask's subtasks,
 | Field | Type | Description |
 |-------|------|-------------|
 | `attempt` | Task | A list of subtasks to process in an attempt to produce a valid numerical result. |
-| `on_failure` | Task | result. |
+| `on_failure` | Task | A list of subtasks that will be run if `attempt` subtasks are unable to produce an acceptable result. |
 
 ---
 
@@ -2409,8 +2576,6 @@ Deprecated compatibility task for the legacy Switchboard secrets-server flow.
 `SecretsTask` is no longer officially supported. The hosted secrets service has been taken down, and new integrations should use `variableOverrides` to inject API keys and other authentication credentials at request time.
 
 See the Data Feed Variable Overrides guide for the supported pattern.
-
-Use this when your job needs credentials such as API keys, auth headers, or other sensitive values that should not live directly in the feed definition.
 
 _**Input**_: None
 
@@ -2430,29 +2595,6 @@ _**Example**_: Legacy `SecretsTask`
 |-------|------|-------------|
 | `authority` | string | The authority of the secrets that are to be requested. |
 | `url` | string | Legacy server URL override for historical or self-hosted deployments. The old hosted default at https://api.secrets.switchboard.xyz is no longer available. |
-
-**How it fits into a feed**
-
-`SecretsTask` is typically placed near the top of a job. The returned secrets are then referenced later via variable expansion such as `${API_KEY}` in downstream tasks.
-
-Typical flow:
-
-1. Create a user profile for the wallet that owns the secrets.
-2. Add one or more named secrets to that profile.
-3. Add `SecretsTask` to the job with the secret authority.
-4. Reference the secret values in later tasks using `${SECRET_NAME}`.
-5. Whitelist the relevant measurement / MrEnclave values that should be allowed to access that secret.
-
-**Hosted vs self-hosted**
-
-- Hosted app: [https://secrets.switchboard.xyz/connect](https://secrets.switchboard.xyz/connect)
-- Self-hosted server: [https://github.com/switchboard-xyz/sbv3/tree/main/apps/secrets-server](https://github.com/switchboard-xyz/sbv3/tree/main/apps/secrets-server)
-
-**Related resources**
-
-- [Build with TypeScript](build-and-deploy-feed/build-with-typescript.md#secretstask)
-- [Data Feed Variable Overrides](advanced-feed-configuration/data-feed-variable-overrides.md)
-- [Secrets example repository](https://github.com/switchboard-xyz/sb-on-demand-examples/tree/main/sb-on-demand-secret/sb-on-demand-secrets)
 
 ---
 
@@ -2509,6 +2651,13 @@ _**Example**_: Returns the value stored in a CacheTask variable
   }
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `value` | double | The value that will be returned from this task. |
+| `aggregator_pubkey` | string | Specifies an aggregatorr to pull the value of. |
+| `big` | string | A stringified big.js. `Accepts variable expansion syntax.` |
+| `hex` | string | A stringified hex number (0x prefix is optional). |
 
 ---
 
@@ -2693,6 +2842,11 @@ _**Example**_: Read from an existing STEP/USD aggregator
   }
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `step_job` | MedianTask | median task containing the job definitions to fetch the STEP/USD price |
+| `step_aggregator_pubkey` | string | existing aggregator pubkey for STEP/USD |
 
 ---
 

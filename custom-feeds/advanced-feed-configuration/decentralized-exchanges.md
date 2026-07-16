@@ -8,16 +8,32 @@ description: Some common tasks relating to Decentralized Exchanges and DeFi.
 
 Users can fetch data from the [Jupiter Exchange Aggregator](https://jup.ag/). This can be an effective tool for quoting assets traded on Solana.
 
-```
+```typescript
 // KMNO/USD with 2% slippage
 {
-    jupiterSwapTask: {
-        inTokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
-        outTokenAddress: "KMNo3nJsBXfcpJTVhZcXLW7RmTwTt4GVFE7suUBo9sS", // KMNO
-        slippage: 2.0
-    }
+  jupiterSwapTask: {
+    inTokenAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+    outTokenAddress: "KMNo3nJsBXfcpJTVhZcXLW7RmTwTt4GVFE7suUBo9sS", // KMNO
+    slippage: 2.0,
+    apiKey: "${JUPITER_API_KEY}",
+  },
 }
 ```
+
+Supply the matching non-empty value with the execution request:
+
+```typescript
+const response = await gateway.fetchSignaturesConsensus({
+  // ...feed request fields
+  variableOverrides: {
+    JUPITER_API_KEY: process.env.JUPITER_API_KEY!,
+  },
+});
+```
+
+`JUPITER_API_KEY` is a conventional name, not a reserved fallback. The override key must exactly match the placeholder in `apiKey`. If the placeholder is unresolved, the task fails before contacting Jupiter. If `apiKey` is omitted or empty, the task uses the oracle's configured Jupiter API key when one is available.
+
+Do not hardcode an API key in the job definition. See [Data Feed Variable Overrides](data-feed-variable-overrides.md) for request scope and trust-boundary guidance, [Pyth authentication](oracle-aggregator.md#pyth) for its different compatibility fallback, and the [JupiterSwapTask reference](../task-types.md#jupiterswaptask) for every field.
 
 ## **Raydium**
 
@@ -39,7 +55,9 @@ The following is an example using Raydium to quote [SLERF/SOL](https://dexscreen
         {
           oracleTask: {
             pythAddress: "H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG", // SOL/USD
-            pythAllowedConfidenceInterval: 1.2,
+            pythConfigs: {
+              pythAllowedConfidenceInterval: 1.2,
+            },
           }
         }
       ]

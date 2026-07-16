@@ -25,6 +25,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Test task documentation generator
+        run: node --test scripts/generate-task-docs.test.js
+
       - name: Generate task documentation
         run: node scripts/generate-task-docs.js
 
