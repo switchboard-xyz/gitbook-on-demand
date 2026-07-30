@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "baseline_date": "2026-06-12",
+  "baseline_date": "2026-07-30",
   "policy": {
     "pinning": "exact",
-    "scope": "current flows only (legacy excluded)",
+    "scope": "current flows and supported classic PullFeed compatibility",
     "status_model": "canonical docs pin set + observed current-example pins"
   },
   "drift_exceptions": {
@@ -15,8 +15,9 @@
   },
   "sdk_versions": {
     "npm": {
-      "@switchboard-xyz/on-demand": "3.10.3",
-      "@switchboard-xyz/common": "5.8.2",
+      "@switchboard-xyz/on-demand": "3.10.6",
+      "@switchboard-xyz/common": "5.8.5",
+      "@switchboard-xyz/common-legacy": "1.1.1",
       "@switchboard-xyz/on-demand-solidity": "1.1.0",
       "@switchboard-xyz/sui-sdk": "0.1.16",
       "@switchboard-xyz/aptos-sdk": "0.1.5",
@@ -44,7 +45,7 @@
     "npm": {
       "@switchboard-xyz/on-demand": [
         {
-          "version": "^3.10.3",
+          "version": "^3.10.6",
           "references": [
             "common",
             "solana/feeds/basic",
@@ -53,6 +54,7 @@
             "solana/randomness/coin-flip",
             "solana/surge",
             "solana/x402",
+            "solana/legacy/feeds",
             "sui/feeds/basic",
             "sui/surge/basic"
           ]
@@ -60,7 +62,7 @@
       ],
       "@switchboard-xyz/common": [
         {
-          "version": "^5.8.2",
+          "version": "^5.8.5",
           "references": [
             "common",
             "common/twitter-follower-count",
@@ -74,7 +76,16 @@
             "solana/prediction-market",
             "solana/randomness/coin-flip",
             "solana/surge",
-            "solana/x402"
+            "solana/x402",
+            "solana/legacy/feeds"
+          ]
+        }
+      ],
+      "@switchboard-xyz/common-legacy": [
+        {
+          "version": "^1.1.1",
+          "references": [
+            "solana/legacy/feeds"
           ]
         }
       ],
@@ -280,7 +291,7 @@
       }
     ],
     "notes": [
-      "Current TypeScript example manifests are aligned on @switchboard-xyz/on-demand@^3.10.3 and @switchboard-xyz/common@^5.8.2; see observed_example_versions for the full per-package breakdown.",
+      "Current TypeScript example manifests are aligned on @switchboard-xyz/on-demand@^3.10.6 and @switchboard-xyz/common@^5.8.5; the classic PullFeed example also pins @switchboard-xyz/common-legacy@^1.1.1. See observed_example_versions for the full per-package breakdown.",
       "@mysten/sui latest (2.x) is not yet compatible with current docs/examples imports; pinned to 1.38.0.",
       "Solana on-chain examples are aligned on switchboard-on-demand 0.13.0; the advanced Pinocchio example uses pinocchio 0.11.2 and AccountView.",
       "sui/feeds/basic defaults its checked-in Move.toml to testnet. Use explicit build:testnet, build:mainnet, deploy:testnet, and deploy:mainnet scripts when documenting or verifying flows."

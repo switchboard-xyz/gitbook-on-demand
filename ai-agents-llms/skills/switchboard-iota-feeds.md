@@ -21,7 +21,7 @@ Use Switchboard on-demand feeds on Iota:
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
 - `@switchboard-xyz/iota-sdk@0.0.3`
-- `@switchboard-xyz/common@5.8.2`
+- `@switchboard-xyz/common@5.8.5`
 - `@iota/iota-sdk@1.11.0`
 
 ## Preconditions

@@ -194,7 +194,6 @@ async function main() {
     [FEED_ID],
     {
       variableOverrides: {},
-      instructionIdx: 0,  // Ed25519 instruction index
       payer: keypair.publicKey,
     }
   );
@@ -265,7 +264,6 @@ const updateInstructions = await queue.fetchManagedUpdateIxs(
   [FEED_ID],
   {
     variableOverrides: {},
-    instructionIdx: 0,
     payer: keypair.publicKey,
   }
 );

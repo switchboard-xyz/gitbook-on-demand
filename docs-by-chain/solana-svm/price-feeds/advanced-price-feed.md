@@ -323,7 +323,6 @@ async function main() {
   // Step 3: Fetch the Ed25519 quote instruction
   const quoteIx = await queue.fetchQuoteIx(crossbar, [FEED_ID], {
     variableOverrides: {},
-    instructionIdx: 0,
   });
 
   // Step 4: Decode and inspect the quote

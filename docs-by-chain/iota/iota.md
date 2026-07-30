@@ -16,19 +16,19 @@ To use Switchboard On-Demand, add the following dependencies to your project:
 #### NPM
 
 ```bash
-npm install @switchboard-xyz/iota-sdk@0.0.3 @switchboard-xyz/common@5.8.2 @iota/iota-sdk@1.11.0 --save
+npm install @switchboard-xyz/iota-sdk@0.0.3 @switchboard-xyz/common@5.8.5 @iota/iota-sdk@1.11.0 --save
 ```
 
 #### Bun
 
 ```bash
-bun add @switchboard-xyz/iota-sdk@0.0.3 @switchboard-xyz/common@5.8.2 @iota/iota-sdk@1.11.0
+bun add @switchboard-xyz/iota-sdk@0.0.3 @switchboard-xyz/common@5.8.5 @iota/iota-sdk@1.11.0
 ```
 
 #### PNPM
 
 ```bash
-pnpm add @switchboard-xyz/iota-sdk@0.0.3 @switchboard-xyz/common@5.8.2 @iota/iota-sdk@1.11.0
+pnpm add @switchboard-xyz/iota-sdk@0.0.3 @switchboard-xyz/common@5.8.5 @iota/iota-sdk@1.11.0
 ```
 
 ### Creating an Aggregator and Sending Transactions

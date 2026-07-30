@@ -19,8 +19,8 @@ Provide a compact “front door” for all Switchboard work:
 
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
-- `@switchboard-xyz/on-demand@3.10.3`
-- `@switchboard-xyz/common@5.8.2`
+- `@switchboard-xyz/on-demand@3.10.6`
+- `@switchboard-xyz/common@5.8.5`
 - `@switchboard-xyz/on-demand-solidity@1.1.0`
 - `@switchboard-xyz/sui-sdk@0.1.16`
 - `@switchboard-xyz/aptos-sdk@0.1.5`
@@ -334,7 +334,6 @@ async function main() {
 
   const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
     numSignatures: 1,
-    instructionIdx: 0,
     payer: keypair.publicKey,
     variableOverrides: {},
   });

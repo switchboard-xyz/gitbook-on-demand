@@ -59,9 +59,9 @@ Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions
 ### 2. Install the SDK
 
 ```bash
-npm install @switchboard-xyz/on-demand@3.10.3 @switchboard-xyz/sui-sdk@0.1.16 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
+npm install @switchboard-xyz/on-demand@3.10.6 @switchboard-xyz/sui-sdk@0.1.16 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
 # or
-yarn add @switchboard-xyz/on-demand@3.10.3 @switchboard-xyz/sui-sdk@0.1.16 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
+yarn add @switchboard-xyz/on-demand@3.10.6 @switchboard-xyz/sui-sdk@0.1.16 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
 ```
 
 ### 3. Connect and Stream

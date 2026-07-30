@@ -2,7 +2,7 @@
 
 This page is the version reference for Switchboard docs, examples, and verifier tooling.
 
-- Baseline date: **June 12, 2026**
+- Baseline date: **July 30, 2026**
 - Source of truth: [`tooling/sdk-versions.lock.json`](sdk-versions.lock.json)
 - The lock file now tracks two different views:
   - `sdk_versions` / `companion_versions`: the **canonical docs pin set** used by current docs and compatibility checks
@@ -12,8 +12,9 @@ This page is the version reference for Switchboard docs, examples, and verifier 
 
 | Package / Crate | Observed Version(s) | Current Example References | Notes |
 | --- | --- | --- | --- |
-| `@switchboard-xyz/on-demand` | `^3.10.3` | `common`, `solana/feeds/*`, `solana/prediction-market`, `solana/randomness/coin-flip`, `solana/surge`, `solana/x402`, `sui/feeds/basic`, `sui/surge/basic` | Current TypeScript examples are aligned. |
-| `@switchboard-xyz/common` | `^5.8.2` | `common`, `common/twitter-follower-count`, `common/variable-overrides`, `evm/*`, `solana/feeds/*`, `solana/prediction-market`, `solana/randomness/coin-flip`, `solana/surge`, `solana/x402` | Current TypeScript examples are aligned. |
+| `@switchboard-xyz/on-demand` | `^3.10.6` | `common`, `solana/feeds/*`, `solana/prediction-market`, `solana/randomness/coin-flip`, `solana/surge`, `solana/x402`, `solana/legacy/feeds`, `sui/feeds/basic`, `sui/surge/basic` | Current TypeScript examples are aligned. |
+| `@switchboard-xyz/common` | `^5.8.5` | `common`, `common/twitter-follower-count`, `common/variable-overrides`, `evm/*`, `solana/feeds/*`, `solana/prediction-market`, `solana/randomness/coin-flip`, `solana/surge`, `solana/x402`, `solana/legacy/feeds` | Current TypeScript examples are aligned. |
+| `@switchboard-xyz/common-legacy` | `^1.1.1` | `solana/legacy/feeds` | Compatibility transport for classic PullFeed integrations. |
 | `@switchboard-xyz/on-demand-solidity` | `^1.1.0` | `evm/price-feeds`, `evm/randomness/*` | Current EVM examples are aligned. |
 | `@switchboard-xyz/sui-sdk` | `^0.1.16` | `sui/feeds/basic`, `sui/surge/basic` | Aligned across current Sui examples. |
 | `switchboard-on-demand` | `0.13.0` | `common/rust-feed-creation`, `solana/feeds/*`, `solana/prediction-market`, `solana/randomness/coin-flip` | Current Rust examples are aligned. |
@@ -26,8 +27,9 @@ These are the current docs pins. Example-backed pins match the observed versions
 
 | Package / Crate | Canonical Pin | Notes |
 | --- | --- | --- |
-| `@switchboard-xyz/on-demand` | `3.10.3` | Matches the current TypeScript example set. |
-| `@switchboard-xyz/common` | `5.8.2` | Matches the current shared EVM and Solana TypeScript examples. |
+| `@switchboard-xyz/on-demand` | `3.10.6` | Matches the current TypeScript example set. |
+| `@switchboard-xyz/common` | `5.8.5` | Canonical OracleJob and OracleFeed serialization used by current TypeScript examples. |
+| `@switchboard-xyz/common-legacy` | `1.1.1` | Installed transitively by on-demand; install directly only when importing `LegacyCrossbarClient`. |
 | `@switchboard-xyz/on-demand-solidity` | `1.1.0` | Current Solidity interface pin. |
 | `@switchboard-xyz/sui-sdk` | `0.1.16` | Matches current Sui examples. |
 | `@switchboard-xyz/aptos-sdk` | `0.1.5` | Used by the Aptos and Movement docs. |
@@ -62,7 +64,9 @@ These are the current docs pins. Example-backed pins match the observed versions
 
 ## Known Notes
 
-- Current TypeScript example manifests are aligned on `@switchboard-xyz/on-demand@^3.10.3` and `@switchboard-xyz/common@^5.8.2`.
+- Current TypeScript example manifests are aligned on `@switchboard-xyz/on-demand@^3.10.6` and `@switchboard-xyz/common@^5.8.5`. The classic PullFeed example also uses `@switchboard-xyz/common-legacy@^1.1.1`.
+- When upgrading from Common `5.8.4`, common-legacy `1.1.0`, or on-demand `3.10.5`, update all three compatible pins together and refresh the application lockfile with its normal package-manager install command.
+- on-demand installs common-legacy transitively. Add common-legacy as a direct dependency only when your code imports `LegacyCrossbarClient`.
 - `@mysten/sui` latest `2.x` still breaks the import surface used in current docs/examples, so `1.38.0` remains pinned.
 - Current Solana Rust examples use `switchboard-on-demand = "0.13.0"`. The advanced Pinocchio price-feed example uses `pinocchio = "0.11.2"` and the `AccountView` API.
 - `sui/feeds/basic` defaults its checked-in `Move.toml` to testnet. Use the explicit `build:testnet`, `build:mainnet`, `deploy:testnet`, and `deploy:mainnet` scripts when documenting or verifying flows.

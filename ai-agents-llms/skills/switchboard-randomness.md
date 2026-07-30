@@ -20,7 +20,7 @@ Implement verifiable randomness with Switchboard:
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
 - `switchboard-on-demand = "0.13.0"` (Solana Rust)
-- `@switchboard-xyz/common@5.8.2` (EVM off-chain resolution)
+- `@switchboard-xyz/common@5.8.5` (EVM off-chain resolution)
 - `@switchboard-xyz/on-demand-solidity@1.1.0` (EVM on-chain interfaces)
 
 ## Preconditions

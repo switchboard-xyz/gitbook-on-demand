@@ -19,3 +19,8 @@ Use the matrix for all docs and code snippets to avoid version drift.
 | TypeScript | SDK (Aptos/Movement) | `@switchboard-xyz/aptos-sdk` | <https://switchboard-aptos-sdk.web.app> |
 | TypeScript | SDK (Iota) | `@switchboard-xyz/iota-sdk` | <https://www.npmjs.com/package/@switchboard-xyz/iota-sdk> |
 | TypeScript | Common | `@switchboard-xyz/common` | <https://switchboardxyz-common.netlify.app/> |
+| TypeScript | Classic PullFeed compatibility | `@switchboard-xyz/common-legacy` | <https://www.npmjs.com/package/@switchboard-xyz/common-legacy> |
+
+Current on-demand JavaScript integrations should use Common `5.8.5` and on-demand
+`3.10.6`. on-demand installs common-legacy `1.1.1` transitively; install
+common-legacy directly only when importing `LegacyCrossbarClient`.

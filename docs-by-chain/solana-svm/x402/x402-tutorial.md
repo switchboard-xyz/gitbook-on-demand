@@ -265,7 +265,6 @@ const instructions = await queue.fetchManagedUpdateIxs(
     variableOverrides: {
       X402_PAYMENT_SIGNATURE: paymentSignature,
     },
-    instructionIdx: 0,
     payer: keypair.publicKey,
   }
 );

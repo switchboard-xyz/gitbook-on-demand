@@ -333,8 +333,6 @@ async function verifyKalshiFeed(
       KALSHI_TIMESTAMP: timestamp,
       KALSHI_API_KEY_ID: apiKeyId,
     },
-    instructionIdx: 0,
-    payer: keypair.publicKey,
   });
 
   // Step 6: Create verification instruction
@@ -558,6 +556,6 @@ for (i, feed) in feeds.iter().enumerate() {
 
 ## Next Steps
 
-- **Price Feeds**: Learn basic oracle integration in [Basic Price Feed](price-feeds/basic-price-feed.md)
+- **Price Feeds**: Learn basic oracle integration in [Basic Price Feed](../price-feeds/basic-price-feed.md)
 - **Custom Feeds**: Create your own feed definitions in [Custom Feeds](../../../custom-feeds/build-and-deploy-feed/README.md)
-- **Randomness**: Explore verifiable randomness in [Randomness](randomness.md)
+- **Randomness**: Explore verifiable randomness in [Randomness](../randomness/randomness-tutorial.md)

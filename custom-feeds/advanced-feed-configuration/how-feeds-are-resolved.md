@@ -58,6 +58,27 @@ Oracle Jobs are composed of tasks. Tasks are like instructions to fetch data or 
 }
 ```
 
+## Feed Identity
+
+A feed ID is a commitment to canonical length-delimited protobuf bytes, not
+only to the decoded JSON object. Field presence and encoding order therefore
+matter, including explicitly set default values.
+
+Use `@switchboard-xyz/common@5.8.5` or newer when serializing jobs and feeds,
+computing `FeedHash`, or storing definitions with Crossbar. Use
+`@switchboard-xyz/on-demand@3.10.6` or newer when requesting JavaScript
+updates. These versions:
+
+- encode job and feed identities in the Rust/prost-compatible declaration order;
+- preserve Pyth-push fields and explicitly set optional defaults such as
+  `pushFeedShardId: 0` and `directRoutesOnly: false`; and
+- keep the canonical encoder isolated if another Common version is also loaded.
+
+Use the same canonical definition for hashing, storage, and update requests.
+For classic PullFeed accounts, the JavaScript update helpers reject any
+returned median-response feed hash that was not requested before constructing
+signature or submit instructions.
+
 ## Variable Expansion
 
 Using [Variable Overrides](data-feed-variable-overrides.md) and the [CacheTask](variables-with-cachetask.md), users can assign variables in a job and use them within the same job in a downstream task.

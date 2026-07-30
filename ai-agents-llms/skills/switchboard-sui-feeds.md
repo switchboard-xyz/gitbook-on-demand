@@ -22,7 +22,7 @@ Integrate Switchboard on-demand feeds into Sui Move contracts using the Quote Ve
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
 - `@switchboard-xyz/sui-sdk@0.1.16`
-- `@switchboard-xyz/on-demand@3.10.3`
+- `@switchboard-xyz/on-demand@3.10.6`
 - `@mysten/sui@1.38.0`
 
 ## Preconditions

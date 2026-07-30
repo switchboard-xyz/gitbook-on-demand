@@ -60,7 +60,7 @@ npm install @switchboard-xyz/on-demand-solidity@1.1.0
 2. **TypeScript SDK** (for off-chain randomness resolution):
 
 ```bash
-npm install @switchboard-xyz/common@5.8.2 ethers
+npm install @switchboard-xyz/common@5.8.5 ethers
 ```
 
 3. **Forge remappings** - Add to `remappings.txt`:

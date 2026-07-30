@@ -56,11 +56,17 @@ A feed is a set of jobs. Oracles execute the jobs and then aggregate the results
 mkdir example
 cd example
 bun init
-bun add @switchboard-xyz/on-demand@3.10.3 @switchboard-xyz/common@5.8.2
+bun add @switchboard-xyz/on-demand@3.10.6 @switchboard-xyz/common@5.8.5
 ```
 
 > Note: Some examples import `OracleJob` from `@switchboard-xyz/common`.  
 > Adding it explicitly avoids “transitive dependency” surprises.
+
+Keep these versions together and refresh your lockfile when upgrading. Common
+`5.8.5` uses the Rust/prost-compatible canonical encoding for OracleJob and
+OracleFeed identities. It preserves newer task fields and explicitly set
+optional defaults, and its encoder is isolated from other installed Common
+versions.
 
 ---
 
@@ -71,7 +77,7 @@ This is the smallest “real” job: fetch a JSON payload and extract a price.
 Create `index.ts`:
 
 ```ts
-import { OracleJob } from "@switchboard-xyz/common";
+import { OracleJob, serializeOracleJob } from "@switchboard-xyz/common";
 
 const jobs: OracleJob[] = [
   OracleJob.fromObject({
@@ -110,8 +116,7 @@ Append this to `index.ts`:
 ```ts
 // Serialize the jobs to base64 strings.
 const serializedJobs = jobs.map((oracleJob) => {
-  const encoded = OracleJob.encodeDelimited(oracleJob).finish();
-  const base64 = Buffer.from(encoded).toString("base64");
+  const base64 = serializeOracleJob(oracleJob).toString("base64");
   return base64;
 });
 

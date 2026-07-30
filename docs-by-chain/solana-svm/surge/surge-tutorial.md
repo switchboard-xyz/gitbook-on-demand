@@ -15,9 +15,9 @@ This tutorial walks you through implementing Switchboard Surge for real-time pri
 ## Installation
 
 ```bash
-npm install @switchboard-xyz/on-demand@3.10.3
+npm install @switchboard-xyz/on-demand@3.10.6
 # or
-yarn add @switchboard-xyz/on-demand@3.10.3
+yarn add @switchboard-xyz/on-demand@3.10.6
 ```
 
 ## Basic Implementation
