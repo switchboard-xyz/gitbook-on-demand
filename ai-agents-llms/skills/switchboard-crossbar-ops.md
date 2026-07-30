@@ -22,7 +22,7 @@ Operate and use Crossbar for:
 
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
-- `@switchboard-xyz/common@5.8.2`
+- `@switchboard-xyz/common@5.8.5`
 - `@switchboard-xyz/cli@3.5.12` (optional for CLI workflows)
 
 ## Defaults

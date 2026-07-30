@@ -20,8 +20,8 @@ Use Switchboard Surge for low-latency streaming:
 
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
-- `@switchboard-xyz/on-demand@3.10.3`
-- `@switchboard-xyz/common@5.8.2` (EVM conversion path)
+- `@switchboard-xyz/on-demand@3.10.6`
+- `@switchboard-xyz/common@5.8.5` (EVM conversion path)
 - `@switchboard-xyz/sui-sdk@0.1.16` (Sui conversion path)
 
 ## Preconditions

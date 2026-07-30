@@ -59,9 +59,9 @@ Connect your wallet and subscribe at [explorer.switchboardlabs.xyz/subscriptions
 ### 2. Install the SDK
 
 ```bash
-npm install @switchboard-xyz/on-demand@3.10.3
+npm install @switchboard-xyz/on-demand@3.10.6
 # or
-yarn add @switchboard-xyz/on-demand@3.10.3
+yarn add @switchboard-xyz/on-demand@3.10.6
 ```
 
 ### 3. Connect and Stream
@@ -285,7 +285,7 @@ The SDK includes automatic reconnection logic with exponential backoff. Your app
 
 ## Next Steps
 
-* [Surge Tutorial](surge.md) - Step-by-step implementation guide
+* [Surge Tutorial](surge-tutorial.md) - Step-by-step implementation guide
 * [Crossbar Gateway](../../../tooling/crossbar/README.md) - Stream prices to your frontend
 * [Surge Gateway Protocol](../../../tooling/crossbar/gateway-protocol.md) - Advanced HTTP + WebSocket protocol
 * [Explore code examples](https://github.com/switchboard-xyz/sb-on-demand-examples)

@@ -21,7 +21,7 @@ Use Switchboard on-demand feeds on Aptos:
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
 - `@switchboard-xyz/aptos-sdk@0.1.5`
-- `@switchboard-xyz/common@5.7.0`
+- `@switchboard-xyz/common@5.8.5`
 - `@aptos-labs/ts-sdk@6.1.0`
 
 ## Preconditions

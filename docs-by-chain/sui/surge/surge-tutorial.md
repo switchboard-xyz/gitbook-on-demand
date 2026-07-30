@@ -396,7 +396,7 @@ Update #2 | Price: 97235.10 | Latency: 92ms | Avg: 88.5ms
 ### Dependencies
 
 ```bash
-npm install @switchboard-xyz/on-demand@3.10.3 @switchboard-xyz/sui-sdk@0.1.16 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
+npm install @switchboard-xyz/on-demand@3.10.6 @switchboard-xyz/sui-sdk@0.1.16 @mysten/sui@1.38.0 @solana/web3.js@1.98.4
 ```
 
 ### Minimal Integration

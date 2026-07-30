@@ -17,6 +17,7 @@ The most common mistake is treating raw v2 `OracleFeed.maxJobRangePct` / `max_jo
 | --- | --- | --- | --- |
 | Raw v2 `OracleFeed.maxJobRangePct` / `max_job_range_pct` | Percent scaled by `1e9` | `1_000_000_000` = `1%`; `5_000_000_000` = `5%` | Used in raw protobuf/JSON feed definitions. This is the feed-level job-spread tolerance oracles enforce before signing an update. |
 | SDK helper `maxVariance` inputs that scale internally | Human percent | `1` or `1.0` = `1%` | Some SDK helper methods accept the human percentage and multiply by `1e9` before sending a gateway or on-chain request. Check the method docs before passing raw integers. |
+| Common `FeedRequestV1.maxVarianceScaled` | Percent scaled by `1e9` | `8_271_619` is sent exactly as `8_271_619` | Use this when forwarding an exact raw value read from a classic PullFeed account. It must be a nonnegative JavaScript safe integer. Do not provide it together with `maxVariance`. |
 | Direct gateway/raw API `max_variance` fields | Percent scaled by `1e9` | `50_000_000` = `0.05%`; `1_000_000_000` = `1%` | Use this for raw gateway payloads and chain parameters that already expect fixed-point validation values. Some JSON routes expose this as camelCase `maxVariance` while still expecting the scaled integer. |
 | `MedianTask.max_range_percent` | Human percent string | `"2.5"` = `2.5%` | This is a task-level setting inside `MedianTask`. It is not scaled like feed-level `maxJobRangePct`. |
 | `minJobResponses` / `min_job_responses` | Unscaled job/source quorum | `2` requires at least two successful job results | This counts successful jobs inside one oracle's feed execution. It does not change percent scaling. |
@@ -40,6 +41,19 @@ const feed = {
 Use `maxJobRangePct: 0` only when the flow intentionally expects a single successful job/source or identical outputs. For normal multi-source feeds, set a positive scaled tolerance.
 
 Simulation can succeed even when signed updates fail. Simulation proves the jobs can resolve off-chain; signed updates also require oracle-side feed validation to pass. If update fetching returns `ORACLE_UNAVAILABLE` after successful simulation, inspect oracle errors for validation failures such as `RangeExceeded`, then check whether `maxJobRangePct` was scaled correctly.
+
+## Classic PullFeed Variance
+
+`@switchboard-xyz/on-demand@3.10.6` reads a classic PullFeed account's exact
+on-chain `maxVariance` integer and forwards it through
+`FeedRequestV1.maxVarianceScaled`. Application code should not convert that
+account value to a floating-point percentage and scale it again.
+
+When calling the Common gateway API directly, use `maxVariance` for a human
+percentage or `maxVarianceScaled` for an already-scaled raw integer, never
+both. Raw values above `Number.MAX_SAFE_INTEGER` are rejected before a gateway
+request because the current JSON number transport cannot represent them
+exactly.
 
 This feed-validation failure is separate from using the wrong Solana/SVM update
 path. If `PullFeed.fetchUpdateIx(...)` or `pullFeedSubmitResponseConsensus`

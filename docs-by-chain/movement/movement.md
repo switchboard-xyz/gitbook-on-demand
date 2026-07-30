@@ -31,19 +31,19 @@ To use Switchboard On-Demand, add the following dependencies to your project:
 #### NPM
 
 ```bash
-npm install @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0 --save
+npm install @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.8.5 @aptos-labs/ts-sdk@6.1.0 --save
 ```
 
 #### Bun
 
 ```bash
-bun add @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0
+bun add @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.8.5 @aptos-labs/ts-sdk@6.1.0
 ```
 
 #### PNPM
 
 ```bash
-pnpm add @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.7.0 @aptos-labs/ts-sdk@6.1.0
+pnpm add @switchboard-xyz/aptos-sdk@0.1.5 @switchboard-xyz/common@5.8.5 @aptos-labs/ts-sdk@6.1.0
 ```
 
 ### Adding Switchboard to Move Code

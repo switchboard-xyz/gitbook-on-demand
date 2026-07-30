@@ -47,6 +47,12 @@ The compatibility fallback assumes one execution request belongs to one customer
 
 Use `pythPushFeedId` for an upgraded Solana push feed. This path derives and reads the on-chain price account; it does not call Hermes and does not use a Hermes API key.
 
+When authoring, storing, hashing, or updating a feed that uses this task, use
+`@switchboard-xyz/common@5.8.5` and
+`@switchboard-xyz/on-demand@3.10.6` or newer. The current Common serializer
+preserves the Pyth-push fields and explicitly set optional defaults in the
+canonical feed identity.
+
 ```typescript
 {
   oracleTask: {

@@ -21,7 +21,7 @@ Turn a data requirement into a robust, verifiable feed definition:
 
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
-- `@switchboard-xyz/common@5.8.2`
+- `@switchboard-xyz/common@5.8.5`
 
 This skill designs feed definitions. Integration details (atomic update+use, on-chain verifier patterns) belong to chain-specific skills.
 

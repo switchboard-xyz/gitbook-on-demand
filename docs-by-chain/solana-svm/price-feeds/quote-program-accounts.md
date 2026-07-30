@@ -20,6 +20,38 @@ The same feed ID and queue always derive the same quote account. If your
 program accepts a quote account, constrain it to the canonical address for the
 queue and feed ID.
 
+## Assemble Managed Updates
+
+Keep the Ed25519 and quote-program instructions returned by
+`fetchManagedUpdateIxs(...)` adjacent. `asV0Tx(...)` finalizes their
+position-dependent indices after the complete instruction order is known, so
+omit the legacy `instructionIdx` option:
+
+```ts
+const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
+  payer: keypair.publicKey,
+});
+
+const tx = await asV0Tx({
+  connection,
+  ixs: [...setupIxs, ...updateIxs, consumerIx],
+  signers: [keypair],
+});
+```
+
+If you compile a transaction without `asV0Tx`, finalize the complete ordered
+array immediately before compilation:
+
+```ts
+import { finalizeManagedUpdateInstructions } from "@switchboard-xyz/on-demand";
+
+const finalIxs = finalizeManagedUpdateInstructions([
+  ...setupIxs,
+  ...updateIxs,
+  consumerIx,
+]);
+```
+
 ## Read Stored Data
 
 Stored quote accounts are variable-length. Do not parse feed values by
@@ -68,6 +100,15 @@ instructions but `PullFeed.fetchUpdateIx(...)` or
 `pullFeedSubmitResponseConsensus` returns `ORACLE_UNAVAILABLE`, the integration
 is using the classic PullFeed path against quote-program infrastructure. Move
 the integration to managed quote-program updates and canonical quote accounts.
+
+The SDK also rejects an unexpected gateway feed hash before constructing an
+update instruction. Do not catch that error and substitute a different or
+default account.
+
+Classic PullFeed remains available for existing integrations. With
+on-demand `3.10.6`, its update methods forward the exact on-chain scaled
+variance value. New feed-hash integrations should use managed quote-program
+updates.
 
 This is separate from feed-parameter scaling errors. If simulation succeeds but
 signed updates fail with oracle validation errors such as `RangeExceeded`, check

@@ -20,8 +20,8 @@ Integrate Switchboard on-demand feeds into Solana/SVM transactions and programs:
 
 Use exact pins from the [SDK Version Matrix](../../tooling/sdk-version-matrix.md).
 
-- `@switchboard-xyz/on-demand@3.10.3`
-- `@switchboard-xyz/common@5.8.2`
+- `@switchboard-xyz/on-demand@3.10.6`
+- `@switchboard-xyz/common@5.8.5`
 - `@solana/web3.js@1.98.0`
 - `@coral-xyz/anchor@0.31.1` (TypeScript client)
 - `switchboard-on-demand = "0.13.0"` (Rust on-chain)
@@ -53,7 +53,6 @@ This skill is about integration correctness, not designing new feed definitions 
 ~~~ts
 const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
   numSignatures: 1,
-  instructionIdx: 0,
   payer: keypair.publicKey,
   variableOverrides: {},
 });
@@ -93,7 +92,6 @@ const crossbar = new sb.Crossbar({
 // Managed update instructions (must be BEFORE your consumer ix)
 const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
   numSignatures: 1,
-  instructionIdx: 0,       // must match sig-verify ix index in the final tx
   variableOverrides: {},   // secrets only
   payer: keypair.publicKey,
 });
@@ -111,7 +109,8 @@ await connection.sendTransaction(tx);
 ~~~
 
 Indexing rule:
-- If you insert pre-instructions (compute budget, setup ixs), you must adjust `instructionIdx`.
+- Keep each Ed25519/quote-program pair returned by `fetchManagedUpdateIxs` adjacent. `asV0Tx` resolves the final indices after all setup and consumer instructions are assembled.
+- If you compile the transaction yourself, call `finalizeManagedUpdateInstructions` on the complete ordered instruction array immediately before compilation.
 
 ### 3) On-chain verification (Rust/Anchor pattern)
 
@@ -154,7 +153,6 @@ Minimal crank loop: send a transaction that contains only the managed update ins
 async function crankOnce(feedId: string) {
   const updateIxs = await queue.fetchManagedUpdateIxs(crossbar, [feedId], {
     numSignatures: 1,
-    instructionIdx: 0,
     payer: keypair.publicKey,
     variableOverrides: {},
   });
