@@ -75,8 +75,9 @@ updates. These versions:
 - keep the canonical encoder isolated if another Common version is also loaded.
 
 Use the same canonical definition for hashing, storage, and update requests.
-The JavaScript SDK rejects a gateway response whose feed hash was not
-requested before it constructs transaction instructions.
+For classic PullFeed accounts, the JavaScript update helpers reject any
+returned median-response feed hash that was not requested before constructing
+signature or submit instructions.
 
 ## Variable Expansion
 

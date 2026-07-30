@@ -101,9 +101,9 @@ instructions but `PullFeed.fetchUpdateIx(...)` or
 is using the classic PullFeed path against quote-program infrastructure. Move
 the integration to managed quote-program updates and canonical quote accounts.
 
-The SDK also rejects an unexpected gateway feed hash before constructing an
-update instruction. Do not catch that error and substitute a different or
-default account.
+The classic PullFeed update helpers reject an unexpected median-response feed
+hash before constructing signature or submit instructions. Do not catch that
+error and substitute a different or default account.
 
 Classic PullFeed remains available for existing integrations. With
 on-demand `3.10.6`, its update methods forward the exact on-chain scaled
