@@ -2569,35 +2569,6 @@ _**Example**_: Returns the numerical result from the conditionalTask's subtasks,
 
 ---
 
-### SecretsTask
-
-Deprecated compatibility task for the legacy Switchboard secrets-server flow.
-
-`SecretsTask` is no longer officially supported. The hosted secrets service has been taken down, and new integrations should use `variableOverrides` to inject API keys and other authentication credentials at request time.
-
-See the Data Feed Variable Overrides guide for the supported pattern.
-
-_**Input**_: None
-
-_**Returns**_: The input
-
-_**Example**_: Legacy `SecretsTask`
-
-```json
-{
-  "secretsTask": {
-    "authority": "Accb21tUCWocJea6Uk3DgrNZawgmKegDVeHw8cGMDPi5"
-  }
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `authority` | string | The authority of the secrets that are to be requested. |
-| `url` | string | Legacy server URL override for historical or self-hosted deployments. The old hosted default at https://api.secrets.switchboard.xyz is no longer available. |
-
----
-
 ### SysclockOffsetTask
 
 Return the difference between an oracle's clock and the current timestamp at `SYSVAR_CLOCK_PUBKEY`.
@@ -2941,6 +2912,16 @@ _**Example**_: Compute the 1h VWAP for a price/volume pair
 | `price_aggregator_address` | string | The aggregator that provides price samples. |
 | `volume_aggregator_address` | string | The aggregator that provides volume samples. |
 | `period` | uint32 | Lookback period in seconds. |
+
+---
+
+## Retired Compatibility Fields
+
+### SecretsTask
+
+`SecretsTask` and oneof field `47` remain in the protobuf schema only so historical jobs decode with identical bytes and feed identities. The task is retired and always fails before making a network request. Field `47` must never be reused.
+
+Use [Data Feed Variable Overrides](advanced-feed-configuration/data-feed-variable-overrides.md) to provide request-scoped API keys and other authentication values.
 
 ---
 

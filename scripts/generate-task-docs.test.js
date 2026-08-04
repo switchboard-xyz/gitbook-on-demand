@@ -53,6 +53,12 @@ const PROTO_FIXTURE = [
   '',
   '  message EmptyTask {}',
   '',
+  '  /* Retired compatibility tombstone. */',
+  '  message SecretsTask {',
+  '    /// Retained only for wire compatibility.',
+  '    optional string url = 1;',
+  '  }',
+  '',
   '  /* Value docs. */',
   '  message ValueTask {',
   '    message ValueConfig {',
@@ -118,6 +124,16 @@ test('keeps nested comments with their owning message', () => {
 
   assert.doesNotMatch(oracleMarkdown, /belongs only to ValueConfig/);
   assert.match(valueMarkdown, /belongs only to ValueConfig/);
+});
+
+test('omits SecretsTask from supported tasks and renders its retirement notice', () => {
+  const markdown = generateMarkdown(parseTaskDocumentation(PROTO_FIXTURE));
+
+  assert.doesNotMatch(markdown, /### SecretsTask\n\nRetired compatibility tombstone\./);
+  assert.match(markdown, /## Retired Compatibility Fields/);
+  assert.match(markdown, /oneof field `47`/);
+  assert.match(markdown, /always fails before making a network request/);
+  assert.match(markdown, /variable-overrides\.md/);
 });
 
 test('generates deterministic output', () => {
