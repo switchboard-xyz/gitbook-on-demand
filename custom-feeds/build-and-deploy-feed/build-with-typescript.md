@@ -208,7 +208,6 @@ Switchboard supports many task types, including:
 - [JsonParseTask](../task-types.md#jsonparsetask) (JSONPath extraction)
 - [MedianTask](../task-types.md#mediantask) (sub-aggregation inside a job)
 - [JupiterSwapTask](../task-types.md#jupiterswaptask) (Solana DEX price simulation)
-- [SecretsTask](../task-types.md#secretstask) (secure secret retrieval)
 
 Full task docs:
 - [Task Types Reference](../task-types.md)

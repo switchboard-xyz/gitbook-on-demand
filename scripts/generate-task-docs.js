@@ -11,7 +11,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Try local file first (for development), then fall back to GitHub
-const LOCAL_PROTO_PATH = path.join(__dirname, '..', '..', 'sbv3', 'protos', 'job_schemas.proto');
+const LOCAL_PROTO_PATH = process.env.SWITCHBOARD_PROTO_PATH
+  || path.join(__dirname, '..', '..', 'sbv3', 'protos', 'job_schemas.proto');
 const PROTO_URL = 'https://raw.githubusercontent.com/switchboard-xyz/sbv3/main/protos/job_schemas.proto';
 const OUTPUT_FILE = path.join(__dirname, '..', 'custom-feeds', 'task-types.md');
 
@@ -47,7 +48,7 @@ const CATEGORIES = {
     'ExponentTask', 'ExponentPTLinearPricingTask', 'PerpMarketTask', 'KalshiApiTask'
   ],
   'Utilities': [
-    'ValueTask', 'CacheTask', 'ConditionalTask', 'ComparisonTask', 'SecretsTask',
+    'ValueTask', 'CacheTask', 'ConditionalTask', 'ComparisonTask',
     'UnixTimeTask', 'SysclockOffsetTask', 'Blake2b128Task'
   ],
   'Protocol-Specific': [
@@ -304,6 +305,7 @@ function generateMarkdown(tasks) {
   const categorized = {};
 
   for (const [taskName, taskData] of tasks) {
+    if (taskName === 'SecretsTask') continue;
     const category = categorizeTask(taskName);
     if (!categorized[category]) categorized[category] = [];
     categorized[category].push({ name: taskName, ...taskData });
@@ -354,6 +356,18 @@ Some tasks do not consume the running input (such as HttpTask and WebsocketTask)
       markdown += '---\n\n';
     }
   }
+
+  markdown += `## Retired Compatibility Fields
+
+### SecretsTask
+
+\`SecretsTask\` and oneof field \`47\` remain in the protobuf schema only so historical jobs decode with identical bytes and feed identities. The task is retired and always fails before making a network request. Field \`47\` must never be reused.
+
+Use [Data Feed Variable Overrides](advanced-feed-configuration/data-feed-variable-overrides.md) to provide request-scoped API keys and other authentication values.
+
+---
+
+`;
 
   markdown += `## Next Steps
 
