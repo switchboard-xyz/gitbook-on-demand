@@ -40,6 +40,9 @@ Surge provides the `emitSurgeQuote()` function from `@switchboard-xyz/sui-sdk` t
 - Oracle signature formatting
 - Transaction building
 - Quote verification setup
+- Queue-fee resolution when the verifier queue charges a fee
+
+If the queue fee is `0`, no extra parameters are needed. If the queue accepts SUI as a fee type, the SDK auto-splits the exact fee from transaction gas. Otherwise pass `{ feeCoin, feeType }` as the optional fourth argument to `emitSurgeQuote()`.
 
 ### Oracle Mapping
 
@@ -318,7 +321,7 @@ const result = await suiClient.signAndExecuteTransaction({
 });
 ```
 
-The `emitSurgeQuote()` function handles converting the Surge response into a valid Sui transaction.
+The `emitSurgeQuote()` function handles converting the Surge response into a valid Sui transaction. Existing calls stay unchanged for queues with `fee == 0`. If the queue requires a non-SUI fee coin, call `emitSurgeQuote(switchboardClient, transaction, rawResponse, { feeCoin, feeType })` instead.
 
 ## Mainnet vs Testnet
 

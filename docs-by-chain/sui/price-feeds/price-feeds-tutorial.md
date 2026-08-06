@@ -438,6 +438,27 @@ async function main() {
 main().catch(console.error);
 ```
 
+> **Queue fees:** This example remains correct when the oracle queue fee is `0`. If the queue charges a quote-verifier fee and accepts SUI, the SDK automatically splits the exact fee from `updateTx.gas`. If the queue requires a non-SUI fee coin, pass both `feeCoin` and `feeType` to `Quote.fetchUpdateQuote()`.
+
+```typescript
+import { Queue } from "@switchboard-xyz/sui-sdk";
+
+const queue = await new Queue(sb, state.oracleQueueId).loadData();
+const [feeCoin] = updateTx.splitCoins(
+  updateTx.object(nonSuiFeeCoinObjectId),
+  [queue.fee]
+);
+
+const quotes = await Quote.fetchUpdateQuote(sb, updateTx, {
+  feedHashes: [config.feedHash],
+  numOracles: config.numOracles,
+  feeCoin,
+  feeType: "0x...::usdc::USDC",
+});
+```
+
+`feeCoin` must be an exact-amount `Coin<T>` for a type listed in `queue.feeTypes`. The queue controls both the fee amount and accepted fee types on-chain.
+
 ### Client Walkthrough
 
 #### Step 1: Create QuoteConsumer
@@ -465,7 +486,7 @@ const quotes = await Quote.fetchUpdateQuote(sb, updateTx, {
 });
 ```
 
-`Quote.fetchUpdateQuote()` contacts Crossbar to get signed price data from multiple oracles. The `quotes` object is added to the transaction automatically.
+`Quote.fetchUpdateQuote()` contacts Crossbar to get signed price data from multiple oracles. The `quotes` object is added to the transaction automatically. Existing examples stay unchanged when `queue.fee == 0`. For paid queues, the SDK auto-splits SUI from gas when SUI is an accepted fee type; otherwise you must provide `feeCoin` and `feeType` for an allowed non-SUI fee coin.
 
 #### Step 3: Update Price
 
