@@ -64,6 +64,32 @@ const response = await gateway.fetchSignaturesConsensus({
 
 Placeholder names are case-sensitive and must match the map key exactly. Use environment variables or a secret manager as the source of credential values. Never hardcode credentials in a job, commit them, include them in errors, or log override values.
 
+## Sui SDK Update Transactions
+
+Pass the override map in the options object when building a Sui update transaction with `fetchManyUpdateTx`:
+
+```typescript
+import { Aggregator } from "@switchboard-xyz/sui-sdk";
+
+const apiKey = process.env.MARKET_DATA_API_KEY;
+if (!apiKey) {
+  throw new Error("MARKET_DATA_API_KEY is required");
+}
+
+await Aggregator.fetchManyUpdateTx(
+  switchboardClient,
+  aggregatorIds,
+  tx,
+  {
+    variableOverrides: {
+      MARKET_DATA_API_KEY: apiKey,
+    },
+  },
+);
+```
+
+Use the same `variableOverrides` option with an aggregator instance's `fetchUpdateTx` method when updating one feed. Every aggregator in one `fetchManyUpdateTx` call shares the same override map, so use separate calls when feeds require credentials from different customers or security domains. An empty or omitted map uses the standard update path.
+
 ## Semantic Overrides
 
 Semantic overrides are valid for a controlled caller. For example, a backend that owns the request and whose consumers trust its market selection can use:
