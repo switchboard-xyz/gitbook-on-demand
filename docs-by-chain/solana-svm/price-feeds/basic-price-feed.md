@@ -114,9 +114,7 @@ pub struct ReadOracleData<'info> {
 /// System variables required for oracle verification
 #[derive(Accounts)]
 pub struct Sysvars<'info> {
-    pub clock: Sysvar<'info, Clock>,
-    pub slothashes: Sysvar<'info, SlotHashes>,
-    pub instructions: Sysvar<'info, Instructions>,
+    pub clock: Sysvar<'info, Clock>
 }
 ```
 
