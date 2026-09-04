@@ -12,3 +12,5 @@ Think of a Queue as:
 Queues have an important key characteristic:
 
 * Each data feed _must_ belong to **one**, and only **one**, Queue.
+
+Most integrations use the shared Switchboard queues and never create one. If you need your own — to control which oracles serve your feeds, or to pin the software they run — see [Running your own Queue](../switchboard-protocol/running-your-own-queue/).
