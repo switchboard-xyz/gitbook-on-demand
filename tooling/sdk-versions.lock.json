@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "baseline_date": "2026-07-30",
+  "baseline_date": "2026-08-18",
   "policy": {
     "pinning": "exact",
     "scope": "current flows and supported classic PullFeed compatibility",
@@ -24,7 +24,7 @@
       "@switchboard-xyz/iota-sdk": "0.0.3"
     },
     "crates": {
-      "switchboard-on-demand": "0.13.0",
+      "switchboard-on-demand": "0.14.0",
       "switchboard-protos": "0.2.6"
     }
   },
@@ -38,6 +38,7 @@
       "@coral-xyz/anchor": "0.31.1"
     },
     "crates": {
+      "anchor-lang": "1.1.2",
       "pinocchio": "0.11.2"
     }
   },

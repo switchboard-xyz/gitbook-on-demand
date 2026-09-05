@@ -2,11 +2,32 @@
 
 This page is the version reference for Switchboard docs, examples, and verifier tooling.
 
-- Baseline date: **July 30, 2026**
+- Baseline date: **August 18, 2026**
 - Source of truth: [`tooling/sdk-versions.lock.json`](sdk-versions.lock.json)
 - The lock file now tracks two different views:
   - `sdk_versions` / `companion_versions`: the **canonical docs pin set** used by current docs and compatibility checks
   - `observed_example_versions`: the **exact versions currently pinned in the checked-in `sb-on-demand-examples` manifests**
+
+## Rust Program Compatibility
+
+| `switchboard-on-demand` | `anchor-lang` | Solana line | Usage |
+| --- | --- | --- | --- |
+| `0.14.x` | `1.1.2` | Solana 3 | New Anchor programs |
+| `0.13.x` | `0.31.x` | Solana 2 | Existing Anchor 0.31 programs and current examples |
+
+Anchor 1.1.2 programs should disable default features so the Solana 2 default
+does not conflict with Anchor's Solana 3 types:
+
+```toml
+[dependencies]
+anchor-lang = "=1.1.2"
+switchboard-on-demand = { version = "0.14.0", default-features = false, features = ["anchor"] }
+```
+
+SDK 0.14 requires Rust 1.89 or newer. Forward
+`switchboard-on-demand/idl-build` when generating an Anchor IDL. Do not combine
+the on-chain `anchor` feature with the off-chain `client` or `client-v3`
+features in one crate; use separate program and service crates.
 
 ## Observed Versions In Current Examples
 
@@ -34,7 +55,7 @@ These are the current docs pins. Example-backed pins match the observed versions
 | `@switchboard-xyz/sui-sdk` | `0.1.16` | Matches current Sui examples. |
 | `@switchboard-xyz/aptos-sdk` | `0.1.5` | Used by the Aptos and Movement docs. |
 | `@switchboard-xyz/iota-sdk` | `0.0.3` | Current docs pin. |
-| `switchboard-on-demand` | `0.13.0` | Matches current Rust examples. |
+| `switchboard-on-demand` | `0.14.0` | Anchor 1.1.2 and Solana 3 program line. |
 | `switchboard-protos` | `0.2.6` | Matches the current prediction-market example. |
 
 ## Companion Dependencies
@@ -47,6 +68,7 @@ These are the current docs pins. Example-backed pins match the observed versions
 | `@iota/iota-sdk` | `1.11.0` | Iota smoke projects. |
 | `ethers` | `6.13.1` | Matches the current EVM price-feeds example manifest. |
 | `@coral-xyz/anchor` | `0.31.1` | Matches the current Solana example manifests. |
+| `anchor-lang` | `1.1.2` | Rust crate used by `switchboard-on-demand` 0.14 Anchor programs. |
 | `pinocchio` | `0.11.2` | Matches the advanced Solana price-feed example. |
 
 ## Toolchain Baseline
@@ -68,5 +90,5 @@ These are the current docs pins. Example-backed pins match the observed versions
 - When upgrading from Common `5.8.4`, common-legacy `1.1.0`, or on-demand `3.10.5`, update all three compatible pins together and refresh the application lockfile with its normal package-manager install command.
 - on-demand installs common-legacy transitively. Add common-legacy as a direct dependency only when your code imports `LegacyCrossbarClient`.
 - `@mysten/sui` latest `2.x` still breaks the import surface used in current docs/examples, so `1.38.0` remains pinned.
-- Current Solana Rust examples use `switchboard-on-demand = "0.13.0"`. The advanced Pinocchio price-feed example uses `pinocchio = "0.11.2"` and the `AccountView` API.
+- Current Solana Rust examples remain on `switchboard-on-demand = "0.13.0"` and Anchor 0.31. The 0.14 line is for Anchor 1.1.2 programs. The advanced Pinocchio price-feed example uses `pinocchio = "0.11.2"` and the `AccountView` API.
 - `sui/feeds/basic` defaults its checked-in `Move.toml` to testnet. Use the explicit `build:testnet`, `build:mainnet`, `deploy:testnet`, and `deploy:mainnet` scripts when documenting or verifying flows.
